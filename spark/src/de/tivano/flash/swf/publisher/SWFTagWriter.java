@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagWriter.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
+ * $Id: SWFTagWriter.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -68,6 +68,9 @@ public abstract class SWFTagWriter {
 	HEADER.write(out);
 	writeData(out);
     }
+
+    /** Get the SWF type ID for this structure */
+    public int getTypeID() { return HEADER.getID(); }
 
     /**
      * Get the length (excluding the header) in bytes.

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.8 2001/06/01 17:25:53 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.9 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -157,7 +157,7 @@ public class SWFTagHeader {
      * not in the range 0 to 4294967295 (2<super>32</super>-1)
      */
     public void setRecordLength(long length) {
-	if (length < 0 || length >= 1 << 32) throw new IllegalArgumentException
+	if (length < 0 || length >= 1L << 32) throw new IllegalArgumentException
 	    ("length " + length + " is outside the allowed range of 0..2^32");
 	this.length = length;
     }
@@ -176,12 +176,12 @@ public class SWFTagHeader {
      * @exception IOException if an I/O error occurs.
      */
     public void write(BitOutputStream out) throws IOException {
-	short tmp = (short)(getID() << 6);
+	int tmp = getID() << 6;
 	if (getRecordLength() < 63) {
-	    tmp |= 0x3f;
+	    tmp |= getRecordLength();
 	    out.writeW16LSB(tmp);
 	} else {
-	    tmp |= getRecordLength();
+	    tmp |= 0x3f;
 	    out.writeW16LSB(tmp);
 	    out.writeW32LSB((int)getRecordLength());
 	}

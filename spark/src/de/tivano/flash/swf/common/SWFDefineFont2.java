@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.6 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -206,7 +206,7 @@ import java.io.EOFException;
  */
 public class SWFDefineFont2 extends SWFDataTypeBase {
     /** The SWF tag type of this class */
-    public static final int TAG_TYPE = 48;
+    public static final int TAG_TYPE = SWFTypes.DEFINE_FONT2;
     
     /** Helper structure to hold the kerning information */
     public static class KerningRecord {

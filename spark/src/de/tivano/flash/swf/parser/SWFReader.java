@@ -17,12 +17,16 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.7 2001/06/09 17:23:59 kunze Exp $
+ * $Id: SWFReader.java,v 1.8 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
 
-import de.tivano.flash.swf.common.*;
+import de.tivano.flash.swf.common.SWFTypes;
+import de.tivano.flash.swf.common.SWFTagHeader;
+import de.tivano.flash.swf.common.SWFFileHeader;
+import de.tivano.flash.swf.common.SWFFormatException;
+import de.tivano.flash.swf.common.BitInputStream;
 
 import org.xml.sax.XMLReader;
 import org.xml.sax.ContentHandler;
@@ -93,14 +97,22 @@ public class SWFReader implements XMLReader {
 	// Setup the default tag handlers
 	registerTagReader(TAGID_DEFAULT,
 			  new SWFAnyTagReader());
-	registerTagReader(SWFDefineFont2.TAG_TYPE,
+	// Ignore the SWF "End" tag. It's implicityl created by the
+	// publisher...
+	registerTagReader(SWFTypes.END, new SWFIgnoreTagReader());
+
+	// Now for the real tags...
+	registerTagReader(SWFTypes.SHOW_FRAME, new SWFShowFrameReader());
+	/*
+	registerTagReader(SWTypes.DEFINE_FONT2,
 			  new SWFDefineFont2Reader());
-	registerTagReader(SWFDefineFont.TAG_TYPE,
+	registerTagReader(SWFTypes.DEFINE_FONT,
 			  new SWFDefineFontReader());
-	registerTagReader(SWFDefineFontInfo.TAG_TYPE,
+	registerTagReader(SWFTypes.DEFINE_FONTINFO,
 			  new SWFDefineFontInfoReader());
-	registerTagReader(SWFDefineTextField.TAG_TYPE,
+	registerTagReader(SWFTypes.DEFINE_TEXTFIELD,
 			  new SWFDefineTextFieldReader());
+	*/
     }
 
     /**

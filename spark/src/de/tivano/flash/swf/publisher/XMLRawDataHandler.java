@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLRawDataHandler.java,v 1.1 2001/06/06 18:57:46 kunze Exp $
+ * $Id: XMLRawDataHandler.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -83,7 +83,8 @@ public class XMLRawDataHandler extends SWFTagHandlerBase {
      */
     protected void endElement() throws SWFWriterException {
 	try {
-	    decoder.flush();
+	    decoder.close();
+	    super.endElement();
 	} catch (IOException e) {
 	    fatalError("Error flushing the decoder stream", e);
 	}

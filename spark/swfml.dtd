@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.9 2001/06/01 08:40:07 kunze Exp $ -->
+<!-- $Id: swfml.dtd,v 1.10 2001/06/11 18:34:05 kunze Exp $ -->
 <!ENTITY % boolean "(true|false|on|off|yes|no|TRUE|FALSE|ON|OFF|YES|NO)">
 
 <!-- Toplevel element for SWF data -->
-<!ELEMENT SWF (FrameSize, FramePos?,
-              (RawData |
+<!ELEMENT SWF (RawData |
                Font |
                Text |
                TextInput)*)
@@ -12,18 +11,11 @@
 <!ATTLIST SWF
           version   CDATA   #REQUIRED
           framerate CDATA   #REQUIRED
+          width     CDATA   #REQUIRED
+          height    CDATA   #REQUIRED
+          x         CDATA   #IMPLIED
+          y         CDATA   #IMPLIED
 >
-<!ELEMENT FrameSize EMPTY>
-<!ATTLIST FrameSize
-          width  CDATA #REQUIRED
-          height CDATA #REQUIRED
->
-<!ELEMENT FramePos EMPTY>
-<!ATTLIST FramePos
-          x CDATA #REQUIRED
-          y CDATA #REQUIRED
->
-
 
 <!-- Catch-all tag for unkown SWF data elements. Simply holds
      the base64-encoded contents of the corresponding SWF data chunk.
@@ -32,6 +24,9 @@
 <!ATTLIST RawData
           type CDATA #REQUIRED
 >
+
+<!-- Marks the end of the current frame -->
+<!ELEMENT ShowFrame EMPTY>
 
 <!-- Editable text field -->
 <!ELEMENT TextInput Text>

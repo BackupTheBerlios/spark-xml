@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Base64Decoder.java,v 1.1 2001/06/06 18:57:46 kunze Exp $
+ * $Id: Base64Decoder.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -74,8 +74,10 @@ public class Base64Decoder {
 	    out.writeBits(62, 6);
 	} else if (data == '/') {
 	    out.writeBits(63, 6);
-	} else if (Character.isSpace(data) || data == '=') {
-	    // Ignore whitespace and the padding character
+	} else if (data == '=') {
+	    out.discardRemainingBits();
+	} else if (Character.isSpace(data)) {
+	    // Ignore whitespace
 	} else {
 	    throw new IllegalArgumentException(
 		  "Not a legal base64 character: " + data);

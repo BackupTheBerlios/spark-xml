@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFontInfo.java,v 1.2 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFDefineFontInfo.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -122,7 +122,7 @@ import java.io.EOFException;
  */
 public class SWFDefineFontInfo extends SWFDataTypeBase {
     /** The SWF tag type of this class */
-    public static final int TAG_TYPE = 13;
+    public static final int TAG_TYPE = SWFTypes.DEFINE_FONTINFO;
     
     private byte[] codeTable[];
     private int layout = 0;

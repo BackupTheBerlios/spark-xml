@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLHandlerBase.java,v 1.3 2001/06/09 17:23:59 kunze Exp $
+ * $Id: XMLHandlerBase.java,v 1.4 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -110,7 +110,7 @@ public abstract class XMLHandlerBase {
     protected void dispatch(String name, Attributes attrib)
 	      throws SWFWriterException {
 	XMLHandlerBase handler = (XMLHandlerBase)handlerMap.get(name);
-	if (handler != null) handler.startElement(name, attrib);
+	if (handler != null) handler.startElement(name, attrib, this);
 	else dispatchDefault(name, attrib);
     }
 

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHandlerBase.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
+ * $Id: SWFTagHandlerBase.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -55,5 +55,4 @@ public abstract class SWFTagHandlerBase extends XMLHandlerBase {
 	getSWFWriter().addData(createDataObject());
 	super.endElement();
     }
-
 }

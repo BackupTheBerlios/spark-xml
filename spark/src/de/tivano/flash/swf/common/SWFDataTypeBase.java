@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDataTypeBase.java,v 1.2 2001/06/01 08:40:07 kunze Exp $
+ * $Id: SWFDataTypeBase.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -72,7 +72,7 @@ public abstract class SWFDataTypeBase implements SWFDataType {
      */
     protected static int minBitsS(long val) {
 	if (val<0) val = -val;
-	return minBitsU(val);
+	return minBitsU(val) + 1;
     }
 
     /**

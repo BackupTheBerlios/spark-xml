@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextField.java,v 1.1 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFDefineTextField.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -198,7 +198,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class SWFDefineTextField extends SWFDataTypeBase {
     /** The SWF tag type of this class */
-    public static final int TAG_TYPE = 37;
+    public static final int TAG_TYPE = SWFTypes.DEFINE_TEXTFIELD;
 
     /** Text alignment constants */
     public static final int ALIGN_LEFT    = 0;

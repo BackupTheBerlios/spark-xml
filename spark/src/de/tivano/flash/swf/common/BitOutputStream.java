@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitOutputStream.java,v 1.3 2001/05/23 14:58:14 kunze Exp $
+ * $Id: BitOutputStream.java,v 1.4 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -141,6 +141,14 @@ public class BitOutputStream extends FilterOutputStream {
      * and 7.
      */
     public int countRemainingBits() { return (8-bitsLeft)%8; }
+
+    /**
+     * Discard the bits written since the last byte boundary.
+     */
+    public void discardRemainingBits() {
+	bitsLeft = 0;
+	buffer   = 0;
+    }
 
     /**
      * Check if the current read position is at a byte boundary with

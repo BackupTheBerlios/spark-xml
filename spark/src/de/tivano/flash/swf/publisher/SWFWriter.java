@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.3 2001/06/09 17:23:59 kunze Exp $
+ * $Id: SWFWriter.java,v 1.4 2001/06/11 18:34:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -33,7 +33,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import de.tivano.flash.swf.common.BitOutputStream;
 import de.tivano.flash.swf.common.SWFFileHeader;
+import de.tivano.flash.swf.common.SWFTagHeader;
 import de.tivano.flash.swf.common.SWFRectangle;
+import de.tivano.flash.swf.common.SWFTypes;
 
 /**
  * The main SWF publisher class.
@@ -100,6 +102,7 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	// Setup the default XML element handler map.
 	registerElementHandler("SWF", this);
 	registerElementHandler("RawData", new XMLRawDataHandler());
+	registerElementHandler("ShowFrame", new XMLShowFrameHandler());
     }
 
     /**
@@ -162,12 +165,21 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	    throw new IllegalStateException("No output stream specified!");
 
 	Iterator data = swfData.iterator();
-	long totalSize = 0;
+	// Implicitly create the SWF "End" tag. This is simply an SWF
+	// tag header with appropriate ID and no data...
+	SWFTagHeader endTag = new SWFTagHeader(SWFTypes.END, 0);
+	long totalSize = endTag.length() / 8;
+
+	// Calculate the total length and count the frames...
+	int frameCount = 0;
 	while (data.hasNext()) {
-	    totalSize += ((SWFTagWriter)data.next()).getTotalLength();
+	    SWFTagWriter tag = (SWFTagWriter)data.next();
+	    totalSize += tag.getTotalLength();
+	    if (tag.getTypeID() == SWFTypes.SHOW_FRAME) frameCount++;
 	}
 
 	try {
+	    fileHeader.setFrameCount(frameCount);
 	    // Total file size includes the header length (which gets
 	    // returned in bits but is always a multiple of 8)
 	    fileHeader.setFileSize(totalSize + fileHeader.length() / 8);
@@ -176,6 +188,9 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	    while (data.hasNext()) {
 		((SWFTagWriter)data.next()).write(out);
 	    }
+	    endTag.write(out);
+	    if (closeOut) out.close();
+	    else out.padAndFlush();
 	} catch (IOException e) {
 	    throw new SWFWriterException("Error writing data", locator, e);
 	}
@@ -277,4 +292,5 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 			       (int)Math.round(x), (int)Math.round(x+width),
 			       (int)Math.round(y), (int)Math.round(y+height)));
     }
+
 }
