@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFileHeader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
+ * $Id: SWFFileHeader.java,v 1.4 2001/03/19 11:53:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -52,7 +52,8 @@ import java.util.Arrays;
  * <tr>
  *   <td>File Length</td>
  *   <td>32</td>
- *   <td>Length of the entire file in bytes, unsigned 32 bit word</td>
+ *   <td>Length of the entire file in bytes, unsigned 32 bit word in
+ *   LSB order</td>
  * </tr>
  * <tr>
  *   <td>Frame Size</td>
@@ -65,12 +66,14 @@ import java.util.Arrays;
  * <tr>
  *   <td>Frame Rate</td>
  *   <td>16</td>
- *   <td>Frame rate in frames per second, unsigned 16 bit word</td>
+ *   <td>Frame rate in frames per second, unsigned 16 bit word in LSB
+ *   order.</td> 
  * </tr>
  * <tr>
  *   <td>Frame Count</td>
  *   <td>16</td>
- *   <td>Total number of frames in the movie, unsigned 16 bit word</b>
+ *   <td>Total number of frames in the movie, unsigned 16 bit word in
+ *   LSB order</b>
  * </tr>
  * </table>
  * @author Richard Kunze
@@ -116,14 +119,14 @@ public class SWFFileHeader {
 	byte[] signature = new byte[SIGNATURE.length];
 	boolean failed = false;
 	// Read the data.
-	try {
+	try {	    
 	    input.read(signature);
 	    VERSION      = input.readUByte();
-	    FILE_SIZE    = input.readUW32();
+	    FILE_SIZE    = input.readUW32LSB();
 	    BOUNDING_BOX = new SWFRectangle(input);
 	    input.skipToByteBoundary();
-	    FRAME_RATE   = input.readUW16();
-	    FRAME_COUNT  = input.readUW16();
+	    FRAME_RATE   = input.readUW16LSB();
+	    FRAME_COUNT  = input.readUW16LSB();
 	} catch (EOFException e) {
 	    // Not enough data for the header, Can't be an SWF file
 	    throw new SWFFormatException(FAIL_MSG);

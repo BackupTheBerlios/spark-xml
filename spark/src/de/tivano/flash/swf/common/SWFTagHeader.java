@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.4 2001/03/19 11:53:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -40,7 +40,8 @@ import java.io.InputStream;
  * the first 16 bit word. The 6 low order bits hold the record length
  * for short headers and the value <code>0x3f</code> for long
  * headers. The record size of a long header is encoded in a 32 bit
- * unsigned integer following the first 16 bit word.</p>
+ * unsigned integer following the first 16 bit word. All values are
+ * stored in LSB (least significabnt byte first) order.</p>
  *
  * <p><code>SWFTagHeader</code> transparently handles reading and
  * writing both header types.</p>
@@ -76,15 +77,13 @@ public class SWFTagHeader {
 	if (!input.isAtByteBoundary())
 	    throw new SWFFormatException("Tag headers must be byte-aligned");
 	
-	try {
-	    ID = new Integer((int)input.readUBits(10));
-	    lengthTmp = input.readUBits(6);
-	} catch (EOFException e) {
-	    throw new SWFFormatException("Could not read 16 bit header word");
-	}
+	int tmp = input.readUW16LSB();
+	ID = new Integer(tmp >>> 6);
+	lengthTmp = tmp & 0x3f;
+	
 	if (lengthTmp == LONG_HEADER_FLAG) {
 	    try {
-		lengthTmp = input.readUW32();
+		lengthTmp = input.readUW32LSB();
 	    } catch (EOFException e) {
 		throw new SWFFormatException(
 			    "Could not read 32bit record length");

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitInputStreamTest.java,v 1.1 2001/03/14 12:27:11 kunze Exp $
+ * $Id: BitInputStreamTest.java,v 1.2 2001/03/19 11:53:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -37,7 +37,7 @@ public class BitInputStreamTest extends TestCase {
 
     /** Bit patterns for testing the readUXXX() methods */
     private static final int[] PATTERNS = {
-	0x00, 0xff, 0x55, 0xaa, 0x33, 0xcc
+	0x00, 0xff, 0x55, 0xaa, 0x33, 0xcc, 0xff00
     };
 
     /** the input stream for testing */
@@ -53,8 +53,15 @@ public class BitInputStreamTest extends TestCase {
     public BitInputStreamTest(String name, int pat) {
 	super(name);
 	pattern = new byte[ARRAY_LENGTH];
-	for (int i=0; i<pattern.length; i++) {
-	    pattern[i] = (byte)pat;
+	if (pat <= 0xFF) {
+	    for (int i=0; i<pattern.length; i++) {
+		pattern[i] = (byte)pat;
+	    }
+	} else {
+	    for (int i=0; i<(pattern.length/2)*2; i+=2) {
+		pattern[i]   = (byte) (pat >> 8);
+		pattern[i+1] = (byte) (pat & 0xFF);
+	    }
 	}
     }
 
@@ -74,7 +81,11 @@ public class BitInputStreamTest extends TestCase {
      * bit position <code>pos</code>, with sign expansion.
      */
     private long readSBits(int n, int pos) {
-	long unsigned = readUBits(n, pos);
+	return signExpand(readUBits(n, pos), n);
+    }
+
+    /** Expand the sign of an <code>n</code>-bit value */
+    private long signExpand(long unsigned, int n) {
 	long wrap = 1L<<(n-1);
 	if (unsigned >= wrap) {
 	    return -2 * wrap + unsigned;
@@ -170,35 +181,72 @@ public class BitInputStreamTest extends TestCase {
     }
 
     /**
-     * Test <code>readUW16()</code>.
+     * Test <code>readUW16MSB()</code>.
      */
-    public void testReadUW16() throws Exception {
+    public void testReadUW16MSB() throws Exception {
 	for (int i=0; i<pattern.length*8; i+=16) {
 	    int expected = (int)readUBits(16, i);
-	    int actual   = stream.readUW16();
+	    int actual   = stream.readUW16MSB();
 	    assertEquals("at position " + i, expected, actual);
 	}
 	
 	// finally, try to read beyond the end of the stream
 	try {
-	    stream.readUW16();
+	    stream.readUW16MSB();
 	    fail("Expected an EOFException");
 	} catch (EOFException e) {}
     }
 
     /**
-     * Test <code>readUW32()</code>.
+     * Test <code>readUW16LSB()</code>.
      */
-    public void testReadUW32() throws Exception {
-	for (int i=0; i<pattern.length*8; i+=32) {
-	    long expected = readUBits(32, i);
-	    long actual   = stream.readUW32();
+    public void testReadUW16LSB() throws Exception {
+	for (int i=0; i<pattern.length*8; i+=16) {
+	    int expected = (int)(readUBits(8, i) | readUBits(8, i+8) << 8);
+	    int actual   = stream.readUW16LSB();
 	    assertEquals("at position " + i, expected, actual);
 	}
 	
 	// finally, try to read beyond the end of the stream
 	try {
-	    stream.readUW32();
+	    stream.readUW16LSB();
+	    fail("Expected an EOFException");
+	} catch (EOFException e) {}
+    }
+
+    /**
+     * Test <code>readUW32MSB()</code>.
+     */
+    public void testReadUW32LSB() throws Exception {
+	for (int i=0; i<pattern.length*8; i+=32) {
+	    long expected = readUBits(8, i) |
+		            readUBits(8, i+8)  << 8 |
+		            readUBits(8, i+16) << 16 |
+		            readUBits(8, i+24) << 24;
+	    long actual   = stream.readUW32LSB();
+	    assertEquals("at position " + i, expected, actual);
+	}
+	
+	// finally, try to read beyond the end of the stream
+	try {
+	    stream.readUW32LSB();
+	    fail("Expected an EOFException");
+	} catch (EOFException e) {}
+    }
+    
+    /**
+     * Test <code>readUW32LSB()</code>.
+     */
+    public void testReadUW32MSB() throws Exception {
+	for (int i=0; i<pattern.length*8; i+=32) {
+	    long expected = readUBits(32, i);
+	    long actual   = stream.readUW32MSB();
+	    assertEquals("at position " + i, expected, actual);
+	}
+	
+	// finally, try to read beyond the end of the stream
+	try {
+	    stream.readUW32MSB();
 	    fail("Expected an EOFException");
 	} catch (EOFException e) {}
     }
@@ -221,35 +269,75 @@ public class BitInputStreamTest extends TestCase {
     }
 
     /**
-     * Test <code>readSW16()</code>.
+     * Test <code>readSW16MSB()</code>.
      */
-    public void testReadSW16() throws Exception {
+    public void testReadSW16MSB() throws Exception {
 	for (int i=0; i<pattern.length*8; i+=16) {
 	    int expected = (int)readSBits(16, i);
-	    int actual   = stream.readSW16();
+	    int actual   = stream.readSW16MSB();
 	    assertEquals("at position " + i, expected, actual);
 	}
 	
 	// finally, try to read beyond the end of the stream
 	try {
-	    stream.readSW16();
+	    stream.readSW16MSB();
 	    fail("Expected an EOFException");
 	} catch (EOFException e) {}
     }
 
     /**
-     * Test <code>readSW32()</code>.
+     * Test <code>readSW16LSB()</code>.
      */
-    public void testReadSW32() throws Exception {
-	for (int i=0; i<pattern.length*8; i+=32) {
-	    long expected = readSBits(32, i);
-	    long actual   = stream.readSW32();
+    public void testReadSW16LSB() throws Exception {
+	for (int i=0; i<pattern.length*8; i+=16) {
+	    int expected = (int)signExpand(readUBits(8, i) |
+					   readUBits(8, i+8) << 8,
+					   16);
+	    int actual   = stream.readSW16LSB();
 	    assertEquals("at position " + i, expected, actual);
 	}
 	
 	// finally, try to read beyond the end of the stream
 	try {
-	    stream.readSW32();
+	    stream.readSW16LSB();
+	    fail("Expected an EOFException");
+	} catch (EOFException e) {}
+    }
+
+    /**
+     * Test <code>readSW32MSB()</code>.
+     */
+    public void testReadSW32MSB() throws Exception {
+	for (int i=0; i<pattern.length*8; i+=32) {
+	    long expected = readSBits(32, i);
+	    long actual   = stream.readSW32MSB();
+	    assertEquals("at position " + i, expected, actual);
+	}
+	
+	// finally, try to read beyond the end of the stream
+	try {
+	    stream.readSW32MSB();
+	    fail("Expected an EOFException");
+	} catch (EOFException e) {}
+    }
+
+    /**
+     * Test <code>readSW32LSB()</code>.
+     */
+    public void testReadSW32LSB() throws Exception {
+	for (int i=0; i<pattern.length*8; i+=32) {
+	    long expected = signExpand(readUBits(8, i) |
+				       readUBits(8, i+8) << 8 |
+				       readUBits(8, i+16) << 16 |
+				       readUBits(8, i+24) << 24,
+				       32);
+	    long actual   = stream.readSW32LSB();
+	    assertEquals("at position " + i, expected, actual);
+	}
+	
+	// finally, try to read beyond the end of the stream
+	try {
+	    stream.readSW32LSB();
 	    fail("Expected an EOFException");
 	} catch (EOFException e) {}
     }
@@ -641,18 +729,34 @@ public class BitInputStreamTest extends TestCase {
 		};
 	    suite.addTest(test);
 
-	    name = header + "readUW16()";
+	    name = header + "readUW16MSB()";
 	    test = new BitInputStreamTest(name, PATTERNS[p]) {
 		    public void runTest() throws Exception {
-			this.testReadUW16();
+			this.testReadUW16MSB();
 		    }
 		};
 	    suite.addTest(test);
 
-	    name = header + "readUW32()";
+	    name = header + "readUW32MSB()";
 	    test = new BitInputStreamTest(name, PATTERNS[p]) {
 		    public void runTest() throws Exception {
-			this.testReadUW32();
+			this.testReadUW32MSB();
+		    }
+		};
+	    suite.addTest(test);
+
+	    name = header + "readUW16LSB()";
+	    test = new BitInputStreamTest(name, PATTERNS[p]) {
+		    public void runTest() throws Exception {
+			this.testReadUW16LSB();
+		    }
+		};
+	    suite.addTest(test);
+
+	    name = header + "readUW32LSB()";
+	    test = new BitInputStreamTest(name, PATTERNS[p]) {
+		    public void runTest() throws Exception {
+			this.testReadUW32LSB();
 		    }
 		};
 	    suite.addTest(test);
@@ -665,18 +769,34 @@ public class BitInputStreamTest extends TestCase {
 		};
 	    suite.addTest(test);
 
-	    name = header + "readSW16()";
+	    name = header + "readSW16MSB()";
 	    test = new BitInputStreamTest(name, PATTERNS[p]) {
 		    public void runTest() throws Exception {
-			this.testReadSW16();
+			this.testReadSW16MSB();
 		    }
 		};
 	    suite.addTest(test);
 
-	    name = header + "readSW32()";
+	    name = header + "readSW32MSB()";
 	    test = new BitInputStreamTest(name, PATTERNS[p]) {
 		    public void runTest() throws Exception {
-			this.testReadSW32();
+			this.testReadSW32MSB();
+		    }
+		};	    
+	    suite.addTest(test);
+	    
+	    name = header + "readSW16LSB()";
+	    test = new BitInputStreamTest(name, PATTERNS[p]) {
+		    public void runTest() throws Exception {
+			this.testReadSW16LSB();
+		    }
+		};
+	    suite.addTest(test);
+
+	    name = header + "readSW32LSB()";
+	    test = new BitInputStreamTest(name, PATTERNS[p]) {
+		    public void runTest() throws Exception {
+			this.testReadSW32LSB();
 		    }
 		};
 	    suite.addTest(test);

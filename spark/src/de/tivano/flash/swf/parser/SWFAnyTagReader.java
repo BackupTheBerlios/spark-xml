@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAnyTagReader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
+ * $Id: SWFAnyTagReader.java,v 1.4 2001/03/19 11:53:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -71,38 +71,38 @@ public class SWFAnyTagReader extends SWFTagReaderBase {
 	SWFAttributes attrib = createAttributes();
 	attrib.addAttribute("type", SWFAttributes.TYPE_CDATA,
 			    Integer.toString(header.getID()));
-	attrib.addAttribute("lenght", SWFAttributes.TYPE_CDATA,
-			    Long.toString(header.getLength()));
 	startElement("UnknownTag", attrib);
 	long length = header.getLength();
-	long groups = length / 3;
-	int  pos    = 0;
-	for (long i=0; i<groups; i++) {
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    if (pos == LINE_LENGTH) {
-		buffer[pos] = '\n';
-		characters(buffer, 0, buffer.length);
-		pos = 0;
+	if (length > 0) {
+	    long groups = length / 3;
+	    int  pos    = 0;
+	    for (long i=0; i<groups; i++) {
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		if (pos == LINE_LENGTH) {
+		    buffer[pos] = '\n';
+		    characters(buffer, 0, buffer.length);
+		    pos = 0;
+		}
 	    }
+	    switch ((int)length%3) {
+	    case 2:
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(4)<<2];
+		buffer[pos++] = '=';
+		break;
+	    case 1:
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
+		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(2)<<4];
+		buffer[pos++] = '=';
+		buffer[pos++] = '=';
+	    }
+	    buffer[pos] = '\n';
+	    characters(buffer, 0, pos+1);
 	}
-	switch ((int)length%3) {
-	case 2:
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(4)<<2];
-	    buffer[pos++] = '=';
-	    break;
-	case 1:
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-	    buffer[pos++] = BASE64_TABLE[(int)input.readUBits(4)<<4];
-	    buffer[pos++] = '=';
-	    buffer[pos++] = '=';
-	}
-	buffer[pos] = '\n';
-	characters(buffer, 0, pos+1);
 	endElement("UnknownTag");
     }
 }

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!ELEMENT SWF (framesize, framepos, (UnknownTag)*)>
+<!ELEMENT SWF (FrameSize, FramePos?,
+              (UnknownTag |
+               Font)*)
+>
 <!ATTLIST SWF
           version   CDATA   #REQUIRED
           framerate CDATA   #REQUIRED
@@ -11,14 +14,30 @@
           type CDATA #REQUIRED
 >
 
-<!ELEMENT framesize EMPTY>
-<!ATTLIST framesize
+<!ELEMENT FrameSize EMPTY>
+<!ATTLIST FrameSize
           width  CDATA #REQUIRED
           height CDATA #REQUIRED
 >
-<!ELEMENT framepos EMPTY>
-<!ATTLIST framepos
+<!ELEMENT FramePos EMPTY>
+<!ATTLIST FramePos
           x CDATA #REQUIRED
           y CDATA #REQUIRED
 >
 
+<!ELEMENT Font (Glyph*, Kerning*) >
+<!ATTLIST Font
+          fontid   CDATA                                    #REQUIRED
+          name     CDATA                                    #IMPLIED
+          style    (standard | italic | bold | bold-italic) #IMPLIED
+          encoding (ansi | unicode | shift-jis)             #IMPLIED
+          ascent   CDATA                                    #IMPLIED
+          descent  CDATA                                    #IMPLIED
+          leading  CDATA                                    #IMPLIED
+>
+
+<!ELEMENT Glyph (BoundingBox*, (Line | Curve | MoveTo | LineStyle | FillStyle)*) >
+<!ATTLIST Glyph
+          char    CDATA #IMPLIED
+          advance CDATA #IMPLIED
+>

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitInputStream.java,v 1.3 2001/03/14 12:27:11 kunze Exp $
+ * $Id: BitInputStream.java,v 1.4 2001/03/19 11:53:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -77,9 +77,11 @@ public class BitInputStream extends FilterInputStream {
     /**
      * Read up to 56 bits from the stream, interpreted as an unsigned
      * integer.
-     *
-     * <p>This method blocks until input data is available, the end of
-     * the stream is detected, or an exception is thrown.</p>
+     * 
+     * <p>The value is assumed to be in MSB (most significant bit
+     * first) format.  This method blocks until input data is
+     * available, the end of the stream is detected, or an exception
+     * is thrown.</p>
      *
      * @param n the number of bits to read. If <code>n</code> is 0,
      * nothing will be read and 0 will be returned.
@@ -161,8 +163,10 @@ public class BitInputStream extends FilterInputStream {
      * Read up to 56 bits from the stream, interpreted as a signed
      * number in two's complement.
      *
-     * <p>This method blocks until input data is available, the end of
-     * the stream is detected, or an exception is thrown.</p>
+     * <p>The value is assumed to be in MSB (most significant bit
+     * first) format. This method blocks until input data is
+     * available, the end of the stream is detected, or an exception
+     * is thrown.</p>
      *
      * <p>Note: <code>readSBits(1)</code> returns -1 if the bit is set!</p>
      * @param n the number of bits to read.
@@ -178,7 +182,15 @@ public class BitInputStream extends FilterInputStream {
      * @see #countRemainingBits()
      */
     public long readSBits(int n) throws IOException {
-	long val = readUBits(n);
+	return signExpand(readUBits(n), n);
+    }
+
+    /**
+     * Expand the sign of an <code>n</code>-bit value.
+     * @param value the value
+     * @param n the number of bits
+     */
+    private long signExpand(long val, int n) {
 	long wrap = 1L<<(n-1);
 	if (val >= wrap) {
 	    val -= wrap << 1;
@@ -272,7 +284,7 @@ public class BitInputStream extends FilterInputStream {
      */
     public int read() throws IOException {
 	try {
-	    return (int)readUBits(8);
+	    return (bitsLeft==0?super.read():(int)readUBits(8));
 	} catch (EOFException e) {
 	    if (countRemainingBits() > 0) return readToByteBoundary();
 	    else return -1;
@@ -289,8 +301,11 @@ public class BitInputStream extends FilterInputStream {
      */
     public int read(byte[] buffer, int off, int len) throws IOException {
 
+	// Delegate to super.read() if at byte boundary
+	if (bitsLeft==0) return super.read(buffer, off, len);
+
 	// Check explictitly for buffer==null to make sure a
-	// NullPointerException is even when off==len==0. Needed to
+	// NullPointerException is thrown even when off==len==0. Needed to
 	// conform to the InputStream.read() documentation
 	if (buffer==null) throw new NullPointerException();
 
@@ -420,24 +435,52 @@ public class BitInputStream extends FilterInputStream {
     }
     
     /**
-     * Read an unsigned 16 bit word.
+     * Read an unsigned 16 bit word in MSB (most significant byte
+     * first) order.
      * @exception IOException if an IO error occurs
      * @return a value in the range of 0 through 65535
      * @exception EOFException if not enough data is available
      */
-    public int readUW16() throws IOException {
+    public int readUW16MSB() throws IOException {
 	return (int)readUBits(16);
     }
 
     /**
-     * Read an unsigned 32 bit word.
+     * Read an unsigned 16 bit word in LSB (least significant byte
+     * first) order.
+     * @exception IOException if an IO error occurs
+     * @return a value in the range of 0 through 65535
+     * @exception EOFException if not enough data is available
+     */
+    public int readUW16LSB() throws IOException {
+	return (int)(readUBits(8) | readUBits(8) << 8);
+    }
+
+    /**
+     * Read an unsigned 32 bit word in MSB (most significant byte
+     * first) order.
      * @exception IOException if an IO error occurs
      * @return a value in the range of 0 through 4294967295
      * @exception EOFException if not enough data is available
      */
-    public long readUW32() throws IOException {
+    public long readUW32MSB() throws IOException {
 	return readUBits(32);
     }
+
+    /**
+     * Read an unsigned 32 bit word in LSB (least significant byte
+     * first) order.
+     * @exception IOException if an IO error occurs
+     * @return a value in the range of 0 through 4294967295
+     * @exception EOFException if not enough data is available
+     */
+    public long readUW32LSB() throws IOException {
+	return readUBits(8) |
+	       readUBits(8) << 8  |
+	       readUBits(8) << 16 |
+	       readUBits(8) << 24;
+    }
+    
     /**
      * Read a signed byte.
      * @exception IOException if an IO error occurs
@@ -445,28 +488,52 @@ public class BitInputStream extends FilterInputStream {
      * @return a value in the range of -128 through 127
      * @exception EOFException if not enough data is available
      */
-    public int readSByte() throws IOException {
-	return (int)readSBits(8);
+    public byte readSByte() throws IOException {
+	return (byte)readSBits(8);
     }
     
     /**
-     * Read a signed 16 bit word.
+     * Read a signed 16 bit word in MSB (most significant byte
+     * first) order.
      * @exception IOException if an IO error occurs
      * @return a value in the range of -32768 through 32767
      * @exception EOFException if not enough data is available
      */
-    public int readSW16() throws IOException {
-	return (int)readSBits(16);
+    public short readSW16MSB() throws IOException {
+	return (short)readSBits(16);
     }
 
     /**
-     * Read signed 32 bit word.
+     * Read a signed 16 bit word in LSB (least significant byte
+     * first) order.
+     * @exception IOException if an IO error occurs
+     * @return a value in the range of -32768 through 32767
+     * @exception EOFException if not enough data is available
+     */
+    public short readSW16LSB() throws IOException {
+	return (short)signExpand(readUW16LSB(), 16);
+    }
+
+    /**
+     * Read a signed 32 bit word in MSB (most significant byte
+     * first) order.
      * @exception IOException if an IO error occurs
      * @return a value in the range of -2147483648 through 2147483647
      * @exception EOFException if not enough data is available
      */
-    public long readSW32() throws IOException {
-	return readSBits(32);
+    public int readSW32MSB() throws IOException {
+	return (int)readSBits(32);
+    }
+
+    /**
+     * Read a signed 32 bit word in LSB (least significant byte
+     * first) order.
+     * @exception IOException if an IO error occurs
+     * @return a value in the range of -2147483648 through 2147483647
+     * @exception EOFException if not enough data is available
+     */
+    public int readSW32LSB() throws IOException {
+	return (int)signExpand(readUW32LSB(), 32);
     }
 
     /**
