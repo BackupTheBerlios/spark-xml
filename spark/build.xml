@@ -18,7 +18,7 @@
     <!-- Property defaults -->
     <property name="Name" value="Flash2XML"/>
     <property name="name" value="flash2xml"/>
-    <property name="version" value="0.1 pre"/>
+    <property name="version" value="0.2"/>
     <property name="year" value="2001"/>
 
     <echo message="----------- ${Name} ${version} [${year}] ------------"/>
