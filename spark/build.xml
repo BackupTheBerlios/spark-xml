@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE project SYSTEM "project.dtd">
 <!--
-     Build file for the SWF2XML project. Stolen^H^H^H^Hrongly
+     Build file for the FLASH2XML project. Stolen^H^H^H^Hrongly
      inspired by the build file from the Enhydra Zeus project
 -->
 
@@ -16,9 +16,9 @@
     <property file="ant-local.properties" />
 
     <!-- Property defaults -->
-    <property name="Name" value="SWF2XML"/>
-    <property name="name" value="swf2xml"/>
-    <property name="version" value="0.1alpha"/>
+    <property name="Name" value="Flash2XML"/>
+    <property name="name" value="flash2xml"/>
+    <property name="version" value="0.1 pre"/>
     <property name="year" value="2001"/>
 
     <echo message="----------- ${Name} ${version} [${year}] ------------"/>
