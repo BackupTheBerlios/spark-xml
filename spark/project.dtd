@@ -219,7 +219,7 @@
 <!ATTLIST entry
           id ID #IMPLIED
           value CDATA #IMPLIED
-          operation (+ | - | = | now | never) #IMPLIED
+          operation CDATA #IMPLIED
           key CDATA #IMPLIED
           pattern CDATA #IMPLIED
           default CDATA #IMPLIED

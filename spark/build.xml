@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE project SYSTEM "lib/project.dtd">
+<!DOCTYPE project SYSTEM "project.dtd">
 <!--
      Build file for the SWF2XML project. Stolen^H^H^H^Hrongly
      inspired by the build file from the Enhydra Zeus project
@@ -180,9 +180,8 @@
 	<pathelement path="${build.dest}" />
       </classpath>
       <formatter type="plain" />
-
       <batchtest fork="no">
-          <fileset dir="${test.dir}">
+      <fileset dir="${test.dir}">
 	    <include name="**/*Test*.java" />
 	    <exclude name="**/AllTests.java" />
 	  </fileset>
