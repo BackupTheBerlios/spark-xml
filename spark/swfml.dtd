@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.10 2001/06/11 18:34:05 kunze Exp $ -->
-<!ENTITY % boolean "(true|false|on|off|yes|no|TRUE|FALSE|ON|OFF|YES|NO)">
+<!-- $Id: swfml.dtd,v 1.11 2001/07/05 13:12:54 kunze Exp $ -->
+<!-- <!ENTITY % boolean "(true|false|on|off|yes|no|TRUE|FALSE|ON|OFF|YES|NO)"> -->
+<!ENTITY % boolean "(yes|no)">
 
 <!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (RawData |
                Font |
                Text |
-               TextInput)*)
+               TextInput |
+               ShowFrame)*
 >
 <!ATTLIST SWF
           version   CDATA   #REQUIRED
@@ -20,7 +22,7 @@
 <!-- Catch-all tag for unkown SWF data elements. Simply holds
      the base64-encoded contents of the corresponding SWF data chunk.
 -->
-<!ELEMENT RawData #CDATA>
+<!ELEMENT RawData (#PCDATA)>
 <!ATTLIST RawData
           type CDATA #REQUIRED
 >
@@ -29,28 +31,28 @@
 <!ELEMENT ShowFrame EMPTY>
 
 <!-- Editable text field -->
-<!ELEMENT TextInput Text>
+<!ELEMENT TextInput (Text)>
 <!ATTLIST TextInput
-          id         ID        #IMLPIED
-          name       ID        #IMPLIED
-          multiline  %boolean; no
-          password   %boolean; no
-          wordwrap   %boolean; no
+          id         CDATA     #IMPLIED
+          name       CDATA     #IMPLIED
+          multiline  %boolean; "no"
+          password   %boolean; "no"
+          wordwrap   %boolean; "no"
           maxlength  CDATA     #IMPLIED
 >
 
 <!-- Text with layout information -->
-<!ENTITY % inline "(FONT | B | I | SPAN | HSPACE | #CDATA)">
-<!ELEMENT Text ((P, VSPACE?) | %inline;)* >
+<!ENTITY % inline "#PCDATA|FONT|B|I|SPAN|HSPACE">
+<!ELEMENT Text (P, VSPACE?)* >
 <!ATTLIST Text
-          id          ID        #IMPLIED
-          name        ID        #IMPLIED
+          id          CDATA     #IMPLIED
+          name        CDATA     #IMPLIED
           xmin        CDATA     #IMPLIED
           xmax        CDATA     #IMPLIED
           ymin        CDATA     #IMPLIED
           ymax        CDATA     #IMPLIED
-          border      %boolean; no
-          selectable  %boolean; yes
+          border      %boolean; "no"
+          selectable  %boolean; "yes"
           leftmargin  CDATA     #IMPLIED
           rightmargin CDATA     #IMPLIED
           indent      CDATA     #IMPLIED
@@ -61,7 +63,7 @@
 <!-- A Text paragraph -->
 <!ELEMENT P (%inline;)* >
 <!ATTLIST P
-          ALIGN (LEFT | RIGHT | CENTER | JUSTIFY) LEFT
+          ALIGN (LEFT|RIGHT|CENTER|JUSTIFY) "LEFT"
           ID    ID                      #IMPLIED
 >
 
@@ -71,7 +73,7 @@
           FACE  CDATA #IMPLIED
           SIZE  CDATA #IMPLIED
           COLOR CDATA #IMPLIED
-          ID    ID                      #IMPLIED
+          ID    CDATA #IMPLIED
 >
 
 <!-- Bold/italic text and text marker -->
@@ -98,10 +100,10 @@
 -->
 <!ELEMENT Font (Glyph*, Kerning*) >
 <!ATTLIST Font
-          id       ID                                       #REQUIRED
+          id       CDATA                                    #REQUIRED
           name     CDATA                                    #IMPLIED
-          style    (standard | italic | bold | bold-italic) standard
-          encoding (ansi | unicode | shift-jis)             ansi
+          style    (standard | italic | bold | bold-italic) "standard"
+          encoding (ansi | unicode | shift-jis)             "ansi"
           ascent   CDATA                                    #IMPLIED
           descent  CDATA                                    #IMPLIED
           leading  CDATA                                    #IMPLIED
@@ -112,7 +114,7 @@
      glyphs in the corresponding Font definition.
 -->
 <!ELEMENT FontOutlines (Shape | ShapeRaw)* >
-<!ATTLIST Font
+<!ATTLIST FontOutlines
           id       IDREF                                    #REQUIRED
 >
 
@@ -155,7 +157,7 @@
 <!-- The raw data of a shape. Used instead of <Shape> to save space
      if the shape structure is not really needed.
 -->
-<!ELEMENT ShapeRaw #CDATA>
+<!ELEMENT ShapeRaw (#PCDATA)>
 
 <!-- A fill style change. This sets one of the two current fill styles
      in a shape
