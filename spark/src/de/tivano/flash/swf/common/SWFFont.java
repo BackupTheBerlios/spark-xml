@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.1 2001/05/14 14:17:49 kunze Exp $
+ * $Id: SWFFont.java,v 1.2 2001/05/14 17:50:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is the base class for all the various SWF font structures.
+ * Stores and manipulates font related information. 
  * <p>an SWF font can hold the following information:</p>
  * <ul>
  * <li>the font encoding. This can be <em>ANSI</em>,
@@ -42,15 +42,46 @@ import java.util.List;
  * <li>the X advance value for each glyph</li>
  * <li>kerning information for glyph pairs</li>
  * </ul>
- * <p>This class provides methods to access all of this
+ * <p>This class provides methods to get and set all of this
  * information. In addition, it provides convenience methods to
  * convert the glyph indizes used to store characters in SWF files to
- * Java <code>char</code> and vice versa.
+ * Java <code>char</code> and vice versa. Note that this class does
+ * <em>not</em> provide the means to read/write SWF font
+ * information. This task is handled by {@link SWFDefineFont},
+ * {@link SWFDefineFontInfo} and {@link SWFDefineFont2}.</p>
  * @author Richard Kunze
  */
 public class SWFFont {
 
-    /**  */
+    /** Constant for layout attributes */
+    public static final int BOLD = 1;
+    /** Constant for layout attributes */
+    public static final int ITALIC = 2;
+
+    /** Constant for the font encoding */
+    public static final int UNKNOWN = 0;
+    /** Constant for the font encoding */
+    public static final int ANSI = 1;
+    /** Constant for the font encoding */
+    public static final int SHIFT_JIS = 2;
+    /** Constant for the font encoding */
+    public static final int UNICODE = 3;
+
+    /** A helper class to hold kerning information */
+    protected class KerningEntry {
+	/** The first glyph of the kerning pair */
+	public final Glyph FIRST_GLYPH;
+	/** The second glyph of the kerning pair */
+	public final Glyph SECOND_GLYPH;
+	/** The advance value to use fpr this kerning pair */
+	public final int ADVANCE;
+
+	public KerningEntry(Glyph first, Glyph second, int kern) {
+	    FIRST_GLYPH = first;
+	    SECOND_GLYPH = second;
+	    ADVANCE = kern;
+	}
+    }
 
     /** A helper class to hold per-glyph information */
     protected class Glyph {
@@ -71,8 +102,10 @@ public class SWFFont {
 	
 	/** Get the glyph index. */
 	public int getIndex() { return INDEX; }
+	
 	/** Get the character code. */
 	public char getCharacter() { return character.charValue(); }
+	
 	/**
 	 * Set the character code. This updates the encoding table as
 	 * well.
@@ -113,6 +146,112 @@ public class SWFFont {
      * Used for character decoding and font enumeration.
      */
     private List glyphTable = new ArrayList();
+
+    /** Font ID as given in the SWF file */
+    private int fontID;
+
+    /** Font name */
+    private String fontName;
+
+    /** Layout attributes for this font. A combination of the
+     *  {@link #BOLD} and {@link #ITALIC} flags
+     */
+    private int layout;
+
+    /** The font encoding as specified in SWF */
+    int encoding;
+
+    /** the font ascent as specified in SWF */
+    private int ascent;
+    
+    /** the font descent as specified in SWF */
+    private int descent;
+    
+    /** the font leading height as specified in SWF */
+    private int leading;
+    
+    /** Get the font ascent */
+    public int getAscent() { return ascent; }
+    
+    /** Set the font ascent */
+    public void setAscent(int ascent) { this.ascent = ascent; }
+    
+    /** Get the font descent */
+    public int getDescent() { return descent; }
+    
+    /** Set the font descent */
+    public void setDescent(int descent) { this.descent = descent; }
+    
+    /** Get the font leading height */
+    public int getLeading() { return leading; }
+    
+    /** Set the font leading height */
+    public void setLeading(int leading) { this.leading = leading; }
+    
+    
+    /**
+     * Get the font encoding specified in the SWF file.  This is one
+     * of the constants {@link #UNKNOWN}, {@link #ANSI}, {@link
+     * #SHIFT_JIS} or {@link #UNICODE}.
+     */
+    public int getEncoding() { return encoding; }
+    
+    /**
+     * Set the font encoding.
+     * @param encoding The new encoding.
+     * @exception IllegalArgumentException if <code>encoding</code> is
+     * not one of the constants {@link #UNKNOWN}, {@link #ANSI}, {@link
+     * #SHIFT_JIS} or {@link #UNICODE}.
+     */
+    public void setEncoding(int encoding) {
+	// Paranoia code: Check the parameters
+	switch (encoding) {
+	case UNKNOWN:
+	case ANSI:
+	case UNICODE:
+	case SHIFT_JIS:
+	    this.encoding = encoding;
+	    return;
+	default:
+	    throw new IllegalStateException(
+		       "Illegal font encoding: " + encoding);
+	}
+    }
+    
+    
+    /**
+     * Get the layout attributes. This is a combination of
+     * the constants {@link #BOLD} and {@link #ITALIC}
+     * @return the layout attributes of this font.
+     */
+    public int getLayout() {return layout;}
+    
+    /**
+     * Set the value of layoutAttributes.
+     * @param layout The new layout attributes.
+     * @exception IllegalArgumentException if <code>layout</code> is
+     * not a combination of {@link #BOLD} and {@link #ITALIC}
+     */
+    public void setLayout(int layout) {
+	// Paranoia code: Check if the parameter value is OK.
+	if ((layout & ~(BOLD | ITALIC)) != 0) {
+	    throw new IllegalArgumentException(layout +
+	      " is not a combination of SWFFont.BOLD and SWFFont.ITALIC");
+	}
+	this.layout = layout;
+    }
+        
+    /** Get the font name. */
+    public String getFontName() {return fontName;}
+    
+    /** Set the font name */
+    public void setFontName(String name) {this.fontName = name;}
+
+    /** Get the font ID */
+    public int getFontID() { return fontID; }
+
+    /** Set the font ID */
+    public void setFontID(int id) { fontID = id; }
 
     /** Get a glyph with a given index */
     protected Glyph getGlyph(int index) {

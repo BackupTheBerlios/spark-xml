@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.1 2001/05/14 14:17:50 kunze Exp $
+ * $Id: SWFShape.java,v 1.2 2001/05/14 17:50:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -30,7 +30,7 @@ import java.io.EOFException;
 /**
  * This class represents a SWF shape structure.
  * <p>A shape structure consists of a shape header and one or more
- * {@link SWFShapeRecord} strctures. It has the following structure:</p>
+ * {@link SWFShapeRecord} structures. It has the following structure:</p>
  * <table border=1 cellspacing=2 cellpadding=7 align=center>
  * <tr>
  *  <td bgcolor="#CCCCCC"><b>Field</b></td>
