@@ -42,17 +42,13 @@
     <property name="dist.root" value="./dist"/>
     <property name="dist.dir"
 	      value="${dist.root}/${name}-${version}"/>
+    <property name="build.sysclasspath" value="last" />
     
     <filter token="year" value="${year}"/>
     <filter token="version" value="${version}"/>
     <filter token="date" value="${TODAY}"/>
     <filter token="log" value="true"/>
     <filter token="verbose" value="true"/>
-    <!-- redefine the junit task to use the provided lib/junit.jar -->
-    <taskdef name="junit"
-	     classpath="${lib.dir}/junit.jar"
-	     classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
-	     />
   </target>
     
 
@@ -125,7 +121,12 @@
     <javac srcdir="${samples.dir}"
            destdir="${build.dest}"
            debug="${debug}"
-           optimize="${optimize}"/>
+           optimize="${optimize}" >
+      <classpath>
+	<pathelement path="${build.dir}/classes" />
+	<pathelement path="${lib.dir}/xerces.jar" />
+      </classpath>
+    </javac>
   </target>
 
   <!-- =================================================================== -->
@@ -150,26 +151,39 @@
        <classpath>
            <pathelement path="${build.dir}/classes" />
            <pathelement path="${lib.dir}/junit.jar" />
+           <pathelement path="${lib.dir}/junit-tivano.jar" />
        </classpath>
     </javac>
   </target>
 
+  <!-- The actual JUnit execution. 
+       This expects junit.jar to be on the system class path, and
+       it assumes the tests are already compiled.
+   -->
   <target name="tests" depends="init,compiletests">
-    <mkdir dir="${build.dir}/testresults" />
-    <junit printsummary="yes" fork="no" haltonfailure="no">
+    <!-- redefine the junit task so that it uses the provided junit.jar -->
+    <taskdef name="junit"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
       <classpath>
-	<pathelement location="${lib.dir}/junit.jar" /> 
+	<pathelement path="${lib.dir}/junit.jar"/>
+	<pathelement path="${lib.dir}/ant-optional.jar"/>
+      </classpath>
+    </taskdef>
+    <mkdir dir="${build.dir}/testresults" />
+    <junit printsummary="yes" haltonfailure="yes">
+      <classpath>
+	<pathelement path="${lib.dir}/junit.jar"/>
+        <pathelement path="${lib.dir}/junit-tivano.jar" />
+	<pathelement path="${build.tests}" />
+	<pathelement path="${build.dest}" />
 	<pathelement location="${test.dir}" />
 	<pathelement location="${src.dir}" />
 	<pathelement path="${java.class.path}" />
-	<pathelement path="${build.tests}" />
-	<pathelement path="${build.dest}" />
       </classpath>
       <formatter type="plain" />
-      <batchtest fork="no" todir="${build.dir}/testresults">
+      <batchtest fork="yes" todir="${build.dir}/testresults">
         <fileset dir="${test.dir}">
-	  <include name="**/*Test*.java" />
-	  <exclude name="**/AllTests.java" />
+	  <include name="**/*Test.java" />
 	</fileset>
       </batchtest>
     </junit>

@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE project SYSTEM "lib/project.dtd">
 <project name="swf2xml" default="all" basedir=".">
   <target name="all">
     <antstructure output="project.dtd" />

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.9 2002/01/25 13:50:10 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.10 2002/05/21 08:40:00 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -44,6 +44,8 @@ import de.tivano.flash.swf.common.BitInputStream;
  * @see org.xml.sax.ContentHandler
  */
 public abstract class SWFTagReaderBase implements SWFTagReader {
+    private static final Attributes EMPTY_ATTRIBUTES = new SWFAttributes();
+
     /**
      * A helper class for wrapping a {@link SAXException} in an
      * {@link IOException}. Needed because output stream methods can
@@ -201,6 +203,7 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
     protected void startElement(String name, Attributes attrib)
 	throws SAXException {
 	// FIXME: Really handle the name space stuff
+	if (attrib == null) attrib = EMPTY_ATTRIBUTES;
 	getSAXDriver().getContentHandler().startElement("", name, "", attrib);
     }
 

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitOutputStreamTest.java,v 1.2 2001/05/23 09:30:26 kunze Exp $
+ * $Id: BitOutputStreamTest.java,v 1.3 2002/05/21 08:40:00 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -117,7 +117,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWrite(byte pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.writeBits(0, shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.write(pattern);
@@ -135,7 +135,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWrite2(byte pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	byte[] data = new byte[WRITE_REPEAT];
 	for (int i=0; i<data.length; i++) data[i] = pattern;
 	stream.writeBits(0, shift);
@@ -154,7 +154,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWrite3(byte pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	byte[] data = new byte[WRITE_REPEAT];
 	for (int i=0; i<data.length; i++) data[i] = pattern;
 	stream.writeBits(0, shift);
@@ -185,7 +185,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWriteByte(byte pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.writeBits(0, shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.writeByte(pattern);
@@ -203,7 +203,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWriteW16MSB(short pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.writeBits(0, shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.writeW16MSB(pattern);
@@ -221,7 +221,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWriteW32MSB(int pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.writeBits(0, shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.writeW32MSB(pattern);
@@ -239,7 +239,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWriteW16LSB(short pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.writeBits(0, shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.writeW16LSB(pattern);
@@ -262,7 +262,7 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testWriteW32LSB(int pattern, int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.writeBits(0, shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.writeW32LSB(pattern);

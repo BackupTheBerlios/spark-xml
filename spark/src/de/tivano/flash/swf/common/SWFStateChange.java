@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFStateChange.java,v 1.3 2002/01/25 13:50:09 kunze Exp $
+ * $Id: SWFStateChange.java,v 1.4 2002/05/21 08:39:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -186,6 +186,8 @@ public class SWFStateChange extends SWFShapeRecord {
     private int type;
     private int fillBits = 0;
     private int lineBits = 0;
+    private int newStyleFillBits = 0;
+    private int newStyleLineBits = 0;
     private SWFMoveTo moveTo = null;
     private int fillStyle0 = 0;
     private int fillStyle1 = 0;
@@ -219,6 +221,8 @@ public class SWFStateChange extends SWFShapeRecord {
 			  boolean useRGBA)
            throws IOException {
 	try {
+            this.fillBits = fillBits;
+            this.lineBits = lineBits;
 	    type = (int)input.readUBits(5);
 	    if ((type & TYPE_MOVE_TO) != 0) {
 		moveTo =  new SWFMoveTo(input);
@@ -245,8 +249,8 @@ public class SWFStateChange extends SWFShapeRecord {
 		for (int i=0; i<count; i++) {
 		    lineStyles[i] = SWFLineStyle.parse(input, useRGBA);
 		}
-		this.fillBits = (int)input.readUBits(4);
-		this.lineBits = (int)input.readUBits(4);
+		newStyleFillBits = (int)input.readUBits(4);
+		newStyleLineBits = (int)input.readUBits(4);
 	    }
 	} catch (EOFException e) {
 	    throw new SWFFormatException(
@@ -298,10 +302,14 @@ public class SWFStateChange extends SWFShapeRecord {
      */
     public SWFFillStyle getNewFillStyle(int idx) { return fillStyles[idx]; }
 
-    /** Get the number of fill style index bits to use for parsing the next
+    /** Get the number of fill style index bits to use for parsing this
      * state change record */
     public int getFillBits() { return fillBits; }
 	
+    /** Get the number of fill style index bits to use for parsing the next
+     * state change record */
+    public int getNewStyleFillBits() { return newStyleFillBits; }
+    
     /** Get the number of new line styles */
     public int getLineStyleCount() { return lineStyles.length; }
 
@@ -314,9 +322,13 @@ public class SWFStateChange extends SWFShapeRecord {
      */
     public SWFLineStyle getNewLineStyle(int idx) { return lineStyles[idx]; }
 
-    /** Get the number of line style index bits to use for parsing the next
+    /** Get the number of line style index bits to use for parsing this
      * state change record */
     public int getLineBits() { return lineBits; }
+	
+    /** Get the number of line style index bits to use for parsing the next
+     * state change record */
+    public int getNewStyleLineBits() { return newStyleLineBits; }
 	
     /**
      * Get the length of this record. Note that the length is

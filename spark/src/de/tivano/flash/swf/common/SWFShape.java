@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.8 2002/01/25 13:50:09 kunze Exp $
+ * $Id: SWFShape.java,v 1.9 2002/05/21 08:39:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -107,8 +107,8 @@ public class SWFShape extends SWFDataTypeBase {
 		if (record instanceof SWFStateChange) {
 		    SWFStateChange s = (SWFStateChange)record;
 		    if (s.hasNewStyles()) {
-			currentFillBits = s.getFillBits();
-			currentLineBits = s.getLineBits();
+			currentFillBits = s.getNewStyleFillBits();
+			currentLineBits = s.getNewStyleLineBits();
 		    }
 		}
 		records.add(record);

@@ -17,16 +17,19 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.7 2001/07/04 08:37:05 kunze Exp $
+ * $Id: Flash2XML.java,v 1.8 2002/05/21 08:39:59 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
 import de.tivano.flash.swf.parser.SWFVerboseDefineFont2Reader;
 import de.tivano.flash.swf.parser.SWFVerboseDefineFontReader;
-import org.xml.sax.helpers.DefaultHandler;
+import de.tivano.flash.swf.common.SWFTypes;
+import org.xml.sax.ContentHandler;
+import org.apache.xml.serialize.XMLSerializer;
+import org.apache.xml.serialize.OutputFormat;
 import org.xml.sax.Attributes;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -40,115 +43,6 @@ public class Flash2XML {
     /** Flag for verbose parsing */
     private boolean verbose = false;
 
-    /** A very simplistic XML writer that probably only works
-     *  for SWFML data. It does pretty printing, though :-)
-     */
-    private class XMLWriter extends DefaultHandler {
-	private int indent = 0;
-	private String lastName = null;
-	private boolean needNewline = false;
-	private boolean dontIndent = false;
-	private PrintWriter out;
-
-	public XMLWriter() throws UnsupportedEncodingException {
-	    out = new PrintWriter(new OutputStreamWriter(System.out, "ISO-8859-1"));
-	}
-
-	private void printIndent() {
-	    if (dontIndent) return;
-	    if (needNewline) out.println();
-	    needNewline = false;
-	    for (int i=0; i<indent; i++) out.print("  ");
-	}
-	
-	public void startDocument() {
-	    out.println("<?xml  version=\"1.0\" encoding=\"" +
-			       "ISO-8859-1\" standalone=\"yes\" ?> ");
-	}
-	public void endDocument() {
-	    out.close();
-	}
-	
-	public void startElement(String uri,
-				 String localName,
-				 String qName,
-				 Attributes attr) {
-	    // Print the missing ">" from the previos startElement()
-	    // first...
-	    if (lastName != null) {
-		out.print(">");
-		needNewline = true;
-	    }	    
-	    printIndent();
-	    out.print("<" + localName);
-	    if (attr != null) {
-		for (int i=0; i<attr.getLength(); i++) {
-		    char[] att = attr.getValue(i).toCharArray();
-		    out.print(" " + attr.getLocalName(i) + "=\"");
-		    characters(att,0,att.length, true);
-		    out.print("\"");
-		}
-	    }
-	    if (localName.equals("P")) dontIndent = true;
-	    indent++;
-	    lastName = localName;
-	}
-	public void endElement(String uri,
-			       String localName,
-			       String qName) {
-	    indent--;
-	    // Is this an empty element?
-	    if (localName.equals(lastName)) {
-		out.print(" />");
-	    } else {
-		printIndent();
-		out.print("</" + localName + ">");
-	    }
-	    if (localName.equals("P")) dontIndent = false;
-	    needNewline = true;
-	    lastName = null;
-	}
-	
-	public void characters(char[] ch,
-			       int start,
-			       int length) {
-	    // Print the missing ">" from the previous startElement()
-	    // first, and make sure the next endElement() doesn't assume
-	    // this is an empty element...
-	    if (lastName!=null) {
-		out.print(">");
-		needNewline = true;
-		printIndent();
-	    } else if (!needNewline) printIndent();
-	    lastName = null;
-	    needNewline = characters(ch, start, length, dontIndent);
-	}
-	
-	public boolean characters(char[] ch,
-				  int start,
-				  int length,
-				  boolean dontIndent) {
-	    // Print the characters, with indentation after every
-	    // newline.
-	    for (int i=start; i<start+length; i++) {
-		switch (ch[i]) {
-		case '<': out.print("&lt;"); break;
-		case '>': out.print("&gt;"); break;
-		case '"': out.print("&quot;"); break;
-		case '&': out.print("&amp;"); break;
-		case '\n':
-		    out.print(ch[i]);
-		    if (i!=start+length-1 && !dontIndent) printIndent();
-		    break;
-		default:
-		    out.print(ch[i]);
-		    break;
-		}
-	    }
-	    return ch[start+length-1] != '\n';
-	}
-    }
-
     public Flash2XML(boolean verbose) {
 	this.verbose = verbose;
     }
@@ -157,11 +51,16 @@ public class Flash2XML {
     public void parse(String filename) throws Exception {
 	SWFReader parser = new SWFReader();
 	if (verbose) {
-	    // Verbose DefineFont2 tags
-	    parser.registerTagReader(48, new SWFVerboseDefineFont2Reader());
-	    parser.registerTagReader(10, new SWFVerboseDefineFontReader());
+	    // Verbose DefineFont tags
+	    parser.registerTagReader(SWFTypes.DEFINE_FONT2, 
+				     new SWFVerboseDefineFont2Reader());
+	    parser.registerTagReader(SWFTypes.DEFINE_FONT, 
+				     new SWFVerboseDefineFontReader());
 	}
-	parser.setContentHandler(new XMLWriter()); 	
+	OutputStreamWriter out = new OutputStreamWriter(System.out);
+	OutputFormat format = 
+	    new OutputFormat("xml", out.getEncoding(), true);
+	parser.setContentHandler(new XMLSerializer(out, format));
 	parser.parse(filename);
     }
 

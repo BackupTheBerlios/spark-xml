@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitInputStreamTest.java,v 1.3 2001/05/14 14:17:50 kunze Exp $
+ * $Id: BitInputStreamTest.java,v 1.4 2002/05/21 08:40:00 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -368,7 +368,7 @@ public class BitInputStreamTest extends TestCase {
      * <code>BitInputstream.readUBits()</code> method.
      */
     public void testRead(int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.readUBits(shift);
 	int pos = shift;
 	for (int i=0; i<pattern.length; i++) {
@@ -388,7 +388,7 @@ public class BitInputStreamTest extends TestCase {
      * <code>BitInputstream.readUBits()</code> method.
      */
     public void testRead2(int shift) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.readUBits(shift);
 	byte[] result = new byte[pattern.length];
 	// Initialized the result to something different
@@ -422,7 +422,7 @@ public class BitInputStreamTest extends TestCase {
      * <code>BitInputstream.readUBits()</code> method.
      */
     public void testRead3(int shift, int offset, int len) throws Exception {
-	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	assertTrue("bit shift must be between 0 and 7", shift >=0 && shift<8);
 	stream.readUBits(shift);
 	byte[] result = new byte[offset + len + 10];
 
@@ -490,7 +490,7 @@ public class BitInputStreamTest extends TestCase {
      * <code>countRemainingBits()</code> methods.
      */
     public void testSkipBits(int shift, int n) throws Exception {
-	assert("Bit shift must be 0..16", shift>=0 && shift < 16);
+	assertTrue("Bit shift must be 0..16", shift>=0 && shift < 16);
 	// Build a test data array where skips can be easily verified.
 	byte[] data = new byte[pattern.length];
 	if (n + shift < pattern.length * 8) {
@@ -513,7 +513,7 @@ public class BitInputStreamTest extends TestCase {
 			 stream.skipBits(n));
 	    // make sure we skipped to the end of the stream
 	    try {
-		assert("Expected EOF, but found remaining bits",
+		assertTrue("Expected EOF, but found remaining bits",
 		       stream.countRemainingBits() == 0);
 		// Make sure we're actually at the end of the stream
 		// and not just at a byte boundary
@@ -532,7 +532,7 @@ public class BitInputStreamTest extends TestCase {
      * <code>countRemainingBits()</code> methods.
      */
     public void testSkip(int shift, int n) throws Exception {
-	assert("Bit shift must be 0..16", shift>=0 && shift < 16);
+	assertTrue("Bit shift must be 0..16", shift>=0 && shift < 16);
 	// Build a test data array where skips can be easily verified.
 	byte[] data = new byte[pattern.length];
 	if ((n*8 + shift)/8 < pattern.length) {
@@ -560,7 +560,7 @@ public class BitInputStreamTest extends TestCase {
 	    assertEquals("# bytes skipped:",
 			 expectedSkip, stream.skip(n));
 	    try {
-		assert("Expected EOF, but found remaining bits",
+		assertTrue("Expected EOF, but found remaining bits",
 		       stream.countRemainingBits() == 0);
 		// Make sure we're actually at the end of the stream
 		// and not just at a byte boundary

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFRectangleTest.java,v 1.3 2001/03/15 10:57:40 kunze Exp $
+ * $Id: SWFRectangleTest.java,v 1.4 2002/05/21 08:40:00 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -64,7 +64,7 @@ public class SWFRectangleTest extends TestCase {
 				   long xmin, long xmax,
 				   long ymin, long ymax)
     {
-	assert("The field size must be between 0 and 31",
+	assertTrue("The field size must be between 0 and 31",
 	       nbits>=0 && nbits<32);
 	BitSet bits = new BitSet(133);
 	int pos = 0;
