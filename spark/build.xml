@@ -127,7 +127,7 @@
     <fixcrlf srcdir="." includes="**/*.sh" cr="remove"/>
     <jar jarfile="${build.dir}/${name}.jar"
          basedir="${build.dest}"
-         includes="org/**"/>
+         includes="de/**"/>
   </target>
 
   <!-- ==================================================================== -->
