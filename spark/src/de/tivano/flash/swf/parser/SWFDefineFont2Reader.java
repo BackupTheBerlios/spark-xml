@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2Reader.java,v 1.4 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFDefineFont2Reader.java,v 1.5 2001/06/26 16:36:23 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -140,7 +140,7 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 	for (int i=0; i<fontTag.getGlyphCount(); i++) {
 	    String charcode = font.decode(fontTag.getCode(i));
 	    int advance = fontTag.getAdvance(i);
-	    font.addGlyph(charcode, fontTag.getAdvance(i));
+	    font.addGlyph(charcode, fontTag.getAdvance(i), true);
 	    attrib.clear();
 	    attrib.addAttribute("char", charcode);
 	    if (hasGlyphLayout) {

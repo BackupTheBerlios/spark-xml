@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagWriter.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFTagWriter.java,v 1.4 2001/06/26 16:36:23 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -50,7 +50,7 @@ public abstract class SWFTagWriter {
     /** Get the total length (including the header) in bytes. */
     public long getTotalLength() {
 	// The length of the header varies with the length of the
-	// follwoing record, so we have to set it here to get correct
+	// following record, so we have to set it here to get correct
 	// results...
 	long dataLength = getDataLength();
 	HEADER.setRecordLength(dataLength);
@@ -61,13 +61,22 @@ public abstract class SWFTagWriter {
 
     /**
      * Write the complete SWF data (including the header)
-     * to <code>out</code>
+     * to <code>out</code>.
      */
     public void write(BitOutputStream out) throws IOException {
+	initWrite();
 	HEADER.setRecordLength(getDataLength());
 	HEADER.write(out);
 	writeData(out);
     }
+
+    /**
+     * Prepare the data immediately prior to writing.
+     * Subclasses may use this method to make last-minute decisions
+     * about the data they want to write. The default
+     * implementation does nothing.
+     */
+    protected void initWrite() {}
 
     /** Get the SWF type ID for this structure */
     public int getTypeID() { return HEADER.getID(); }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.6 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFFont.java,v 1.7 2001/06/26 16:36:23 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -44,15 +44,16 @@ import java.io.UnsupportedEncodingException;
  * <li>the X advance value for each glyph</li>
  * <li>kerning information for glyph pairs</li>
  * </ul>
+ *
  * <p>This class provides methods to get and set all of this
  * information. In addition, it provides convenience methods to
  * convert the glyph indizes used to store characters in SWF files to
  * Java <code>char</code> and vice versa, and to convert strings in
- * the font's encoding to Java strings and back. Note that this class does
- * <em>not</em> provide the means to read/write SWF font
- * information, nor does it hold the glyph shapes. This task is
- * handled by {@link SWFDefineFont}, {@link SWFDefineFontInfo} and
- * {@link SWFDefineFont2}.</p>
+ * the font's encoding to Java strings and back. Note that this class
+ * does <em>not</em> provide the means to read/write SWF font
+ * information. This task is handled by {@link SWFDefineFont}, {@link
+ * SWFDefineFontInfo} and {@link SWFDefineFont2}.</p>
+ * 
  * @author Richard Kunze
  */
 public class SWFFont {
@@ -76,21 +77,42 @@ public class SWFFont {
 	/** The advance value for this glyph */
 	private int advance = 0;
 	/** The character code */
-	private String character = null;
+	private Character character = null;
 	/** The glyph index */
-	private final int INDEX;
+	private int index;
+	/** The glyph shape */
+	private SWFShape shape = null;
+	/** The bounding box */
+	private SWFRectangle bounds = null;
 
-	/** Create a new glyph and add it to the glyph table */
-	private Glyph() {
-	    INDEX = glyphTable.size();
-	    glyphTable.add(this);
+	/**
+	 * Create a new glyph.
+	 * @param addToTable if <code>true</code>, add this glyph to
+	 * the glyph table.
+	 */
+	private Glyph(boolean addToTable) {
+	    if (addToTable) {
+		index = glyphTable.size();
+		glyphTable.add(this);
+	    } else {
+		index = -1;
+	    }
 	}
 	
-	/** Get the glyph index. */
-	public int getIndex() { return INDEX; }
+	/**
+	 * Get the glyph index. If the glyph has not yet been added
+	 * to the glyph table, this is automatically done now.
+	 */
+	public int getIndex() {
+	    if (index < 0) {
+		index = glyphTable.size();
+		glyphTable.add(this);
+	    }
+	    return index;
+	}
 	
 	/** Get the character code. */
-	public String getCharacter() { return character; }
+	public Character getCharacter() { return character; }
 	
 	/**
 	 * Set the character code. This updates the encoding table as
@@ -98,7 +120,7 @@ public class SWFFont {
 	 * @exception IllegalArgumentException if <code>value</code>
 	 * already encodes a different glyph.
 	 */
-	public void setCharacter(String value) {
+	public void setCharacter(Character value) {
 	    Object entry = encodingTable.get(value);
 	    if (entry != null && entry != this) {
 		throw new IllegalArgumentException(
@@ -110,14 +132,33 @@ public class SWFFont {
 	    encodingTable.put(value, this);
 	    character = value;
 	}
+	
 	/** Get the X advance value. */
 	public int getAdvance() { return advance; }
+	
 	/** Set the X advance value */
-	public void setAdvance(int value) { advance = value; }
+	public void setAdvance(int value) {
+	    advance = value;
+	    hasMetrics = true;
+	}
+
+	/** Get the bounding box. */
+	public SWFRectangle getBounds() { return bounds; }
+	
+	/** Set the boundig box */
+	public void setBounds(SWFRectangle value) {
+	    bounds = value;
+	    hasMetrics = true;
+	}
+	/** Get the shape. */
+	public SWFShape getShape() { return shape; }
+	
+	/** Set the boundig box */
+	public void setShape(SWFShape value) { shape = value; }
     }
 
     /**
-     * Map of character codes (as Strings) to Glyph objects.
+     * Map of character codes (as Character objects) to Glyph objects.
      * Used for character encoding
      */
     private Map encodingTable = new HashMap();
@@ -154,24 +195,43 @@ public class SWFFont {
     
     /** the font leading height as specified in SWF */
     private int leading;
+
+    /** Flag, describes if this font includes metrics information */
+    private boolean hasMetrics = false;
+
+    /** Check if this font includes metrics information. If this
+     * method returns <code>false</code>, the values returned by
+     * {@link #getAscent}, {@link #getDescent}, {@link #getLeading},
+     * {@link #getAdvance} and {@link getKerning} are meaningless.
+     */
+    public boolean hasMetrics() { return hasMetrics; }
     
     /** Get the font ascent */
     public int getAscent() { return ascent; }
     
     /** Set the font ascent */
-    public void setAscent(int ascent) { this.ascent = ascent; }
+    public void setAscent(int ascent) {
+	this.ascent = ascent;
+	hasMetrics = true;
+    }
     
     /** Get the font descent */
     public int getDescent() { return descent; }
     
     /** Set the font descent */
-    public void setDescent(int descent) { this.descent = descent; }
+    public void setDescent(int descent) {
+	this.descent = descent;
+	hasMetrics = true;
+    }
     
     /** Get the font leading height */
     public int getLeading() { return leading; }
     
     /** Set the font leading height */
-    public void setLeading(int leading) { this.leading = leading; }
+    public void setLeading(int leading) {
+	this.leading = leading;
+	hasMetrics = true;
+    }
     
     
     /**
@@ -291,40 +351,65 @@ public class SWFFont {
     }
 
     /** Get a glyph with a given character code */
-    protected Glyph getGlyph(String c) {
+    protected Glyph getGlyph(Character c) {
 	return (Glyph)encodingTable.get(c);
     }
 
     /** Create a new glyph. */
-    protected Glyph createGlyph() {
-	return new Glyph();
+    protected Glyph createGlyph(boolean marked) {
+	return new Glyph(marked);
     }
 
     /** Add a new glyph entry */
-    public void addGlyph(String charcode, int advance) {
-	Glyph glyph = createGlyph();
+    public void addGlyph(Character charcode, int advance,
+			 SWFRectangle bounds, SWFShape shape,
+			 boolean marked) {
+	Glyph glyph = createGlyph(marked);
+	glyph.setCharacter(charcode);
+	glyph.setAdvance(advance);
+	glyph.setBounds(bounds);
+	glyph.setShape(shape);
+    }
+
+    /** Add a new glyph entry */
+    public void addGlyph(Character charcode, int advance, boolean marked) {
+	Glyph glyph = createGlyph(marked);
 	glyph.setCharacter(charcode);
 	glyph.setAdvance(advance);
     }
 
     /** Add a new glyph entry */
+    public void addGlyph(String charcode, int advance, boolean marked) {
+	addGlyph(new Character(charcode.charAt(0)), advance, marked);
+    }
+
+    /**
+     * Add a new glyph entry. The glyph entry is automatically
+     * assigned a glyph index. */
     public void addGlyph() {
-	Glyph glyph = createGlyph();
+	Glyph glyph = createGlyph(true);
     }
 
     /** Add a new glyph entry */
-    public void addGlyph(String charcode) {
-	Glyph glyph = createGlyph();
+    public void addGlyph(Character charcode, boolean marked) {
+	Glyph glyph = createGlyph(marked);
 	glyph.setCharacter(charcode);
+    }
+
+    /** Add a new glyph entry */
+    public void addGlyph(String charcode, boolean marked) {
+	Glyph glyph = createGlyph(marked);
+	glyph.setCharacter(new Character(charcode.charAt(0)));
     }
 
     /**
      * Get the glyph index for a given character.
+     * The glyph is automatically marked as used.
      * @param c the character to encode
      * @return the glyph index, or -1 if this font does not contain a
      * glyph for <code>c</code>.
      */
-    public int getGlyphIndex(String c) {
+    public int getGlyphIndex(char c) {
 	Glyph glyph = getGlyph(c);
 	if (glyph == null) return -1;
 	else return glyph.getIndex();
@@ -337,7 +422,7 @@ public class SWFFont {
      * @exception IndexOutOfBoundsException if <code>glyph</code> is
      * outside the range of 0 to <code>glyphCount()</code>.
      */
-    public String getCharCode(int glyph) {
+    public Character getCharCode(int glyph) {
 	return getGlyph(glyph).getCharacter();
     }
 
@@ -348,8 +433,19 @@ public class SWFFont {
      * @exception IndexOutOfBoundsException if <code>glyph</code> is
      * outside the range of 0 to <code>glyphCount()</code>.
      */
-    public void setCharCode(int glyph, String charcode) {
+    public void setCharCode(int glyph, Character charcode) {
 	getGlyph(glyph).setCharacter(charcode);
+    }
+
+    /**
+     * Set the character code for a given glyph index.
+     * @param glyph the glyph index.
+     * @param charcode the character code for this glyph.
+     * @exception IndexOutOfBoundsException if <code>glyph</code> is
+     * outside the range of 0 to <code>glyphCount()</code>.
+     */
+    public void setCharCode(int glyph, String charcode) {
+	setCharCode(glyph, new Character(charcode.charAt(0)));
     }
 
     /**
@@ -372,6 +468,28 @@ public class SWFFont {
      */
     public int getAdvance(int glyph) {
 	return getGlyph(glyph).getAdvance();
+    }
+
+    /**
+     * Get the bounding box for a given glyph index.
+     * @param glyph the glyph index
+     * @return the bounding box.
+     * @exception IndexOutOfBoundsException if <code>glyph</code> is
+     * outside the range of 0 to <code>glyphCount()</code>.
+     */
+    public SWFRectangle getBounds(int glyph) {
+	return getGlyph(glyph).getBounds();
+    }
+
+    /**
+     * Get the shape for a given glyph index.
+     * @param glyph the glyph index
+     * @return the shape.
+     * @exception IndexOutOfBoundsException if <code>glyph</code> is
+     * outside the range of 0 to <code>glyphCount()</code>.
+     */
+    public SWFShape getShape(int glyph) {
+	return getGlyph(glyph).getShape();
     }
 
     /** Get the number of glyphs in this font */
