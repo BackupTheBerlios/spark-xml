@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.7 2001/07/04 08:37:05 kunze Exp $
+ * $Id: SWFShape.java,v 1.8 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -84,10 +84,12 @@ public class SWFShape extends SWFDataTypeBase {
     /**
      * Construct a <code>SWFShape</code> from a bit input stream.
      * @param input the input stream to read from
+     * @param useRGBA Flag, inidcates whether fill- and linestyle
+     * definitions use RGB or RGBA values.
      * @exception SWFFormatException if the complete shape could
      * not be read from the stream.
      */
-    public SWFShape(BitInputStream input) throws IOException {
+    public SWFShape(BitInputStream input, boolean useRGBA) throws IOException {
 	try {
 	    FILL_BITS = (int)input.readUBits(4);
 	    LINE_BITS = (int)input.readUBits(4);
@@ -100,9 +102,15 @@ public class SWFShape extends SWFDataTypeBase {
 	    do {
 		record = SWFShapeRecord.parse(input,
 					      currentFillBits,
-					      currentLineBits);
-		// FIXME: Change current...Bits according to the
-		// information in a state change record.
+					      currentLineBits,
+					      useRGBA);
+		if (record instanceof SWFStateChange) {
+		    SWFStateChange s = (SWFStateChange)record;
+		    if (s.hasNewStyles()) {
+			currentFillBits = s.getFillBits();
+			currentLineBits = s.getLineBits();
+		    }
+		}
 		records.add(record);
 	    } while (!((record instanceof SWFStateChange)
 		        && ((SWFStateChange)record).isEndOfShape()));
@@ -117,10 +125,12 @@ public class SWFShape extends SWFDataTypeBase {
     /**
      * Construct a <code>SWFShape</code> from a byte array.
      * @param input the byte array to read from
+     * @param useRGBA Flag, inidcates whether fill- and linestyle
+     * definitions use RGB or RGBA values.
      * @exception SWFFormatException if the complete shape could not be read.
      */
-    public SWFShape(byte[] input) throws IOException {
-	this(new BitInputStream(new ByteArrayInputStream(input)));
+    public SWFShape(byte[] input, boolean useRGBA) throws IOException {
+	this(new BitInputStream(new ByteArrayInputStream(input)), useRGBA);
 	rawSize = input.length;
     }
     

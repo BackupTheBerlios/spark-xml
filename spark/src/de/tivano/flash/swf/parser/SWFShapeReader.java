@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeReader.java,v 1.4 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFShapeReader.java,v 1.5 2002/01/25 13:50:10 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -59,6 +59,18 @@ import java.util.Iterator;
  */
 public class SWFShapeReader extends SWFTagReaderBase {
 
+    /** Flag, tells if this shape readers uses RGB or RGBA colors in
+	fill- and line style definitions. */
+    private final boolean USE_RGBA;
+
+    /**
+     * Construct a new <code>SWFShapeReader</code>
+     * @param useRGBA flag, tells if this shape reader will assume
+     * that colors in fill- or linestyle definitions include an alpha
+     * value.
+     */
+    public SWFShapeReader(boolean useRGBA) { USE_RGBA = useRGBA; }
+
     /** Read the content.
      * @param input the SWF data stream
      * @param header the record header for this record. This parameter
@@ -74,7 +86,7 @@ public class SWFShapeReader extends SWFTagReaderBase {
      * @param input the SWF data stream
      */
     public void parse(BitInputStream input) throws SAXException, IOException {
-	toXML(new SWFShape(input));
+	toXML(new SWFShape(input, USE_RGBA));
     }
 
     /**

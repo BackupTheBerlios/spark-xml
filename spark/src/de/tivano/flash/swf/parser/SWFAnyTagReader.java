@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAnyTagReader.java,v 1.8 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFAnyTagReader.java,v 1.9 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -64,7 +64,7 @@ public class SWFAnyTagReader extends SWFTagReaderBase {
 		out.close();
 	    } catch (SAXIOException e) {
 		// Re-throw the wrapped exception
-		throw e.getCause();
+		throw e.getSAXCause();
 	    }
 	}
 	endElement("RawData");

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextHandler.java,v 1.4 2001/07/04 09:40:17 kunze Exp $
+ * $Id: XMLTextHandler.java,v 1.5 2002/01/25 13:50:10 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -47,11 +47,12 @@ import org.xml.sax.Attributes;
  * @see de.tivano.flash.swf.parser.SWFDefineText2Reader
  */
 public class XMLTextHandler extends SWFTagHandlerBase {
-
+    
+    private static final SWFColorRGB DEFAULT_COLOR =
+	new SWFColorRGB("000000");
+    
     /** Helper class for modeling formatted text. */
     private class FormattedText {
-	private static final SWFColorRGB DEFAULT_COLOR =
-	    new SWFColorRGB("000000");
 	private FontKey fontKey = new FontKey("Times New Roman", 0);
 	private SWFFont font = null;
 	private SWFColorRGB color = DEFAULT_COLOR;

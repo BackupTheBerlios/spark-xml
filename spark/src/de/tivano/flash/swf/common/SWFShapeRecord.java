@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeRecord.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFShapeRecord.java,v 1.5 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -63,17 +63,20 @@ public abstract class SWFShapeRecord extends SWFDataTypeBase {
      * change record
      * @param lineBits the number of index bits in a line style state
      * change record
+     * @param useRGBA Flag, inidcates whether fill- and linestyle
+     * definitions use RGB or RGBA values.
      * @return a new shape record matching the data on <code>input</code>.
      */
     public static SWFShapeRecord parse(BitInputStream input,
-				       int fillBits, int lineBits)
+				       int fillBits, int lineBits,
+				       boolean useRGBA)
 	          throws IOException {
 	if (input.readBit()) {
 	    // Edge record. Now test if curve or straight line
 	    if (input.readBit()) return new SWFStraightEdge(input);
 	    else return new SWFCurvedEdge(input);
 	} else {
-	    return new SWFStateChange(input, fillBits, lineBits);
+	    return new SWFStateChange(input, fillBits, lineBits, useRGBA);
 	}
     }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFStateChange.java,v 1.2 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFStateChange.java,v 1.3 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -73,9 +73,10 @@ import java.io.EOFException;
  *   <td>The actual data. See below</td>
  * </tr>
  * </table>
+ * <p>A state change record where all of the flags are 0 means "end of
+ * shape".</p>
  * <p>The actual data consists of the following structures (in that
- * order):
- * <ol>
+ * order):</p>
  * <table border=1 cellspacing=2 cellpadding=7 align=center>
  * <tr>
  *  <td bgcolor="#CCCCCC"><b>Field</b></td>
@@ -109,13 +110,64 @@ import java.io.EOFException;
  *   <td>newStyles</td>
  *   <td>varying</td>
  *   <td>Definition of new fill and line styles. See
- *   {@link SWFDefineStyle}</td> 
+ *   below for details</td> 
  * </tr>
  * </table>
  * <p>Each of these structures is only present if the corresponding
  * flag is set.</p>
- * <p>A state change record with none of the above structures set
- * means "end of shape".
+ * 
+ * <p>Finally, a new style definition has the following structure:</p>
+ * <table border=1 cellspacing=2 cellpadding=7 align=center>
+ * <tr>
+ *  <td bgcolor="#CCCCCC"><b>Field</b></td>
+ *  <td bgcolor="#CCCCCC"><b>Length (bits)</b></td>
+ *  <td bgcolor="#CCCCCC"><b>Comment</b></td>
+ * </tr>
+ * <tr>
+ *   <td>fillCount</td>
+ *   <td>8</td>
+ *   <td>Number of entries in <em>fillStyles</em> as unsigned byte. The
+ *   value 0xff is used as a flag.</td>
+ * </tr>
+ * <tr>
+ *   <td>fillCountExt</td>
+ *   <td>16</td>
+ *   <td>Only present if <em>fillCount</em> is 0xff. Number of entries
+ *   in <em>fillStyles</em>.
+ * </tr>
+ * <tr>
+ *   <td>fillStyles</td>
+ *   <td>varying</td>
+ *   <td>Array of {@link SWFFillStyle} structures</td>
+ * </tr>
+ * <tr>
+ *   <td>lineCount</td>
+ *   <td>8</td>
+ *   <td>Number of entries in <em>lineStyles</em> as unsigned byte. The
+ *   value 0xff is used as a flag.</td>
+ * </tr>
+ * <tr>
+ *   <td>lineCountExt</td>
+ *   <td>16</td>
+ *   <td>Only present if <em>lineCount</em> is 0xff. Number of entries
+ *   in <em>lineStyles</em>.
+ * </tr>
+ * <tr>
+ *   <td>lineStyles</td>
+ *   <td>varying</td>
+ *   <td>Array of {@link SWFLineStyle} structures</td>
+ * </tr>
+ * <tr>
+ *   <td>numFillBits</td>
+ *   <td>4</td>
+ *   <td>Number of index bits to use for fill style changes</td>
+ * </tr>
+ * <tr>
+ *   <td>numLineBits</td>
+ *   <td>4</td>
+ *   <td>Number of index bits to use for line style changes</td>
+ * </tr>
+ * </table>
  * @author Richard Kunze
  */
 public class SWFStateChange extends SWFShapeRecord {
@@ -126,30 +178,47 @@ public class SWFStateChange extends SWFShapeRecord {
     protected static final int TYPE_LINE_STYLE   = 8;
     protected static final int TYPE_DEFINE_STYLE = 16;
 
+    private static final SWFFillStyle[] EMPTY_FILL_STYLES
+	= new SWFFillStyle[0];
+    private static final SWFLineStyle[] EMPTY_LINE_STYLES
+	= new SWFLineStyle[0];
+
     private int type;
-    private int fillBits;
-    private int lineBits;
+    private int fillBits = 0;
+    private int lineBits = 0;
     private SWFMoveTo moveTo = null;
     private int fillStyle0 = 0;
     private int fillStyle1 = 0;
     private int lineStyle  = 0;    
-    // FIXME: Implement the rest of the state changes.
+    private SWFFillStyle[] fillStyles = EMPTY_FILL_STYLES;
+    private SWFLineStyle[] lineStyles = EMPTY_LINE_STYLES;
 
     /**
-     * Construct a <code>SWFMoveTo</code> shape record from a bit input stream.
+     * Construct a <code>SWFStateChange</code> shape record from a bit
+     * input stream.
+     *
+     * <p>Note that the <code>fillBits</code> and
+     * <code>lineBits</code> parameters are <em>not</em> the values
+     * returned by {@link #getFillBits} and {@link #getLineBits}. The
+     * constructor parameters are used to parse <em>this</em>
+     * instance, while the values returned by the getter methods are
+     * either 0 (if this instance does not include a new style
+     * definition) or denote the values used for parsing state change
+     * records that occur <em>later</em> in the file.</p>
      * @exception SWFFormatException if the complete record could
      * not be read from the stream.
      * @param input the bit stream to read from
      * @param fillBits the number of bits used as index in a fill
-     * style change
+     * style change.
      * @param lineBits the number of bits used for the index in a line
-     * style change
+     * style change.
+     * @param useRGBA Flag, inidcates whether fill- and linestyle
+     * definitions use RGB or RGBA values.
      */
-    public SWFStateChange(BitInputStream input, int fillBits, int lineBits)
+    public SWFStateChange(BitInputStream input, int fillBits, int lineBits,
+			  boolean useRGBA)
            throws IOException {
 	try {
-	    this.fillBits = fillBits;
-	    this.lineBits = lineBits;
 	    type = (int)input.readUBits(5);
 	    if ((type & TYPE_MOVE_TO) != 0) {
 		moveTo =  new SWFMoveTo(input);
@@ -164,8 +233,20 @@ public class SWFStateChange extends SWFShapeRecord {
 		lineStyle = (int)input.readUBits(lineBits);
 	    }
 	    if ((type & TYPE_DEFINE_STYLE) != 0) {
-		throw new SWFFormatException(
-		   "FIXME: Define new fill/line styles not yet implemented");
+		int count = input.readUByte();
+		if (count == 0xFF) count = input.readUW16LSB();
+		fillStyles = new SWFFillStyle[count];
+		for (int i=0; i<count; i++) {
+		    fillStyles[i] = SWFFillStyle.parse(input, useRGBA);
+		}
+		count = input.readUByte();
+		if (count == 0xFF) count = input.readUW16LSB();
+		lineStyles = new SWFLineStyle[count];
+		for (int i=0; i<count; i++) {
+		    lineStyles[i] = SWFLineStyle.parse(input, useRGBA);
+		}
+		this.fillBits = (int)input.readUBits(4);
+		this.lineBits = (int)input.readUBits(4);
 	    }
 	} catch (EOFException e) {
 	    throw new SWFFormatException(
@@ -190,6 +271,9 @@ public class SWFStateChange extends SWFShapeRecord {
     /** Check if this state change record changes the line style */
     public boolean hasLineStyle() { return (type & TYPE_LINE_STYLE) != 0; }
 
+    /** Check if this state change record defines new fill and line styles */
+    public boolean hasNewStyles() { return (type & TYPE_DEFINE_STYLE) != 0; }
+
     /** Get the "move to" operation */
     public SWFMoveTo getMoveTo() { return moveTo; }
 
@@ -202,6 +286,38 @@ public class SWFStateChange extends SWFShapeRecord {
     /** Get the line style */
     public int getLineStyle() { return lineStyle; }
 
+    /** Get the number of new fill styles */
+    public int getFillStyleCount() { return fillStyles.length; }
+
+    /**
+     * Get the fill style definition number <code>idx</code>
+     * @param idx the index of the fill style
+     * @exception IndexOutOfBoundsException if <code>idx</code> is
+     * outside the range of <code>0..{@link
+     * #getFillStyleCount}-1</code>
+     */
+    public SWFFillStyle getNewFillStyle(int idx) { return fillStyles[idx]; }
+
+    /** Get the number of fill style index bits to use for parsing the next
+     * state change record */
+    public int getFillBits() { return fillBits; }
+	
+    /** Get the number of new line styles */
+    public int getLineStyleCount() { return lineStyles.length; }
+
+    /**
+     * Get the line style definition number <code>idx</code>
+     * @param idx the index of the line style
+     * @exception IndexOutOfBoundsException if <code>idx</code> is
+     * outside the range of <code>0..{@link
+     * #getLineStyleCount}-1</code>
+     */
+    public SWFLineStyle getNewLineStyle(int idx) { return lineStyles[idx]; }
+
+    /** Get the number of line style index bits to use for parsing the next
+     * state change record */
+    public int getLineBits() { return lineBits; }
+	
     /**
      * Get the length of this record. Note that the length is
      * expressed in bits.
@@ -213,7 +329,17 @@ public class SWFStateChange extends SWFShapeRecord {
 	if (hasFillStyle0()) length += fillBits;
 	if (hasFillStyle1()) length += fillBits;
 	if (hasLineStyle()) length += lineBits;
-	// FIXME: Implement style definition.
+	if (hasNewStyles()) {
+	    length += 16;
+	    if (getFillStyleCount() >= 0xFF) length += 16;
+	    if (getLineStyleCount() >= 0xFF) length += 16;
+	    for (int i=0; i<getFillStyleCount(); i++) {
+		length += getNewFillStyle(i).length();
+	    }
+	    for (int i=0; i<getLineStyleCount(); i++) {
+		length += getNewLineStyle(i).length();
+	    }
+	}
 	return length;
     }
 
@@ -225,7 +351,7 @@ public class SWFStateChange extends SWFShapeRecord {
     public void write(BitOutputStream out) throws IOException {
 	// Write the edge record flag first...
 	out.writeBits(0,1);	
-	out.writeBit(false /* FIXME: Implement style definition */);
+	out.writeBit(hasNewStyles());
 	out.writeBit(hasLineStyle());
 	out.writeBit(hasFillStyle1());
 	out.writeBit(hasFillStyle0());
@@ -234,6 +360,27 @@ public class SWFStateChange extends SWFShapeRecord {
 	if (hasFillStyle0()) out.writeBits(getFillStyle0(), fillBits);
 	if (hasFillStyle1()) out.writeBits(getFillStyle1(), fillBits);
 	if (hasLineStyle()) out.writeBits(getLineStyle(), lineBits);
-	// FIXME: Implement style definition.
+	if (hasNewStyles()) {
+	    if (getFillStyleCount() >= 0xFF) {
+		out.writeBits(0xff, 8);
+		out.writeW16LSB(getFillStyleCount());
+	    } else {
+		out.writeBits(getFillStyleCount(), 8);
+	    }
+	    for (int i=0; i<getFillStyleCount(); i++) {
+		getNewFillStyle(i).write(out);
+	    }
+	    if (getLineStyleCount() >= 0xFF) {
+		out.writeBits(0xff, 8);
+		out.writeW16LSB(getLineStyleCount());
+	    } else {
+		out.writeBits(getLineStyleCount(), 8);
+	    }
+	    for (int i=0; i<getLineStyleCount(); i++) {
+		getNewLineStyle(i).write(out);
+	    }
+	    out.writeBits(getFillBits(), 4);
+	    out.writeBits(getLineBits(), 4);
+	}
     }
 }

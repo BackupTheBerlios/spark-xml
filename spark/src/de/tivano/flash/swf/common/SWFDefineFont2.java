@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.10 2001/07/04 09:40:17 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.11 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -301,7 +301,7 @@ public class SWFDefineFont2 extends SWFDataTypeBase
 	    // in the font.
 	    input.skipBits((glyphCount+1) * offsetWidth);
 	    for (int i=0; i<shapeTable.length; i++) {
-		shapeTable[i] = new SWFShape(input);
+		shapeTable[i] = new SWFShape(input, false);
 		// Make sure we continue reading at a byte boundary
 		input.skipToByteBoundary();
 	    }

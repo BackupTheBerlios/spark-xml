@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.8 2001/06/11 23:41:53 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.9 2002/01/25 13:50:10 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -59,7 +59,7 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
 	}
 	
 	/** Get the nested exception */
-	public SAXException getCause() { return CAUSE; }
+	public SAXException getSAXCause() { return CAUSE; }
     }
 
     /**

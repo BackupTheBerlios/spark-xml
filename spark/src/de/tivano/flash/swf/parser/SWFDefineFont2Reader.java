@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2Reader.java,v 1.5 2001/06/26 16:36:23 kunze Exp $
+ * $Id: SWFDefineFont2Reader.java,v 1.6 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -82,7 +82,7 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 
     /** Constructor. Sets the embedded shape handler */
     public SWFDefineFont2Reader() {
-	shapeReader = new SWFRawShapeReader();
+	shapeReader = new SWFRawShapeReader(false);
     }
 
     /** @see SWFTagReaderBase#setSAXDriver */

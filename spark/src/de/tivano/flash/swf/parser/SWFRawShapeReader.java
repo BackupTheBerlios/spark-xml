@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFRawShapeReader.java,v 1.1 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFRawShapeReader.java,v 1.2 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -57,24 +57,13 @@ import java.util.Iterator;
  */
 public class SWFRawShapeReader extends SWFShapeReader {
 
-    /** Read the content.
-     * @param input the SWF data stream
-     * @param header the record header for this record. This parameter
-     * is ignored and may be <code>null</code>
-     */
-    public void parse(BitInputStream input, SWFTagHeader header)
-                throws SAXException, IOException {
-	parse(input);
-    }
-    
     /**
-     * Read the content.
-     * @param input the SWF data stream
+     * Construct a new <code>SWFShapeReader</code>
+     * @param useRGBA flag, tells if this shape reader will assume
+     * that colors in fill- or linestyle definitions include an alpha
+     * value.
      */
-    public void parse(BitInputStream input)
-                throws SAXException, IOException {
-	toXML(new SWFShape(input));
-    }
+    public SWFRawShapeReader(boolean useRGBA) { super(useRGBA); }
 
     /**
      * Convert a {@link SWFShape} to XML.
@@ -88,7 +77,7 @@ public class SWFRawShapeReader extends SWFShapeReader {
 	    out.close();
 	} catch (SAXIOException e) {
 	    // Re-throw the wrapped exception
-	    throw e.getCause();
+	    throw e.getSAXCause();
 	}
 	endElement("ShapeRaw");
     }

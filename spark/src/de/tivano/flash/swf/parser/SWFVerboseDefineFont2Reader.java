@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFVerboseDefineFont2Reader.java,v 1.2 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFVerboseDefineFont2Reader.java,v 1.3 2002/01/25 13:50:10 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -39,6 +39,6 @@ package de.tivano.flash.swf.parser;
 public class SWFVerboseDefineFont2Reader extends SWFDefineFont2Reader {
     /** Constructor. Sets the embedded shape handler */
     public SWFVerboseDefineFont2Reader() {
-	shapeReader = new SWFShapeReader();
+	shapeReader = new SWFShapeReader(false);
     }
 }

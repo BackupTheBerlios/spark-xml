@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFColorRGBA.java,v 1.2 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFColorRGBA.java,v 1.3 2002/01/25 13:50:09 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -106,9 +106,9 @@ public class SWFColorRGBA extends SWFColorRGB {
     
     /**
      * Construct a <code>SWFColorRGBA</code> from a bit input stream.
-     * @exception SWFFormatException if the complete rectangle could
-     * not be read from the stream.
      * @param input the bit stream to read from
+     * @exception SWFFormatException if the complete color could not
+     * be read from the stream.
      */
     public SWFColorRGBA(BitInputStream input) throws IOException {
 	super(input);
@@ -118,6 +118,26 @@ public class SWFColorRGBA extends SWFColorRGB {
 	    throw new SWFFormatException(
               "Premature end of file encoutered while reading a color structure");
 	}
+    }
+
+    /**
+     * Construct a <code>SWFColorRGBA</code> from a bit input stream.
+     * This constructor reads only the RGB values from the stream, the
+     * alpha value is initialized from <code>alpha</code>
+     * @param input the bit stream to read from
+     * @param alpha the alpha value. Must be between 0 and 255.
+     * @exception IllegalArgumentException if <code>alpha</code> is not
+     * in the range of 0..255
+     * @exception SWFFormatException if the complete color could not
+     * be read from the stream.
+     */
+    public SWFColorRGBA(BitInputStream input, int alpha) throws IOException {
+	super(input);
+	if (alpha < 0 || alpha > 255) {
+	    throw new IllegalArgumentException("Not a legal alpha value: "
+					       + alpha);
+	}
+	ALPHA = alpha;
     }
 
     /** Get the alpha value */
@@ -143,7 +163,19 @@ public class SWFColorRGBA extends SWFColorRGB {
     }
     
     /**
-     * Get a string representation of this color.
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @param inludeAlpha if <code>true</code>, include the alpha
+     * value. Otherwise, only write the RGB part.
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out, boolean includeAlpha)
+	   throws IOException {
+	super.write(out);
+	if (includeAlpha) out.write(getAlpha());
+    }
+    
+    /** Get a string representation of this color.
      * The individual components are converted to hexadecimal values
      * and concatenated in <em>red</em>, <em>green</em>,
      * <em>blue</em>, <em>alpha</em> (if included) order.

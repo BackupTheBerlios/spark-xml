@@ -48,8 +48,13 @@
     <filter token="date" value="${TODAY}"/>
     <filter token="log" value="true"/>
     <filter token="verbose" value="true"/>
-    
+    <!-- redefine the junit task to use the provided lib/junit.jar -->
+    <taskdef name="junit"
+	     classpath="${lib.dir}/junit.jar"
+	     classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
+	     />
   </target>
+    
 
   <!-- =================================================================== -->
   <!-- Help on usage                                                       -->
@@ -76,6 +81,10 @@
     <echo message="-------------------------------------------------------------"/>
     <echo message=""/>
     <echo message=""/>
+
+    <!-- ==================================================================== -->
+    <!-- junit targets                                                       -->
+    <!-- =================================================================== -->
   </target>
 
   <!-- =================================================================== -->
@@ -130,20 +139,6 @@
          includes="de/**"/>
   </target>
 
-  <!-- ==================================================================== -->
-  <!-- junit targets                                                       -->
-  <!-- =================================================================== -->
-
-  <!-- redefine the junit task to use the provided lib/junit.jar -->
-  <!--
-  <taskdef name="junit"
-           classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-    <classpath>
-      <pathelement location="${lib.dir}/junit.jar" /> 
-    </classpath>
-  </taskdef>
-  -->
-
   <target name="compiletests" depends="compile">
     <mkdir dir="${build.tests}" />
     <javac srcdir="${test.dir}"
@@ -163,6 +158,7 @@
     <mkdir dir="${build.dir}/testresults" />
     <junit printsummary="yes" fork="no" haltonfailure="no">
       <classpath>
+	<pathelement location="${lib.dir}/junit.jar" /> 
 	<pathelement location="${test.dir}" />
 	<pathelement location="${src.dir}" />
 	<pathelement path="${java.class.path}" />
@@ -170,7 +166,7 @@
 	<pathelement path="${build.dest}" />
       </classpath>
       <formatter type="plain" />
-      <batchtest fork="yes" todir="${build.dir}/testresults">
+      <batchtest fork="no" todir="${build.dir}/testresults">
         <fileset dir="${test.dir}">
 	  <include name="**/*Test*.java" />
 	  <exclude name="**/AllTests.java" />

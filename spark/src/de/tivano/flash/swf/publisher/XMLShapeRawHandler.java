@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLShapeRawHandler.java,v 1.1 2001/06/28 17:15:47 kunze Exp $
+ * $Id: XMLShapeRawHandler.java,v 1.2 2002/01/25 13:50:10 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -52,7 +52,8 @@ public class XMLShapeRawHandler extends XMLShapeHandler {
     protected void endElement() throws SWFWriterException {
 	try {
 	    dataDecoder.flush();
-	    shape = new SWFShape(data.toByteArray());
+	    // XXX: Make this handle RGBA shapes as well...
+	    shape = new SWFShape(data.toByteArray(), false);
 	    data.reset();
 	} catch (IOException e) {
 	    fatalError(e);
