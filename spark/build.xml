@@ -63,14 +63,15 @@
     <echo message=""/>
     <echo message=" available targets are:"/>
     <echo message=""/>
-    <echo message="   all       -> build everything except the api docs in order (default)"/>
-    <echo message="   package   -> generates the ${name}.jar file"/>
-    <echo message="   compile   -> compiles the source code"/>
-    <echo message="   javadoc   -> generates the API documentation"/>
+    <echo message="   all         -> build everything except the api docs in order (default)"/>
+    <echo message="   package     -> generates the ${name}.jar file"/>
+    <echo message="   compile     -> compiles the source code"/>
+    <echo message="   javadoc     -> generates the API documentation"/>
+    <echo message="   javadoc-all -> like javadoc, but includes docs for tests and samples"/>
     <!-- <echo message="   samples   -> generates the ${Name} sample classes"/> -->
-    <echo message="   tests     -> generates and runs ${Name} tests"/>
-    <echo message="   emacs-jde -> generates .prj.el file for Emacs JDE"/>
-    <echo message="   clean     -> cleans up the directory"/>
+    <echo message="   tests       -> generates and runs ${Name} tests"/>
+    <echo message="   emacs-jde   -> generates .prj.el file for Emacs JDE"/>
+    <echo message="   clean       -> cleans up the directory"/>
     <echo message=""/>
     <echo message=" See the comments inside the build.xml file for more details."/>
     <echo message="-------------------------------------------------------------"/>
@@ -218,6 +219,22 @@
     />
   </target>
 
+  <target name="javadoc-all" depends="prepare-src">
+    <mkdir dir="${build.javadocs}"/>
+    <javadoc packagenames="${javadoc.packages}"
+             sourcepath="${build.src}:${test.dir}"
+             destdir="${build.javadocs}"
+             author="true"
+             version="true"
+             use="true"
+             splitindex="true"
+             noindex="false"
+             windowtitle="${Name} API, ${version}"
+             doctitle="${Name} ${version}"
+             bottom="Copyright &#169; ${year} Tivano Software GmbH. All Rights Reserved."
+    />
+  </target>
+  
   <!-- =================================================================== -->
   <!-- The easy way.                                                       -->
   <!-- =================================================================== -->
