@@ -1,0 +1,1202 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!ENTITY % boolean "(true|false|on|off|yes|no)">
+
+<!ELEMENT project (target | property | taskdef | fileset | patternset | path)*>
+<!ATTLIST project
+          name    CDATA #REQUIRED
+          default CDATA #REQUIRED
+          basedir CDATA #IMPLIED>
+
+<!ELEMENT target (unjar | javacc | javadoc | tstamp | mkdir | genkey | jjtree | mail | copyfile | jlink | taskdef | deltree | ejbjar | fail | javadoc2 | antcall | signjar | move | patch | renameext | war | zip | javac | wljspc | compileTask | rename | replace | unwar | copydir | vssget | native2ascii | exec | unzip | available | mparse | ant | filter | sql | delete | chmod | tar | gzip | fixcrlf | gunzip | java | uptodate | cvs | property | style | cab | antstructure | untar | rmic | touch | jar | get | echo | execon | perforce | copy)*>
+
+<!ATTLIST target
+          id          ID    #IMPLIED
+          name        CDATA #REQUIRED
+          if          CDATA #IMPLIED
+          unless      CDATA #IMPLIED
+          depends     CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT fileset (include | patternset | exclude)*>
+<!ATTLIST fileset
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          excludesfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED>
+
+<!ELEMENT include EMPTY>
+<!ATTLIST include
+          id ID #IMPLIED
+          name CDATA #IMPLIED
+          unless CDATA #IMPLIED
+          if CDATA #IMPLIED>
+
+<!ELEMENT patternset (include | exclude)*>
+<!ATTLIST patternset
+          id ID #IMPLIED
+          includes CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          excludesfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED>
+
+<!ELEMENT exclude EMPTY>
+<!ATTLIST exclude
+          id ID #IMPLIED
+          name CDATA #IMPLIED
+          unless CDATA #IMPLIED
+          if CDATA #IMPLIED>
+
+<!ELEMENT path (fileset | pathelement | path)*>
+<!ATTLIST path
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT pathelement EMPTY>
+<!ATTLIST pathelement
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT unjar (include | patternset | exclude)*>
+<!ATTLIST unjar
+          id ID #IMPLIED
+          src CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT javacc EMPTY>
+<!ATTLIST javacc
+          id ID #IMPLIED
+          debugparser %boolean; #IMPLIED
+          javacchome CDATA #IMPLIED
+          forcelacheck %boolean; #IMPLIED
+          optimizetokenmanager %boolean; #IMPLIED
+          commontokenaction %boolean; #IMPLIED
+          buildtokenmanager %boolean; #IMPLIED
+          sanitycheck %boolean; #IMPLIED
+          buildparser %boolean; #IMPLIED
+          otherambiguitycheck CDATA #IMPLIED
+          lookahead CDATA #IMPLIED
+          debuglookahead %boolean; #IMPLIED
+          choiceambiguitycheck CDATA #IMPLIED
+          unicodeinput %boolean; #IMPLIED
+          usercharstream %boolean; #IMPLIED
+          debugtokenmanager %boolean; #IMPLIED
+          description CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          outputdirectory CDATA #IMPLIED
+          cachetokens %boolean; #IMPLIED
+          javaunicodeescape %boolean; #IMPLIED
+          static %boolean; #IMPLIED
+          target CDATA #IMPLIED
+          ignorecase %boolean; #IMPLIED
+          usertokenmanager %boolean; #IMPLIED
+          errorreporting %boolean; #IMPLIED>
+
+<!ELEMENT javadoc (doclet | classpath | link | group | bootclasspath | sourcepath)*>
+<!ATTLIST javadoc
+          id ID #IMPLIED
+          verbose %boolean; #IMPLIED
+          bottom CDATA #IMPLIED
+          bootclasspathref IDREF #IMPLIED
+          header CDATA #IMPLIED
+          link CDATA #IMPLIED
+          noindex %boolean; #IMPLIED
+          doclet CDATA #IMPLIED
+          public %boolean; #IMPLIED
+          author %boolean; #IMPLIED
+          footer CDATA #IMPLIED
+          docletpath CDATA #IMPLIED
+          package %boolean; #IMPLIED
+          sourcepathref IDREF #IMPLIED
+          description CDATA #IMPLIED
+          protected %boolean; #IMPLIED
+          nonavbar %boolean; #IMPLIED
+          maxmemory CDATA #IMPLIED
+          group CDATA #IMPLIED
+          linkoffline CDATA #IMPLIED
+          additionalparam CDATA #IMPLIED
+          locale CDATA #IMPLIED
+          destdir CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          bootclasspath CDATA #IMPLIED
+          private %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          charset CDATA #IMPLIED
+          nodeprecatedlist %boolean; #IMPLIED
+          classpathref IDREF #IMPLIED
+          stylesheetfile CDATA #IMPLIED
+          docencoding CDATA #IMPLIED
+          docletpathref IDREF #IMPLIED
+          packagenames CDATA #IMPLIED
+          windowtitle CDATA #IMPLIED
+          notree %boolean; #IMPLIED
+          splitindex %boolean; #IMPLIED
+          packagelist CDATA #IMPLIED
+          encoding CDATA #IMPLIED
+          doctitle CDATA #IMPLIED
+          serialwarn %boolean; #IMPLIED
+          old %boolean; #IMPLIED
+          use %boolean; #IMPLIED
+          sourcepath CDATA #IMPLIED
+          helpfile CDATA #IMPLIED
+          version %boolean; #IMPLIED
+          sourcefiles CDATA #IMPLIED
+          extdirs CDATA #IMPLIED
+          nohelp %boolean; #IMPLIED
+          nodeprecated %boolean; #IMPLIED
+          overview CDATA #IMPLIED>
+
+<!ELEMENT doclet (path | param)*>
+<!ATTLIST doclet
+          id ID #IMPLIED
+          name CDATA #IMPLIED
+          pathref IDREF #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT param EMPTY>
+<!ATTLIST param
+          id ID #IMPLIED
+          name CDATA #IMPLIED
+          value CDATA #IMPLIED>
+
+<!ELEMENT classpath (fileset | pathelement | path)*>
+<!ATTLIST classpath
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT link EMPTY>
+<!ATTLIST link
+          id ID #IMPLIED
+          href CDATA #IMPLIED
+          offline %boolean; #IMPLIED
+          packagelistloc CDATA #IMPLIED>
+
+<!ELEMENT group EMPTY>
+<!ATTLIST group
+          id ID #IMPLIED
+          packages CDATA #IMPLIED
+          title CDATA #IMPLIED>
+
+<!ELEMENT bootclasspath (fileset | pathelement | path)*>
+<!ATTLIST bootclasspath
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT sourcepath (fileset | pathelement | path)*>
+<!ATTLIST sourcepath
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT tstamp EMPTY>
+<!ATTLIST tstamp
+          id ID #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT mkdir EMPTY>
+<!ATTLIST mkdir
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT genkey (dname)*>
+<!ATTLIST genkey
+          id ID #IMPLIED
+          storepass CDATA #IMPLIED
+          sigalg CDATA #IMPLIED
+          keypass CDATA #IMPLIED
+          verbose CDATA #IMPLIED
+          dname CDATA #IMPLIED
+          keysize CDATA #IMPLIED
+          alias CDATA #IMPLIED
+          keyalg CDATA #IMPLIED
+          validity CDATA #IMPLIED
+          keystore CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          storetype CDATA #IMPLIED>
+
+<!ELEMENT dname (param)*>
+<!ATTLIST dname
+          id ID #IMPLIED>
+
+<!ELEMENT jjtree EMPTY>
+<!ATTLIST jjtree
+          id ID #IMPLIED
+          nodedefaultvoid %boolean; #IMPLIED
+          buildnodefiles %boolean; #IMPLIED
+          outputdirectory CDATA #IMPLIED
+          static %boolean; #IMPLIED
+          javacchome CDATA #IMPLIED
+          nodeprefix CDATA #IMPLIED
+          nodefactory %boolean; #IMPLIED
+          visitor %boolean; #IMPLIED
+          multi %boolean; #IMPLIED
+          nodeusesparser %boolean; #IMPLIED
+          target CDATA #IMPLIED
+          visitorexception CDATA #IMPLIED
+          nodescopehook %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          nodepackage CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT mail EMPTY>
+<!ATTLIST mail
+          id ID #IMPLIED
+          mailhost CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          subject CDATA #IMPLIED
+          files CDATA #IMPLIED
+          message CDATA #IMPLIED
+          description CDATA #IMPLIED
+          tolist CDATA #IMPLIED
+          from CDATA #IMPLIED>
+
+<!ELEMENT copyfile EMPTY>
+<!ATTLIST copyfile
+          id ID #IMPLIED
+          forceoverwrite CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          filtering CDATA #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT jlink (addfiles | include | patternset | exclude | mergefiles)*>
+<!ATTLIST jlink
+          id ID #IMPLIED
+          compress %boolean; #IMPLIED
+          outfile CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          addfiles CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          mergefiles CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT addfiles (fileset | pathelement | path)*>
+<!ATTLIST addfiles
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT mergefiles (fileset | pathelement | path)*>
+<!ATTLIST mergefiles
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT taskdef (classpath)*>
+<!ATTLIST taskdef
+          id ID #IMPLIED
+          classpath CDATA #IMPLIED
+          name CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          classpathref IDREF #IMPLIED
+          description CDATA #IMPLIED
+          classname CDATA #IMPLIED>
+
+<!ELEMENT deltree EMPTY>
+<!ATTLIST deltree
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT ejbjar (include | patternset | exclude | weblogic | weblogictoplink)*>
+<!ATTLIST ejbjar
+          id ID #IMPLIED
+          destdir CDATA #IMPLIED
+          basejarname CDATA #IMPLIED
+          basenameterminator CDATA #IMPLIED
+          genericjarsuffix CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          generateweblogic CDATA #IMPLIED
+          srcdir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          flatdestdir %boolean; #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          descriptordir CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT weblogic EMPTY>
+<!ATTLIST weblogic
+          id ID #IMPLIED
+          compiler CDATA #IMPLIED
+          keepgeneric %boolean; #IMPLIED
+          destdir CDATA #IMPLIED
+          weblogicdtd CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          genericjarsuffix CDATA #IMPLIED
+          args CDATA #IMPLIED
+          keepgenerated CDATA #IMPLIED
+          suffix CDATA #IMPLIED>
+
+<!ELEMENT weblogictoplink EMPTY>
+<!ATTLIST weblogictoplink
+          id ID #IMPLIED
+          compiler CDATA #IMPLIED
+          keepgeneric %boolean; #IMPLIED
+          destdir CDATA #IMPLIED
+          weblogicdtd CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          genericjarsuffix CDATA #IMPLIED
+          toplinkdescriptor CDATA #IMPLIED
+          args CDATA #IMPLIED
+          toplinkdtd CDATA #IMPLIED
+          keepgenerated CDATA #IMPLIED
+          suffix CDATA #IMPLIED>
+
+<!ELEMENT fail EMPTY>
+<!ATTLIST fail
+          id ID #IMPLIED
+          taskname CDATA #IMPLIED
+          message CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT javadoc2 (doclet | classpath | link | group | bootclasspath | sourcepath)*>
+<!ATTLIST javadoc2
+          id ID #IMPLIED
+          verbose %boolean; #IMPLIED
+          bottom CDATA #IMPLIED
+          bootclasspathref IDREF #IMPLIED
+          header CDATA #IMPLIED
+          link CDATA #IMPLIED
+          noindex %boolean; #IMPLIED
+          doclet CDATA #IMPLIED
+          public %boolean; #IMPLIED
+          author %boolean; #IMPLIED
+          footer CDATA #IMPLIED
+          docletpath CDATA #IMPLIED
+          package %boolean; #IMPLIED
+          sourcepathref IDREF #IMPLIED
+          description CDATA #IMPLIED
+          protected %boolean; #IMPLIED
+          nonavbar %boolean; #IMPLIED
+          maxmemory CDATA #IMPLIED
+          group CDATA #IMPLIED
+          linkoffline CDATA #IMPLIED
+          additionalparam CDATA #IMPLIED
+          locale CDATA #IMPLIED
+          destdir CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          bootclasspath CDATA #IMPLIED
+          private %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          charset CDATA #IMPLIED
+          nodeprecatedlist %boolean; #IMPLIED
+          classpathref IDREF #IMPLIED
+          stylesheetfile CDATA #IMPLIED
+          docencoding CDATA #IMPLIED
+          docletpathref IDREF #IMPLIED
+          packagenames CDATA #IMPLIED
+          windowtitle CDATA #IMPLIED
+          notree %boolean; #IMPLIED
+          splitindex %boolean; #IMPLIED
+          packagelist CDATA #IMPLIED
+          encoding CDATA #IMPLIED
+          doctitle CDATA #IMPLIED
+          serialwarn %boolean; #IMPLIED
+          old %boolean; #IMPLIED
+          use %boolean; #IMPLIED
+          sourcepath CDATA #IMPLIED
+          helpfile CDATA #IMPLIED
+          version %boolean; #IMPLIED
+          sourcefiles CDATA #IMPLIED
+          extdirs CDATA #IMPLIED
+          nohelp %boolean; #IMPLIED
+          nodeprecated %boolean; #IMPLIED
+          overview CDATA #IMPLIED>
+
+<!ELEMENT antcall (param)*>
+<!ATTLIST antcall
+          id ID #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          target CDATA #IMPLIED>
+
+<!ELEMENT signjar EMPTY>
+<!ATTLIST signjar
+          id ID #IMPLIED
+          storepass CDATA #IMPLIED
+          jar CDATA #IMPLIED
+          verbose CDATA #IMPLIED
+          keypass CDATA #IMPLIED
+          alias CDATA #IMPLIED
+          sectionsonly CDATA #IMPLIED
+          keystore CDATA #IMPLIED
+          sigfile CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          internalsf CDATA #IMPLIED
+          storetype CDATA #IMPLIED
+          signedjar CDATA #IMPLIED>
+
+<!ELEMENT move (fileset)*>
+<!ATTLIST move
+          id ID #IMPLIED
+          flatten %boolean; #IMPLIED
+          tofile CDATA #IMPLIED
+          todir CDATA #IMPLIED
+          file CDATA #IMPLIED
+          verbose %boolean; #IMPLIED
+          includeemptydirs %boolean; #IMPLIED
+          overwrite %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          filtering %boolean; #IMPLIED>
+
+<!ELEMENT patch EMPTY>
+<!ATTLIST patch
+          id ID #IMPLIED
+          strip CDATA #IMPLIED
+          quiet %boolean; #IMPLIED
+          originalfile CDATA #IMPLIED
+          patchfile CDATA #IMPLIED
+          reverse %boolean; #IMPLIED
+          backups %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          ignorewhitespace %boolean; #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT renameext (include | patternset | exclude)*>
+<!ATTLIST renameext
+          id ID #IMPLIED
+          replace CDATA #IMPLIED
+          toextension CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          fromextension CDATA #IMPLIED
+          srcdir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT war (include | fileset | webinf | patternset | exclude | classes | lib)*>
+<!ATTLIST war
+          id ID #IMPLIED
+          manifest CDATA #IMPLIED
+          compress CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          webxml CDATA #IMPLIED
+          warfile CDATA #IMPLIED
+          jarfile CDATA #IMPLIED
+          basedir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          zipfile CDATA #IMPLIED
+          whenempty CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT webinf (include | patternset | exclude)*>
+<!ATTLIST webinf
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          excludesfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED>
+
+<!ELEMENT classes (include | patternset | exclude)*>
+<!ATTLIST classes
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          excludesfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED>
+
+<!ELEMENT lib (include | patternset | exclude)*>
+<!ATTLIST lib
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          excludesfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED>
+
+<!ELEMENT zip (include | fileset | patternset | exclude)*>
+<!ATTLIST zip
+          id ID #IMPLIED
+          compress CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          basedir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          zipfile CDATA #IMPLIED
+          whenempty CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT javac (include | classpath | patternset | exclude | extdirs | src | bootclasspath)*>
+<!ATTLIST javac
+          id ID #IMPLIED
+          deprecation %boolean; #IMPLIED
+          excludes CDATA #IMPLIED
+          extdirs CDATA #IMPLIED
+          classpathref IDREF #IMPLIED
+          encoding CDATA #IMPLIED
+          destdir CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          bootclasspathref IDREF #IMPLIED
+          depend %boolean; #IMPLIED
+          optimize %boolean; #IMPLIED
+          classpath CDATA #IMPLIED
+          verbose %boolean; #IMPLIED
+          debug %boolean; #IMPLIED
+          bootclasspath CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          description CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          srcdir CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          target CDATA #IMPLIED>
+
+<!ELEMENT extdirs (fileset | pathelement | path)*>
+<!ATTLIST extdirs
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT src (fileset | pathelement | path)*>
+<!ATTLIST src
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT wljspc (include | classpath | patternset | exclude)*>
+<!ATTLIST wljspc
+          id ID #IMPLIED
+          src CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          package CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT compileTask (include | classpath | patternset | exclude | extdirs | taskdef | src | bootclasspath)*>
+<!ATTLIST compileTask
+          id ID #IMPLIED
+          deprecation %boolean; #IMPLIED
+          excludes CDATA #IMPLIED
+          extdirs CDATA #IMPLIED
+          classpathref IDREF #IMPLIED
+          encoding CDATA #IMPLIED
+          destdir CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          bootclasspathref IDREF #IMPLIED
+          depend %boolean; #IMPLIED
+          optimize %boolean; #IMPLIED
+          classpath CDATA #IMPLIED
+          verbose %boolean; #IMPLIED
+          debug %boolean; #IMPLIED
+          bootclasspath CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          description CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          srcdir CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          target CDATA #IMPLIED>
+
+<!ELEMENT rename EMPTY>
+<!ATTLIST rename
+          id ID #IMPLIED
+          dest CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          replace CDATA #IMPLIED
+          description CDATA #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT replace (include | patternset | exclude | replacetoken | replacevalue)*>
+<!ATTLIST replace
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          file CDATA #IMPLIED
+          token CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          value CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT replacetoken (#PCDATA)>
+<!ATTLIST replacetoken
+          id ID #IMPLIED>
+
+<!ELEMENT replacevalue (#PCDATA)>
+<!ATTLIST replacevalue
+          id ID #IMPLIED>
+
+<!ELEMENT unwar (include | patternset | exclude)*>
+<!ATTLIST unwar
+          id ID #IMPLIED
+          src CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT copydir (include | patternset | exclude)*>
+<!ATTLIST copydir
+          id ID #IMPLIED
+          flatten %boolean; #IMPLIED
+          src CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          forceoverwrite CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          filtering CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT vssget EMPTY>
+<!ATTLIST vssget
+          id ID #IMPLIED
+          date CDATA #IMPLIED
+          ssdir CDATA #IMPLIED
+          recursive %boolean; #IMPLIED
+          vsspath CDATA #IMPLIED
+          version CDATA #IMPLIED
+          writable %boolean; #IMPLIED
+          login CDATA #IMPLIED
+          label CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          localpath CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT native2ascii (include | patternset | exclude)*>
+<!ATTLIST native2ascii
+          id ID #IMPLIED
+          src CDATA #IMPLIED
+          ext CDATA #IMPLIED
+          encoding CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          reverse %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT exec (arg | env)*>
+<!ATTLIST exec
+          id ID #IMPLIED
+          output CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          command CDATA #IMPLIED
+          os CDATA #IMPLIED
+          timeout CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          failonerror %boolean; #IMPLIED
+          description CDATA #IMPLIED
+          executable CDATA #IMPLIED>
+
+<!ELEMENT arg EMPTY>
+<!ATTLIST arg
+          id ID #IMPLIED
+          line CDATA #IMPLIED
+          file CDATA #IMPLIED
+          value CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT env EMPTY>
+<!ATTLIST env
+          id ID #IMPLIED
+          key CDATA #IMPLIED
+          file CDATA #IMPLIED
+          value CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT unzip (include | patternset | exclude)*>
+<!ATTLIST unzip
+          id ID #IMPLIED
+          src CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT available (classpath)*>
+<!ATTLIST available
+          id ID #IMPLIED
+          classpath CDATA #IMPLIED
+          file CDATA #IMPLIED
+          resource CDATA #IMPLIED
+          classname CDATA #IMPLIED
+          classpathref IDREF #IMPLIED
+          taskname CDATA #IMPLIED
+          value CDATA #IMPLIED
+          property CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT mparse (userclasspath)*>
+<!ATTLIST mparse
+          id ID #IMPLIED
+          workingdir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          metamatahome CDATA #IMPLIED
+          description CDATA #IMPLIED
+          target CDATA #IMPLIED
+          cleanuphack %boolean; #IMPLIED>
+
+<!ELEMENT userclasspath (fileset | pathelement | path)*>
+<!ATTLIST userclasspath
+          id ID #IMPLIED
+          location CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          description CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT ant (property)*>
+<!ATTLIST ant
+          id ID #IMPLIED
+          output CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          antfile CDATA #IMPLIED
+          target CDATA #IMPLIED>
+
+<!ELEMENT property EMPTY>
+<!ATTLIST property
+          id ID #IMPLIED
+          refid IDREF #IMPLIED
+          name CDATA #IMPLIED
+          userproperty %boolean; #IMPLIED
+          file CDATA #IMPLIED
+          resource CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          value CDATA #IMPLIED
+          location CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT filter EMPTY>
+<!ATTLIST filter
+          id ID #IMPLIED
+          taskname CDATA #IMPLIED
+          token CDATA #IMPLIED
+          description CDATA #IMPLIED
+          value CDATA #IMPLIED
+          filtersfile CDATA #IMPLIED>
+
+<!ELEMENT sql (#PCDATA | classpath | transaction)*>
+<!ATTLIST sql
+          id ID #IMPLIED
+          print %boolean; #IMPLIED
+          src CDATA #IMPLIED
+          url CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          output CDATA #IMPLIED
+          rdbms CDATA #IMPLIED
+          showheaders %boolean; #IMPLIED
+          autocommit %boolean; #IMPLIED
+          userid CDATA #IMPLIED
+          version CDATA #IMPLIED
+          onerror (continue | stop | abort) #IMPLIED
+          classpathref IDREF #IMPLIED
+          taskname CDATA #IMPLIED
+          password CDATA #IMPLIED
+          description CDATA #IMPLIED
+          driver CDATA #IMPLIED>
+
+<!ELEMENT transaction (#PCDATA)>
+<!ATTLIST transaction
+          id ID #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT delete (include | fileset | patternset | exclude)*>
+<!ATTLIST delete
+          id ID #IMPLIED
+          file CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          verbose %boolean; #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT chmod (include | arg | fileset | patternset | exclude | env)*>
+<!ATTLIST chmod
+          id ID #IMPLIED
+          output CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          file CDATA #IMPLIED
+          perm CDATA #IMPLIED
+          command CDATA #IMPLIED
+          os CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          parallel %boolean; #IMPLIED
+          type (file | dir | both) #IMPLIED
+          timeout CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          failonerror %boolean; #IMPLIED
+          description CDATA #IMPLIED
+          executable CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT tar (include | patternset | exclude)*>
+<!ATTLIST tar
+          id ID #IMPLIED
+          tarfile CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          basedir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT gzip EMPTY>
+<!ATTLIST gzip
+          id ID #IMPLIED
+          taskname CDATA #IMPLIED
+          zipfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT fixcrlf (include | patternset | exclude)*>
+<!ATTLIST fixcrlf
+          id ID #IMPLIED
+          destdir CDATA #IMPLIED
+          tablength CDATA #IMPLIED
+          tab (add | asis | remove) #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          cr (add | asis | remove) #IMPLIED
+          srcdir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          eof (add | asis | remove) #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT gunzip EMPTY>
+<!ATTLIST gunzip
+          id ID #IMPLIED
+          dest CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT java (arg | jvmarg | classpath | sysproperty)*>
+<!ATTLIST java
+          id ID #IMPLIED
+          fork %boolean; #IMPLIED
+          classpath CDATA #IMPLIED
+          jvm CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          classname CDATA #IMPLIED
+          maxmemory CDATA #IMPLIED
+          args CDATA #IMPLIED
+          classpathref IDREF #IMPLIED
+          taskname CDATA #IMPLIED
+          failonerror %boolean; #IMPLIED
+          description CDATA #IMPLIED
+          jvmargs CDATA #IMPLIED>
+
+<!ELEMENT jvmarg EMPTY>
+<!ATTLIST jvmarg
+          id ID #IMPLIED
+          line CDATA #IMPLIED
+          file CDATA #IMPLIED
+          value CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT sysproperty EMPTY>
+<!ATTLIST sysproperty
+          id ID #IMPLIED
+          key CDATA #IMPLIED
+          file CDATA #IMPLIED
+          value CDATA #IMPLIED
+          path CDATA #IMPLIED>
+
+<!ELEMENT uptodate (srcfiles | include | patternset | exclude)*>
+<!ATTLIST uptodate
+          id ID #IMPLIED
+          targetfile CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          property CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT srcfiles (include | patternset | exclude)*>
+<!ATTLIST srcfiles
+          id ID #IMPLIED
+          dir CDATA #IMPLIED
+          includes CDATA #IMPLIED
+          refid IDREF #IMPLIED
+          excludesfile CDATA #IMPLIED
+          description CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludes CDATA #IMPLIED>
+
+<!ELEMENT cvs EMPTY>
+<!ATTLIST cvs
+          id ID #IMPLIED
+          output CDATA #IMPLIED
+          date CDATA #IMPLIED
+          quiet %boolean; #IMPLIED
+          command CDATA #IMPLIED
+          noexec %boolean; #IMPLIED
+          cvsroot CDATA #IMPLIED
+          error CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          dest CDATA #IMPLIED
+          package CDATA #IMPLIED
+          description CDATA #IMPLIED
+          tag CDATA #IMPLIED>
+
+<!ELEMENT style (include | patternset | exclude)*>
+<!ATTLIST style
+          id ID #IMPLIED
+          style CDATA #IMPLIED
+          destdir CDATA #IMPLIED
+          processor CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          basedir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          extension CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT cab (include | fileset | patternset | exclude)*>
+<!ATTLIST cab
+          id ID #IMPLIED
+          cabfile CDATA #IMPLIED
+          compress %boolean; #IMPLIED
+          verbose %boolean; #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          basedir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          options CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT antstructure EMPTY>
+<!ATTLIST antstructure
+          id ID #IMPLIED
+          output CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT untar EMPTY>
+<!ATTLIST untar
+          id ID #IMPLIED
+          dest CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT rmic (include | classpath | patternset | exclude)*>
+<!ATTLIST rmic
+          id ID #IMPLIED
+          stubversion CDATA #IMPLIED
+          base CDATA #IMPLIED
+          classpath CDATA #IMPLIED
+          classname CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          verify %boolean; #IMPLIED
+          classpathref IDREF #IMPLIED
+          taskname CDATA #IMPLIED
+          sourcebase CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          filtering %boolean; #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT touch EMPTY>
+<!ATTLIST touch
+          id ID #IMPLIED
+          taskname CDATA #IMPLIED
+          millis CDATA #IMPLIED
+          file CDATA #IMPLIED
+          description CDATA #IMPLIED
+          datetime CDATA #IMPLIED>
+
+<!ELEMENT jar (include | fileset | patternset | exclude)*>
+<!ATTLIST jar
+          id ID #IMPLIED
+          manifest CDATA #IMPLIED
+          compress CDATA #IMPLIED
+          defaultexcludes %boolean; #IMPLIED
+          jarfile CDATA #IMPLIED
+          basedir CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          zipfile CDATA #IMPLIED
+          whenempty CDATA #IMPLIED
+          description CDATA #IMPLIED
+          excludes CDATA #IMPLIED
+          includesfile CDATA #IMPLIED
+          excludesfile CDATA #IMPLIED
+          includes CDATA #IMPLIED>
+
+<!ELEMENT get EMPTY>
+<!ATTLIST get
+          id ID #IMPLIED
+          verbose %boolean; #IMPLIED
+          dest CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          usetimestamp %boolean; #IMPLIED
+          ignoreerrors %boolean; #IMPLIED
+          src CDATA #IMPLIED>
+
+<!ELEMENT echo (#PCDATA)>
+<!ATTLIST echo
+          id ID #IMPLIED
+          append %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          file CDATA #IMPLIED
+          message CDATA #IMPLIED
+          description CDATA #IMPLIED>
+
+<!ELEMENT execon (arg | fileset | env)*>
+<!ATTLIST execon
+          id ID #IMPLIED
+          output CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          command CDATA #IMPLIED
+          os CDATA #IMPLIED
+          parallel %boolean; #IMPLIED
+          type (file | dir | both) #IMPLIED
+          timeout CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          failonerror %boolean; #IMPLIED
+          description CDATA #IMPLIED
+          executable CDATA #IMPLIED>
+
+<!ELEMENT perforce EMPTY>
+<!ATTLIST perforce
+          id ID #IMPLIED
+          force %boolean; #IMPLIED
+          command CDATA #IMPLIED
+          version CDATA #IMPLIED
+          p4port CDATA #IMPLIED
+          os CDATA #IMPLIED
+          label CDATA #IMPLIED
+          revision CDATA #IMPLIED
+          output CDATA #IMPLIED
+          port CDATA #IMPLIED
+          change CDATA #IMPLIED
+          localpath CDATA #IMPLIED
+          dir CDATA #IMPLIED
+          description CDATA #IMPLIED
+          failonerror CDATA #IMPLIED
+          taskname CDATA #IMPLIED
+          p4user CDATA #IMPLIED
+          date CDATA #IMPLIED
+          user CDATA #IMPLIED>
+
+<!ELEMENT copy (fileset)*>
+<!ATTLIST copy
+          id ID #IMPLIED
+          flatten %boolean; #IMPLIED
+          tofile CDATA #IMPLIED
+          todir CDATA #IMPLIED
+          file CDATA #IMPLIED
+          verbose %boolean; #IMPLIED
+          includeemptydirs %boolean; #IMPLIED
+          overwrite %boolean; #IMPLIED
+          taskname CDATA #IMPLIED
+          description CDATA #IMPLIED
+          filtering %boolean; #IMPLIED>
+
