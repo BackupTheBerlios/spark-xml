@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitInputStreamTest.java,v 1.2 2001/03/19 11:53:14 kunze Exp $
+ * $Id: BitInputStreamTest.java,v 1.3 2001/05/14 14:17:50 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- $Id: swfml.dtd,v 1.4 2001/05/14 14:17:49 kunze Exp $ -->
 
+<!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (FrameSize, FramePos?,
               (UnknownTag |
                Font)*)
@@ -8,12 +10,6 @@
           version   CDATA   #REQUIRED
           framerate CDATA   #REQUIRED
 >
-
-<!ELEMENT UnkownTag #CDATA>
-<!ATTLIST UnkownTag
-          type CDATA #REQUIRED
->
-
 <!ELEMENT FrameSize EMPTY>
 <!ATTLIST FrameSize
           width  CDATA #REQUIRED
@@ -25,19 +21,111 @@
           y CDATA #REQUIRED
 >
 
+
+<!-- Catch-all tag for unkown SWF data elements. Simply holds
+     the base64-encoded contents of the corresponding SWF data chunk.
+-->
+<!ELEMENT UnkownTag #CDATA>
+<!ATTLIST UnkownTag
+          type CDATA #REQUIRED
+>
+
+<!-- Font definition. A font definition holds a
+     number of Glyph definitions along with optional
+     kerning information. Note that the "encoding" attribute
+     specifies the preferred font enconding in the SWF data, not
+     in XML.
+-->
 <!ELEMENT Font (Glyph*, Kerning*) >
 <!ATTLIST Font
           fontid   CDATA                                    #REQUIRED
           name     CDATA                                    #IMPLIED
-          style    (standard | italic | bold | bold-italic) #IMPLIED
-          encoding (ansi | unicode | shift-jis)             #IMPLIED
+          style    (standard | italic | bold | bold-italic) standard
+          encoding (ansi | unicode | shift-jis)             ansi
           ascent   CDATA                                    #IMPLIED
           descent  CDATA                                    #IMPLIED
           leading  CDATA                                    #IMPLIED
 >
 
-<!ELEMENT Glyph (BoundingBox*, (Line | Curve | MoveTo | LineStyle | FillStyle)*) >
+<!-- Defines kerning information for a character pair.
+     "chars" defines the character pair (e.g. "VA"),
+     "advance" is the x advance value to use for this
+     pair instead of the advance value given in the <Glyph>
+     record for the first character -->
+<!ELEMENT Kerning EMPTY>
+<!ATTLIST Kerning
+          chars   CDATA #REQUIRED
+          advance CDATA #REQUIRED
+>
+
+<!-- Defines a glyph in a font. The attributes
+     specify the character for this glyph and the standard
+     width of this character, the embedded <Shape> defines the
+     glyph shape. -->
+<!ELEMENT Glyph (GlypSize?, Shape) >
 <!ATTLIST Glyph
           char    CDATA #IMPLIED
           advance CDATA #IMPLIED
+>
+
+<!ELEMENT GlyphSize EMPTY>
+<!ATTLIST GlyphSize
+          width  CDATA #REQUIRED
+          height CDATA #REQUIRED
+>
+
+
+<!-- A shape. Shapes consists of optional line- and fill-style
+     definitions, followed by one or more path definitions.
+     Each path definition has a starting point followed by
+     one or more bezier or line segments
+-->
+<!ELEMENT Shape ((LineStyle | FillStyle)*, Path,
+                 ((LineStyle | FillStyle)*, Path)*)
+>
+
+
+<!-- A path is an (open or closed) curve made up of one or
+     more line or bezier curve segments (of order 2, i.e. quadratic).
+     Line segments specify the end point only, bezier segments specify
+     the end point and the control point. The start point of
+     each segment is the end point of the previous one, or the
+     <Start> coordinates for the first segment. Coordinates
+     in both line and bezier segments are always relative to
+     the end point of the previous segments, coordinates of
+     the starting point for a path are relative to the origin
+     of the shape.
+-->
+<!ELEMENT Path (Start, (Line | Bezier), (Line | Bezier)*) >
+<!ATTLIST Path
+          fillStyle CDATA #IMPLIED
+          lineStyle CDATA #IMPLIED
+>
+
+<!ELEMENT Start EMPTY>
+<!ATTLIST Start
+          x CDATA #REQUIRED
+          y CDATA #REQUIRED
+>
+<!ELEMENT Line EMPTY>
+<!ATTLIST Line
+          x CDATA #REQUIRED
+          y CDATA #REQUIRED
+>
+<!ELEMENT Bezier EMPTY>
+<!ATTLIST Bezier
+          x CDATA #REQUIRED
+          y CDATA #REQUIRED
+          cx CDATA #REQUIRED
+          cy CDATA #REQUIRED
+>
+
+
+<!-- Various lowlevel data types -->
+<!ELEMENT Color EMPTY>
+<!ATTLIST Color
+          red   CDATA #REQUIRED
+          green CDATA #REQUIRED
+          blue  CDATA #REQUIRED
+          alpha CDATA #IMPLIED
 >

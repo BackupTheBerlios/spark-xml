@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.4 2001/03/19 11:53:14 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.5 2001/05/14 14:17:50 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
