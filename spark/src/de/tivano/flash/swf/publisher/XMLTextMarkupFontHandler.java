@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextMarkupFontHandler.java,v 1.2 2001/07/02 19:10:55 kunze Exp $
+ * $Id: XMLTextMarkupFontHandler.java,v 1.3 2001/07/03 16:41:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -32,33 +32,21 @@ import de.tivano.flash.swf.common.SWFColorRGB;
  * @see de.tivano.flash.swf.parser.SWFAnyTagReader
  */
 public class XMLTextMarkupFontHandler extends XMLTextMarkupHandlerBase {
-
-    /** The old size */
-    private int oldSize;
-
-    /** The old font size */
-    private SWFColorRGB oldColor;
-
-    /** The old font name */
-    private String oldName;
-
     /** Set the font name, font size and text color according to
      * <code>attrib</code>. */
     protected void startElement(java.lang.String name, Attributes attrib) 
 	      throws SWFWriterException {
 	XMLTextHandler textHandler = getTextHandler();
-	oldColor = textHandler.getNextColor();
-	oldName  = textHandler.getNextFontName();
-	oldSize  = textHandler.getNextFontSize();
+	textHandler.startNewText(false);
 	String tmp = attrib.getValue("", "FACE");
-	if (tmp != null) textHandler.setNextFontName(tmp);
+	if (tmp != null) textHandler.changeFontName(tmp);
 	try {
 	    tmp = attrib.getValue("", "SIZE");
 	    // Convert the font size from points to TWIPS
 	    // (i.e. multiply by twenty)
 	    if (tmp != null) {
-		textHandler.setNextFontSize(
-		    Math.round(Float.parseFloat(tmp)*20.0F));
+		textHandler.changeFontSize(
+			   Math.round(Float.parseFloat(tmp)*20.0F));
 	    }
 	} catch (NumberFormatException e) {
 	    fatalError("Not a legal font size: " + tmp);
@@ -66,7 +54,7 @@ public class XMLTextMarkupFontHandler extends XMLTextMarkupHandlerBase {
 	try {
 	    tmp = attrib.getValue("", "COLOR");
 	    if (tmp != null) {
-		textHandler.setNextColor(new SWFColorRGB(tmp.substring(1)));
+		textHandler.changeColor(new SWFColorRGB(tmp.substring(1)));
 	    }
 	} catch (IllegalArgumentException e) {
 	    fatalError("Not a legal color value: " + tmp);
@@ -75,10 +63,6 @@ public class XMLTextMarkupFontHandler extends XMLTextMarkupHandlerBase {
 
     /** Reset the text alignment to the previous value */
     protected void endElement() throws SWFWriterException {
-	XMLTextHandler textHandler = getTextHandler();
-	textHandler.setNextColor(oldColor);
-	textHandler.setNextFontName(oldName);
-	textHandler.setNextFontSize(oldSize);
-	textHandler.finishCurrentText(false);
+	getTextHandler().finishCurrentText();
     }
 }

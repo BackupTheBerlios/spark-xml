@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextMarkupParHandler.java,v 1.2 2001/07/02 19:10:56 kunze Exp $
+ * $Id: XMLTextMarkupParHandler.java,v 1.3 2001/07/03 16:41:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -38,20 +38,18 @@ public class XMLTextMarkupParHandler extends XMLTextMarkupHandlerBase {
     protected void startElement(java.lang.String name, Attributes attrib) 
 	      throws SWFWriterException {
 	XMLTextHandler textHandler = getTextHandler();
-	oldAlign = textHandler.getNextAlign();
 	String tmp = attrib.getValue("", "ALIGN");
 	int align;
 	if ("JUSTIFY".equals(tmp)) align = SWFDefineTextField.ALIGN_JUSTIFY;
 	else if ("CENTER".equals(tmp)) align = SWFDefineTextField.ALIGN_CENTER;
 	else if ("RIGHT".equals(tmp)) align = SWFDefineTextField.ALIGN_RIGHT;
 	else align = SWFDefineTextField.ALIGN_LEFT;
-	textHandler.setNextAlign(align);
+	textHandler.startNewText(true);
+	textHandler.changeAlign(align);
     }
 
     /** Reset the text alignment to the previous value */
     protected void endElement() throws SWFWriterException {
-	XMLTextHandler textHandler = getTextHandler();
-	textHandler.setNextAlign(oldAlign);
-	textHandler.finishCurrentText(true);
+	getTextHandler().finishCurrentText();
     }
 }

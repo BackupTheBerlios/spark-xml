@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: FontKey.java,v 1.2 2001/07/02 08:07:22 kunze Exp $
+ * $Id: FontKey.java,v 1.3 2001/07/03 16:41:04 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -28,9 +28,13 @@ package de.tivano.flash.swf.publisher;
  * @author Richard Kunze
  */
 public class FontKey {
-    private String name;
-    private int layout;
+    private String name = null;
+    private int layout = 0;
 
+    public FontKey() {
+	this(null, 0);
+    }
+    
     public FontKey(String name, int layout) {
 	this.name   = name;
 	this.layout = layout;

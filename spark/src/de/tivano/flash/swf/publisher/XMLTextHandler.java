@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextHandler.java,v 1.2 2001/07/02 19:10:55 kunze Exp $
+ * $Id: XMLTextHandler.java,v 1.3 2001/07/03 16:41:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -29,6 +29,7 @@ import de.tivano.flash.swf.common.SWFRectangle;
 import de.tivano.flash.swf.common.SWFTopLevelDataType;
 import de.tivano.flash.swf.common.SWFDefineTextField;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.UnsupportedEncodingException;
@@ -47,31 +48,68 @@ import org.xml.sax.Attributes;
  */
 public class XMLTextHandler extends SWFTagHandlerBase {
 
-    /** Helper class for modeling a single text chunk. */
-    private static class TextChunk {
-	private SWFFont font;
-	private SWFColorRGB color;
-	private int fontSize;
-	private int align;
-	private boolean addNewline = false;
-	private StringBuffer text = new StringBuffer();
-	
-	public TextChunk(SWFFont font, int fontSize,
-			 SWFColorRGB color, int align) {
-	    this.font = font;
-	    this.fontSize = fontSize;
-	    this.color = color;
-	    this.align = align;
-	}
+    /** Helper class for modeling formatted text. */
+    private class FormattedText {
+	private static final SWFColorRGB DEFAULT_COLOR =
+	    new SWFColorRGB("000000");
+	private FontKey fontKey = new FontKey("Times New Roman", 0);
+	private SWFFont font = null;
+	private SWFColorRGB color = DEFAULT_COLOR;
+	private int fontSize = 240;
+	private int align = SWFDefineTextField.ALIGN_LEFT;
+	private boolean isParagraph = false;
+	private List content = new ArrayList();
+	private StringBuffer currentText = null;
+	private boolean hasFontName = false;
+	private boolean hasFontSize = false;
+	private boolean hasFontStyle = false;
+	private boolean hasColor = false;
+	private boolean hasAlign = false;
 
-	public void addText(char[] ch, int start, int length) {
-	    text.append(ch, start, length);
+	public FormattedText() {}
+
+	public void setFontName(String value) {
+	    fontKey.setName(value);
+	    hasFontName = true;
 	}
-	public void setNewline(boolean value) { addNewline = value; }
-	
-	public SWFFont getFont() { return font; }
+	public void setFontStyle(int value) {
+	    fontKey.setLayout(value);
+	    hasFontStyle = true;
+	}
+	public void setColor(SWFColorRGB value) {
+	    color = value;
+	    hasColor = true;
+	}
+	public void setFontSize(int value) {
+	    fontSize = value;
+	    hasFontSize = true;
+	}
+	public void setAlign(int value) {
+	    align = value;
+	    hasAlign = true;
+	}
+	public void setIsParagraph(boolean value) { isParagraph = value; }
+	public boolean hasFontName() { return hasFontName; }
+	public boolean hasFontStyle() { return hasFontStyle; }
+	public boolean hasFontSize() { return hasFontSize; }
+	public boolean hasColor() { return hasColor; }
+	public boolean hasAlign() { return hasAlign; }
+	public boolean isParagraph() { return isParagraph; }
+	public boolean isEmpty() { return content.isEmpty(); }
+	public String getFontName() { return fontKey.getName(); }
+	public int getFontStyle() { return fontKey.getLayout(); }
+	public int getFontSize() { return fontSize; }
 	public SWFColorRGB getColor() { return color; }
 	public int getAlign() { return align; }
+	public SWFFont getFont() throws SWFWriterException {
+	    if (font == null) {
+		font = (SWFFont)getSWFWriter().getContextMap().get(fontKey);
+		if (font == null) fatalError("Font not found: "
+					     + getFontName()
+					     + " (" + getStyleString() + ")");
+	    }
+	    return font;
+	}
 	public String getAlignString() {
 	    switch (align) {
 	    case SWFDefineTextField.ALIGN_LEFT:
@@ -86,19 +124,147 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 		return "LEFT";
 	    }
 	}
-	public int getFontSize() { return fontSize; }
-	public StringBuffer getText() { return text; }
-	public boolean hasNewline() { return addNewline; }
-	public boolean attribEquals(TextChunk other) {
-	    return getFont().equals(other.getFont()) &&
-		getColor().equals(other.getColor()) &&
-		getAlign() == other.getAlign() &&
-		getFontSize() == other.getFontSize();
+
+	public String getStyleString() {
+	    switch (fontKey.getLayout()) {
+	    case 0: return "standard";
+	    case SWFFont.BOLD: return "bold";
+	    case SWFFont.ITALIC: return "italic";
+	    case SWFFont.BOLD | SWFFont.ITALIC: return "bold,italic";
+	    default: return "unknown: " + fontKey.getLayout();
+	    }
+	}
+
+	public void add(FormattedText newText) {
+	    newText.fontKey.setName(getFontName());
+	    newText.fontKey.setLayout(getFontStyle());
+	    newText.align = getAlign();
+	    newText.color = getColor();
+	    newText.fontSize = getFontSize();
+	    content.add(newText);
+	    currentText = null;
+	}
+	
+	public void add(char[] ch, int start, int length) {
+	    if (length == 0) return;
+	    if (currentText == null) {
+		currentText = new StringBuffer();
+		content.add(currentText);
+	    }
+	    currentText.append(ch, start, length);
+	}
+
+	private boolean isLayoutCompatible(FormattedText other) {
+	    return (!hasFontName()||getFontName().equals(other.getFontName()))
+		&& (!hasColor()||getColor().equals(other.getColor()))
+		&& (!hasAlign()||getAlign()==other.getAlign())
+		&& (!hasFontSize()||getFontSize()==other.getFontSize())
+		&& (!hasFontStyle()||getFontStyle()==other.getFontStyle());
+	}
+
+	public boolean multiLayout() {
+	    Iterator entries = content.iterator();
+	    while (entries.hasNext()) {
+		Object obj = entries.next();
+		if (obj instanceof FormattedText) {
+		    FormattedText t = (FormattedText)obj;
+		    if (t.multiLayout() || !t.isLayoutCompatible(this))
+			return true;
+		}
+	    }
+	    return false;
+	}
+
+	public byte[] getBytes(String encoding, boolean useHTML)
+	       throws UnsupportedEncodingException, SWFWriterException {
+	    StringBuffer buf = new StringBuffer();
+	    if (useHTML) {
+		collectHTMLContent(buf);
+	    } else {
+		collectPlainContent(buf);
+	    }
+	    return buf.toString().getBytes(encoding);
+	}
+
+	private void collectPlainContent(StringBuffer buf)
+	        throws SWFWriterException {
+	    Iterator entries = content.iterator();
+	    while (entries.hasNext()) {
+		Object obj = entries.next();
+		if (obj instanceof StringBuffer) {
+		    StringBuffer text = (StringBuffer)obj;
+		    getFont().markUsed(text);
+		    buf.append((StringBuffer)obj);
+		} else ((FormattedText)obj).collectPlainContent(buf);
+	    }
+	    if (isParagraph()) buf.append('\r');
+	}
+	
+	private void collectHTMLContent(StringBuffer buf)
+	        throws SWFWriterException {
+	    if (isParagraph()) {
+		buf.append("<P ALIGN=\"" + getAlignString() + "\">");
+	    }
+	    Iterator entries = content.iterator();
+	    if (entries.hasNext()) {
+		boolean insertFont =
+		    hasFontName() || hasFontSize() || hasColor();
+		if (insertFont) {
+		    buf.append("<FONT");
+		    if (hasFontName()) {
+			buf.append(" FACE=\"")
+			    .append(getFontName())
+			    .append("\"");
+		    }
+		    if (hasFontSize()) {
+			buf.append(" SIZE=\"")
+			    .append(getFontSize())
+			    .append("\"");
+		    }
+		    if (hasColor()) {
+			buf.append(" COLOR=\"#")
+			    .append(getColor().toHexString())
+			    .append("\"");
+		    }
+		    buf.append(">");
+		}
+		if ((getFontStyle() & SWFFont.BOLD) != 0) {
+		    buf.append("<B>");
+		}
+		if ((getFontStyle() & SWFFont.ITALIC) != 0) {
+		    buf.append("<I>");
+		}
+		while (entries.hasNext()) {
+		    Object obj = entries.next();
+		    if (obj instanceof StringBuffer) {
+			StringBuffer text = (StringBuffer)obj;
+			for (int i=0; i<text.length(); i++) {
+			    char ch = text.charAt(i);
+			    // Mark the used characters so they will
+			    // be included in the font.
+			    getFont().markUsed(ch);
+			    switch(ch) {
+			    case 0xA0: buf.append("&nbsp;"); break;
+			    case '"':  buf.append("&quot;"); break;
+			    case '<':  buf.append("&lt;"); break;
+			    case '>':  buf.append("&gt;"); break;
+			    case '&':  buf.append("&amp;"); break;
+			    default:   buf.append(ch); break;
+			    }
+			}
+		    } else ((FormattedText)obj).collectHTMLContent(buf);
+		}
+		if ((getFontStyle() & SWFFont.ITALIC) != 0) {
+		    buf.append("</I>");
+		}
+		if ((getFontStyle() & SWFFont.BOLD) != 0) {
+		    buf.append("</B>");
+		}
+		if (insertFont) buf.append("</FONT>");
+	    }
+	    if (isParagraph()) buf.append("</P>");
 	}
     }
-
-    /** The individual text chunks. */
-    private List textChunks = new ArrayList();
 
     /** Tells if this text should be selectable on the client */
     private boolean isSelectable;
@@ -135,61 +301,89 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 
     /** The default font key */
     private static final FontKey DEFAULT_FONT = new FontKey("Times new roman", 0);
-    
-    /** font size for the next text chunk */
-    private int nextFontSize;
-    
-    /** alignment for the next text chunk */
-    private int nextAlign;
-
-    /** The color for the next text chunk. By default, black. */
-    private SWFColorRGB nextColor;
-
-    /** The default color */
-    private static final SWFColorRGB DEFAULT_COLOR = new SWFColorRGB("000000");
-
     /** The alpha value. By default opaque (i.e. 0xFF) */
     private int alpha;
-    
-    /** The current text chunk */
-    private TextChunk currentText;
 
-    /** Flag, indicates "start a new text chunk" */
-    private boolean needNewTextChunk;
+    /** The content */
+    private FormattedText content;
+    
+    /** The current text chunks */
+    private LinkedList textStack = new LinkedList();
+
+    /** Get the current text */
+    private FormattedText getCurrentText() {
+	return (FormattedText)textStack.getLast();
+    }
 
     public XMLTextHandler() {
 	registerElementHandler("P", XMLTextMarkupParHandler.class);
     }
+    /** Set the font layout for the current text chunk */
+    public int getFontLayout() {
+	return getCurrentText().getFontStyle();
+    }
 
-    /** Set the font name for the next text chunk */
-    public void setNextFontName(String name) { nextFont.setName(name); }
 
-    /** Set the font layout for the next text chunk */
-    public void setNextFontLayout(int layout) { nextFont.setLayout(layout); }
+    /** Set the font name for the current text chunk */
+    public void changeFontName(String name) {
+	if (!content.hasFontName()) content.setFontName(name);
+	getCurrentText().setFontName(name);
+    }
 
-    /** Set the font size for the next text chunk */
-    public void setNextFontSize(int size) { nextFontSize = size; }
+    /** Set the font layout for the current text chunk */
+    public void changeFontLayout(int layout) {
+	if (!content.hasFontStyle()) content.setFontStyle(layout);
+	getCurrentText().setFontStyle(layout);
+    }
 
-    /** Set the alignment for the next text chunk */
-    public void setNextAlign(int align) { nextAlign = align; }
+    /** Set the font size for the current text chunk */
+    public void changeFontSize(int size) {
+	if (!content.hasFontSize()) content.setFontSize(size);
+	getCurrentText().setFontSize(size);
+    }
 
-    /** Set the color for the next text chunk */
-    public void setNextColor(SWFColorRGB color) { nextColor = color; }
+    /** Set the alignment for the current text chunk */
+    public void changeAlign(int align) {
+	if (!content.hasAlign()) content.setAlign(align);
+	getCurrentText().setAlign(align);
+    }
 
-    /** Get the font name for the next text chunk */
-    public String getNextFontName() { return nextFont.getName(); }
+    /** Set the color for the current text chunk */
+    public void changeColor(SWFColorRGB color) {
+	if (!content.hasColor()) content.setColor(color);
+	getCurrentText().setColor(color);
+    }
 
-    /** Get the font layout for the next text chunk */
-    public int getNextFontLayout() { return nextFont.getLayout(); }
+    /** Add some text to the current text chunk */
+    public void addText(char[] ch, int start, int length)
+	    throws SWFWriterException {
+	getCurrentText().add(ch, start, length);
+    }
 
-    /** Get the font size for the next text chunk */
-    public int getNextFontSize() { return nextFontSize; }
+    /**
+     * Close the current text chunk. The next characters will go on
+     * the previous text chunk.
+     */
+    public void finishCurrentText() {
+	textStack.removeLast();
+    }
 
-    /** Get the alignment for the next text chunk */
-    public int getNextAlign() { return nextAlign; }
-
-    /** Get the color for the next text chunk */
-    public SWFColorRGB getNextColor() { return nextColor; }
+    /**
+     * Start a new text chunk if the current text chunk is not empty.
+     * @param newline if <code>true</code>, a new text chunk will be
+     * started even if the current ext chunk is empty, and the new
+     * text chunk will have the {@link FormattedText#isParagraph} flag
+     * set.
+     */
+    public void startNewText(boolean newline) {
+	FormattedText newText;
+	if (newline || !getCurrentText().isEmpty()) {
+	    newText = new FormattedText();
+	    getCurrentText().add(newText);
+	    newText.setIsParagraph(newline);
+	} else newText = getCurrentText();
+	textStack.addLast(newText);
+    }
 
     /**
      * Start processing a &lt;Text&gt; element. 
@@ -199,20 +393,15 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	String tmp;
 
 	// Initialize state data
-	textChunks.clear();
+	content = new FormattedText();
+	textStack.clear();
+	textStack.addLast(content);
 	hasLayout = false;
 	leftMargin = 0;
 	rightMargin = 0;
 	indent = 0;
 	lineSpacing = 0;
-	nextFont = DEFAULT_FONT;
-	nextFontSize = 240;
-	nextAlign = SWFDefineTextField.ALIGN_LEFT;
-	nextColor = DEFAULT_COLOR;
 	alpha  = 0xFF;
-	currentText = null;
-	needNewTextChunk = true;
-	
 	try {
 	    tmp = attrib.getValue("", "id");
 	    if (tmp != null) id = Integer.parseInt(tmp);
@@ -254,7 +443,6 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	    }
 	    hasBorder = "yes".equals(attrib.getValue("", "border"));
 	    isSelectable = "yes".equals(attrib.getValue("", "selectable"));
-	    
 	} catch (SWFWriterException e) {
 	    throw e;
 	} catch (Exception e) {
@@ -295,33 +483,14 @@ public class XMLTextHandler extends SWFTagHandlerBase {
      */
     protected SWFTopLevelDataType createDefineTextField()
 	      throws SWFWriterException {
-	// Flash versions < 5 can't handle embedded HTML
-	boolean useHTML = getSWFWriter().getFlashVersion() >= 5;
+	// Flash versions < 5 can't handle embedded HTML.
 	// Even with Flash 5, don't use HTML formatting if there is
 	// only one text format.
-	TextChunk firstText = (TextChunk)textChunks.get(0);
-	SWFFont font = firstText.getFont();
-	if (useHTML) {
-	    Iterator texts = textChunks.iterator();
-	    // Determine if there is more than one format in this text.
-	    texts.next();
-	    boolean multiFormat = false;
-	    while (!multiFormat && texts.hasNext()) {
-		multiFormat = !firstText.attribEquals((TextChunk)texts.next());
-	    }
-	    useHTML = multiFormat;
-	}
-	byte[] text = null;
-	try {
-	    if (useHTML) {
-		text = getHTMLText().getBytes(font.getCanonicalEncodingName());
-	    } else {
-		text = getPlainText().getBytes(font.getCanonicalEncodingName());
-	    }
-	} catch (UnsupportedEncodingException e) {
-	    fatalError(e);
-	}
+	boolean useHTML =
+	    (getSWFWriter().getFlashVersion() >= 5) &&
+	    content.multiLayout();
 	SWFDefineTextField data = new SWFDefineTextField();
+	SWFFont font = content.getFont();
 	data.setID(id);
 	data.setBounds(bounds);
 	data.setSelectable(isSelectable);
@@ -329,12 +498,17 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	data.setHasBorder(hasBorder);
 	data.setVarName(varName);
 	data.setFontID(font.getFontID());	
-	data.setFontHeight(firstText.getFontSize());
-	data.setTextColor(new SWFColorRGBA(firstText.getColor(), alpha));
+	data.setFontHeight(content.getFontSize());
+	data.setTextColor(new SWFColorRGBA(content.getColor(), alpha));
 	data.setReadonly(true);
-	data.setText(text);
+	try {
+	    data.setText(content.getBytes(font.getCanonicalEncodingName(),
+					  useHTML));
+	} catch (UnsupportedEncodingException e) {
+	    fatalError(e);
+	}
 	if (hasLayout) {
-	    data.setTextAlign(firstText.getAlign());
+	    data.setTextAlign(content.getAlign());
 	    data.setLeftMargin(leftMargin);
 	    data.setRightMargin(rightMargin);
 	    data.setTextIndent(indent);
@@ -343,125 +517,4 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	
 	return data;
     }
-
-    /**
-     * Get the complete text. Layout information is discarded.
-     */
-    protected String getPlainText() {
-	Iterator texts = textChunks.iterator();
-	StringBuffer buf = new StringBuffer();
-	while (texts.hasNext()) {
-	    TextChunk current = (TextChunk)texts.next();
-	    StringBuffer text = current.getText();
-	    // Mark the used characters so they will be included in the font.
-	    current.getFont().markUsed(text);
-	    buf.append(text);
-	    if (current.hasNewline()) buf.append('\n');
-	}
-	return buf.toString();
-    }
-    
-    /**
-     * Get the complete text. Layout information is
-     * preserved as embedded HTML markup.
-     */
-    protected String getHTMLText() {
-	Iterator texts = textChunks.iterator();
-	StringBuffer buf = new StringBuffer();
-	TextChunk current = (TextChunk)textChunks.get(0);
-	buf.append("<P ALIGN=\"" + current.getAlignString() + "\">");
-	String lastName = null;
-	int lastSize = -1;
-	SWFColorRGB lastColor = null;
-	while (texts.hasNext()) {
-	    current = (TextChunk)texts.next();
-	    SWFFont font = current.getFont();
-	    int layout = font.getLayout();
-	    buf.append("<FONT");
-	    if (!font.getFontName().equals(lastName)) {
-		buf.append(" FACE=\"").append(font.getFontName()).append("\"");
-	    }
-	    if (current.getFontSize() != lastSize) {
-		buf.append(" SIZE=\"").append(current.getFontSize()).append("\"");
-	    }
-	    if (!current.getColor().equals(lastColor)) {
-		buf.append(" COLOR=\"#").append(current.getColor().toHexString()).append("\"");
-	    }
-	    buf.append(">");
-	    if ((layout & SWFFont.BOLD) != 0) buf.append("<B>");
-	    if ((layout & SWFFont.ITALIC) != 0) buf.append("<I>");
-	    StringBuffer text = current.getText();
-	    // Escape special characters.
-	    // XXX: If you change this map, don't forget to update the reverse
-	    // mapping in XMLDefineTextFieldReader aus well.
-	    for (int i=0; i<text.length(); i++) {
-		char ch = text.charAt(i);
-		// Mark the used characters so they will be included
-		// in the font.
-		font.markUsed(ch);
-		switch(ch) {
-		case 0xA0: buf.append("&nbsp;"); break;
-		case '"':  buf.append("&quot;"); break;
-		case '<':  buf.append("&lt;"); break;
-		case '>':  buf.append("&gt;"); break;
-		case '&':  buf.append("&amp;"); break;
-		default:   buf.append(ch); break;
-		}
-	    }
-	    if ((layout & SWFFont.ITALIC) != 0) buf.append("</I>");
-	    if ((layout & SWFFont.BOLD) != 0) buf.append("</B>");
-	    buf.append("</FONT>");
-	    if (current.hasNewline() && texts.hasNext()) {
-		TextChunk next = (TextChunk)texts.next();
-		buf.append("</P><P ALIGN=\"" + next.getAlignString() +
-			   "\">");
-	    }
-	}
-	buf.append("</P>");
-	return buf.toString();
-    }
-
-
-    /** Start a new text chunk now */
-    public void newTextChunk() throws SWFWriterException {
-	SWFFont font =
-	    (SWFFont)getSWFWriter().getContextMap().get(nextFont);
-	if (font == null) {
-	    String layout;
-	    switch (nextFont.getLayout()) {
-	    case SWFFont.BOLD: layout = "(bold)"; break;
-	    case SWFFont.BOLD|SWFFont.ITALIC:
-		layout = "(bold,italic)"; break;
-	    case SWFFont.ITALIC: layout = "(italic)"; break;
-	    default: layout = "(standard)";
-	    }
-	    fatalError("Font not found: " + nextFont.getName() + " " +
-		       layout);
-	}
-	currentText = new TextChunk(font, nextFontSize,
-				    nextColor, nextAlign);
-	textChunks.add(currentText);
-    }
-    
-    /** Add some text to the current text chunk */
-    public void addText(char[] ch, int start, int length)
-	    throws SWFWriterException {
-	if (needNewTextChunk) newTextChunk();
-	currentText.addText(ch, start, length);
-    }
-
-    /**
-     * Close the current text chunk. The next characters will go on a
-     * new text chunk.
-     * @param newline if <code>true</code>, the next text chunk will
-     * start immediately and on a new line. Otherwise, the next text
-     * chunk will not start before the next call to {@link #addText}
-     */
-    public void finishCurrentText(boolean newline) throws SWFWriterException {
-	if (newline) {
-	    currentText.setNewline(true);
-	    newTextChunk();
-	} else needNewTextChunk = true;
-    }
-	
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFontWriter.java,v 1.3 2001/07/02 19:10:55 kunze Exp $
+ * $Id: SWFFontWriter.java,v 1.4 2001/07/03 16:41:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -113,7 +113,7 @@ public class SWFFontWriter extends SWFTagWriter {
 	    fontWriter = new SWFDefineFont2(font);
 	    HEADER.setID(SWFTypes.DEFINE_FONT2);
 	} else {
-	    fontWriter = new DefineFontPair(font);
+	    fontWriter = new DefineFontPair(font); 	    
 	    HEADER.setID(SWFTypes.DEFINE_FONT);
 	}
 

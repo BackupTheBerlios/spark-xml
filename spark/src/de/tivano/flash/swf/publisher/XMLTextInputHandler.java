@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextInputHandler.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
+ * $Id: XMLTextInputHandler.java,v 1.2 2001/07/03 16:41:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -33,6 +33,12 @@ import de.tivano.flash.swf.common.SWFDefineTextField;
  * @see de.tivano.flash.swf.parser.SWFAnyTagReader
  */
 public class XMLTextInputHandler extends SWFTagHandlerBase {
+
+    /** Text handler helper class that does not add its data object to
+     * the list of toplevel SWF data structures. */
+    private static class TextHandlerHelper extends XMLTextHandler {
+	protected void endElement() throws SWFWriterException {}
+    }
 
     /** The data object */
     SWFDefineTextField data;
@@ -51,7 +57,7 @@ public class XMLTextInputHandler extends SWFTagHandlerBase {
     private boolean useWordWrap;
 
     public XMLTextInputHandler() {
-	registerElementHandler("Text", XMLTextHandler.class);
+	registerElementHandler("Text", TextHandlerHelper.class);
     }
 
     /**
