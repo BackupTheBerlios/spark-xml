@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextHandler.java,v 1.3 2001/07/03 16:41:05 kunze Exp $
+ * $Id: XMLTextHandler.java,v 1.4 2001/07/04 09:40:17 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -58,10 +58,12 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	private int fontSize = 240;
 	private int align = SWFDefineTextField.ALIGN_LEFT;
 	private boolean isParagraph = false;
-	private List content = new ArrayList();
+	protected List content = new ArrayList();
 	private StringBuffer currentText = null;
 	private boolean hasFontName = false;
 	private boolean hasFontSize = false;
+	protected boolean hasFontStyleBold = false;
+	protected boolean hasFontStyleItalic = false;
 	private boolean hasFontStyle = false;
 	private boolean hasColor = false;
 	private boolean hasAlign = false;
@@ -74,6 +76,8 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	}
 	public void setFontStyle(int value) {
 	    fontKey.setLayout(value);
+	    hasFontStyleBold = (value & SWFFont.BOLD) != 0;
+	    hasFontStyleItalic = (value & SWFFont.ITALIC) != 0;
 	    hasFontStyle = true;
 	}
 	public void setColor(SWFColorRGB value) {
@@ -200,12 +204,40 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	    if (isParagraph()) buf.append('\r');
 	}
 	
-	private void collectHTMLContent(StringBuffer buf)
+	protected void collectHTMLContent(StringBuffer buf)
+	        throws SWFWriterException {
+	    Iterator entries = content.iterator();
+	    while (entries.hasNext()) {
+		Object obj = entries.next();
+		if (obj instanceof StringBuffer) {
+		    StringBuffer text = (StringBuffer)obj;
+		    for (int i=0; i<text.length(); i++) {
+			char ch = text.charAt(i);
+			// Mark the used characters so they will
+			// be included in the font.
+			getFont().markUsed(ch);
+			switch(ch) {
+			case 0xA0: buf.append("&nbsp;"); break;
+			case '"':  buf.append("&quot;"); break;
+			case '<':  buf.append("&lt;"); break;
+			case '>':  buf.append("&gt;"); break;
+			case '&':  buf.append("&amp;"); break;
+			default:   buf.append(ch); break;
+			}
+		    }
+		} else ((FormattedText)obj).collectHTMLContent(buf);
+	    }
+	}
+    }
+
+    /** Helper class for modeling formatted text below the root node. */
+    private class InnerFormattedText extends FormattedText {
+	protected void collectHTMLContent(StringBuffer buf)
 	        throws SWFWriterException {
 	    if (isParagraph()) {
 		buf.append("<P ALIGN=\"" + getAlignString() + "\">");
 	    }
-	    Iterator entries = content.iterator();
+	    Iterator entries = this.content.iterator();
 	    if (entries.hasNext()) {
 		boolean insertFont =
 		    hasFontName() || hasFontSize() || hasColor();
@@ -218,7 +250,7 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 		    }
 		    if (hasFontSize()) {
 			buf.append(" SIZE=\"")
-			    .append(getFontSize())
+			    .append(getFontSize() / 20.0)
 			    .append("\"");
 		    }
 		    if (hasColor()) {
@@ -228,38 +260,11 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 		    }
 		    buf.append(">");
 		}
-		if ((getFontStyle() & SWFFont.BOLD) != 0) {
-		    buf.append("<B>");
-		}
-		if ((getFontStyle() & SWFFont.ITALIC) != 0) {
-		    buf.append("<I>");
-		}
-		while (entries.hasNext()) {
-		    Object obj = entries.next();
-		    if (obj instanceof StringBuffer) {
-			StringBuffer text = (StringBuffer)obj;
-			for (int i=0; i<text.length(); i++) {
-			    char ch = text.charAt(i);
-			    // Mark the used characters so they will
-			    // be included in the font.
-			    getFont().markUsed(ch);
-			    switch(ch) {
-			    case 0xA0: buf.append("&nbsp;"); break;
-			    case '"':  buf.append("&quot;"); break;
-			    case '<':  buf.append("&lt;"); break;
-			    case '>':  buf.append("&gt;"); break;
-			    case '&':  buf.append("&amp;"); break;
-			    default:   buf.append(ch); break;
-			    }
-			}
-		    } else ((FormattedText)obj).collectHTMLContent(buf);
-		}
-		if ((getFontStyle() & SWFFont.ITALIC) != 0) {
-		    buf.append("</I>");
-		}
-		if ((getFontStyle() & SWFFont.BOLD) != 0) {
-		    buf.append("</B>");
-		}
+		if (hasFontStyleBold) buf.append("<B>");
+		if (hasFontStyleItalic) buf.append("<I>");
+		super.collectHTMLContent(buf);
+		if (hasFontStyleItalic) buf.append("</I>");
+		if (hasFontStyleBold) buf.append("</B>");
 		if (insertFont) buf.append("</FONT>");
 	    }
 	    if (isParagraph()) buf.append("</P>");
@@ -377,11 +382,9 @@ public class XMLTextHandler extends SWFTagHandlerBase {
      */
     public void startNewText(boolean newline) {
 	FormattedText newText;
-	if (newline || !getCurrentText().isEmpty()) {
-	    newText = new FormattedText();
-	    getCurrentText().add(newText);
-	    newText.setIsParagraph(newline);
-	} else newText = getCurrentText();
+	newText = new InnerFormattedText();
+	getCurrentText().add(newText);
+	newText.setIsParagraph(newline);
 	textStack.addLast(newText);
     }
 
@@ -501,6 +504,9 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	data.setFontHeight(content.getFontSize());
 	data.setTextColor(new SWFColorRGBA(content.getColor(), alpha));
 	data.setReadonly(true);
+	// Text fields can only use provided font outlines if the font
+	// contains layout information as well
+	data.setUseOutlines(font.hasMetrics());
 	try {
 	    data.setText(content.getBytes(font.getCanonicalEncodingName(),
 					  useHTML));

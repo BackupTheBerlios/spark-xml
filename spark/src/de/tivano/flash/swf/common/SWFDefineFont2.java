@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.9 2001/07/04 08:37:05 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.10 2001/07/04 09:40:17 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -420,7 +420,6 @@ public class SWFDefineFont2 extends SWFDataTypeBase
 	for (int i=0; i<kerningTable.length; i++) {
 	    kerningTable[i] = font.getKerningInfo(i);
 	}
-	System.err.println("Kerning count: " + kerningTable.length);
     }
     
     /**

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFontWriter.java,v 1.5 2001/07/04 08:37:05 kunze Exp $
+ * $Id: SWFFontWriter.java,v 1.6 2001/07/04 09:40:17 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -144,12 +144,10 @@ public class SWFFontWriter extends SWFTagWriter {
 	// must be set to the length of the font only. The
 	// DefineFontInfo has its own header...
 	if (fontWriter instanceof DefineFontPair) {
-	    System.err.println("DefineFont length:" + (((DefineFontPair)fontWriter).fontLength()/8));
 	    HEADER.setRecordLength(
 		      ((DefineFontPair)fontWriter).fontLength()/8);
 	} else { 
 	    HEADER.setRecordLength(dataLength);
-	    System.err.println("Header record length:" + HEADER.getRecordLength());
 	}
 	// SWFHeader.length() returns the length in bits, but for an SWF
 	// header, this is always a multiple of 8
@@ -166,7 +164,6 @@ public class SWFFontWriter extends SWFTagWriter {
 	// must be set to the length of the font only. The
 	// DefineFontInfo has its own header...
 	if (fontWriter instanceof DefineFontPair) {
-	    System.err.println("DefineFont length:" + (((DefineFontPair)fontWriter).fontLength()/8));
 	    HEADER.setRecordLength(
 		      ((DefineFontPair)fontWriter).fontLength()/8);
 	} else { 

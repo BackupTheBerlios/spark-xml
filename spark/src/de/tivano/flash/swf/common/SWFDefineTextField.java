@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextField.java,v 1.4 2001/07/04 08:37:05 kunze Exp $
+ * $Id: SWFDefineTextField.java,v 1.5 2001/07/04 09:40:17 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -220,6 +220,7 @@ public class SWFDefineTextField extends SWFDataTypeBase
     private boolean isMultiline;
     private boolean isPassword;
     private boolean isReadonly;
+    private boolean useOutlines;
     private int maxLength = -1;
     private byte[] text = null;
     private String varName = null;
@@ -259,8 +260,7 @@ public class SWFDefineTextField extends SWFDataTypeBase
 	    hasBorder    = input.readBit();
 	    input.skipBits(1); // Unknown flag, seems to be always 0
 	    isHTML       = input.readBit();
-	    input.skipBits(1); // Outlines flag. Ignored, we set this
-			       // always to 1 on output.
+	    useOutlines  = input.readBit();
 
 	    if (hasFont) {
 		fontID = input.readUW16LSB();
@@ -344,6 +344,9 @@ public class SWFDefineTextField extends SWFDataTypeBase
 
     /** Check if this text contains HTML markup */
     public boolean isHTML() { return isHTML; }
+
+    /** Check if this text field uses outlines or system fonts */
+    public boolean useOutlines() { return useOutlines; }
 
     /** Check if a border should be drawn around the text */
     public boolean hasBorder() { return hasBorder; }
@@ -433,11 +436,15 @@ public class SWFDefineTextField extends SWFDataTypeBase
     /** Set the bounding box */
     public void setBounds(SWFRectangle value) { bounds = value; }
 
-    /** Check if this text is selectable */
+    /** Set the flag controlling wheter this text is selectable */
     public void setSelectable(boolean value) { isSelectable = value; }
 
-    /** Check if this text contains HTML markup */
+    /** Set the flag controlling whether this text contains HTML markup */
     public void setHTML(boolean value) { isHTML = value; }
+
+    /** Set the flag controlling whether this text uses outline
+     * fonts or system fonts */
+    public void setUseOutlines(boolean value) { useOutlines = value; }
 
     /**
      * Set the flag controlling wether a border should be drawn
@@ -575,7 +582,7 @@ public class SWFDefineTextField extends SWFDataTypeBase
 	out.writeBit(hasBorder);
 	out.writeBit(false); // Unknown flag, set to 0
 	out.writeBit(isHTML);
-	out.writeBit(true); // Always use outlines
+	out.writeBit(useOutlines);
 	if (hasFont) {
 	    out.writeW16LSB(fontID);
 	    out.writeW16LSB(fontHeight);

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextMarkupBoldHandler.java,v 1.3 2001/07/03 16:41:05 kunze Exp $
+ * $Id: XMLTextMarkupBoldHandler.java,v 1.4 2001/07/04 09:40:17 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -36,7 +36,7 @@ public class XMLTextMarkupBoldHandler extends XMLTextMarkupHandlerBase {
 	      throws SWFWriterException {
 	XMLTextHandler textHandler = getTextHandler();
 	textHandler.startNewText(false);
-	textHandler.changeFontLayout(textHandler.getFontLayout()|SWFFont.BOLD);
+	textHandler.changeFontLayout(SWFFont.BOLD);
     }
 
     /** Reset the old font layout */
