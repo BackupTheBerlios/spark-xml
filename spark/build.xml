@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE project SYSTEM "project.dtd">
 <!--
-     Build file for the FLASH2XML project. Stolen^H^H^H^Hrongly
+     Build file for the Spark project. strongly
      inspired by the build file from the Enhydra Zeus project
 -->
 
@@ -16,8 +16,8 @@
     <property file="ant-local.properties" />
 
     <!-- Property defaults -->
-    <property name="Name" value="Flash2XML"/>
-    <property name="name" value="flash2xml"/>
+    <property name="Name" value="Spark"/>
+    <property name="name" value="spark"/>
     <property name="version" value="0.2"/>
     <property name="year" value="2001"/>
 
