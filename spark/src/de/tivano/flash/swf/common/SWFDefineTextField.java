@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextField.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFDefineTextField.java,v 1.3 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -81,8 +81,7 @@ import java.io.ByteArrayOutputStream;
  * <tr>
  *   <td>hasMaxLength</td>
  *   <td>1</td>
- *   <td>If set, a maximum text length limit is specified</td>
- * </tr>
+ *   <td>If set, a maximum text length limit is specified</td></tr>
  * <tr>
  *   <td>hasFont</td>
  *   <td>1</td>
@@ -196,7 +195,9 @@ import java.io.ByteArrayOutputStream;
  * </table>
  * @author Richard Kunze
  */
-public class SWFDefineTextField extends SWFDataTypeBase {
+public class SWFDefineTextField extends SWFDataTypeBase
+                                implements SWFTopLevelDataType 
+{
     /** The SWF tag type of this class */
     public static final int TAG_TYPE = SWFTypes.DEFINE_TEXTFIELD;
 
@@ -302,6 +303,27 @@ public class SWFDefineTextField extends SWFDataTypeBase {
 	}
     }
 
+    /**
+     * Construct a <code>SWFDefineTextField</code> with default values.
+     */
+    public SWFDefineTextField() {
+	textID = 0;
+	varName = "";
+	this.bounds = null;
+	hasFont = false;
+	hasLayout = false;
+	isSelectable = false;
+	isReadonly = true;
+	isPassword = false;
+	isMultiline = false;
+	useWordWrap = false;
+	isHTML = false;
+	hasBorder = false;
+	this.text = null;
+	this.maxLength = -1;
+	this.textColor = null;
+    }
+
     /** Get the text id */
     public int getID() { return textID; }
 
@@ -401,13 +423,128 @@ public class SWFDefineTextField extends SWFDataTypeBase {
      * This is only valid if {@link #hasLayout} returns <code>true</code>.
      */
     public int getLineSpacing() { return lineSpacing; }
+    	
+    /** Set the text id */
+    public void setID(int value) { textID = value; }
+
+    /** Set the bounding box */
+    public void setBounds(SWFRectangle value) { bounds = value; }
+
+    /** Check if this text is selectable */
+    public void setSelectable(boolean value) { isSelectable = value; }
+
+    /** Check if this text contains HTML markup */
+    public void setHTML(boolean value) { isHTML = value; }
+
+    /**
+     * Set the flag controlling wether a border should be drawn
+     * around the text
+     */
+    public void setHasBorder(boolean value) { hasBorder = value; }
+
+    /** Set the flag controlling wether lines should be word-wrapped
+     * on input */ 
+    public void setUseWordWrap(boolean value) { useWordWrap = value; }
+
+    /** Set the flag controlling wether this text field contains more
+     * than one line of text */
+    public void setMultiline(boolean value) { isMultiline = value; }
+
+    /** Set the flag controlling wether this text field contains a password */
+    public void setPassword(boolean value) { isPassword = value; }
+
+    /** Set the flag controlling wether this text field is editable */
+    public void setReadonly(boolean value) { isReadonly = value; }
+
+    /**
+     * Set the maximum length for text in this input field.
+     * A value of -1 means unlimited.
+     */
+    public void setMaxLength(int value) { maxLength = value; }
+
+    /**
+     * Set the text. May be <code>null</code>.
+     */
+    public void setText(byte[] value) { text = value; }
+
+    /**
+     * Set the variable name for this field.
+     */
+    public void setVarName(String value) { varName = value; }
+
+    /**
+     * Set the font ID of the associated font.
+     */
+    public void setFontID(int value) {
+	fontID = value;
+	hasFont = true;
+    }
+
+    /**
+     * Set the height (in TWIPS) of the associated font.
+     */
+    public void setFontHeight(int value) {
+	fontHeight = value;
+	hasFont = true;
+    }
+
+    /** Set the text color for this text field. May be <code>null</code>
+     */
+    public void setTextColor(SWFColorRGBA value) { textColor = value; }
+
+    /**
+     * Set the alignment for this text field.
+     * @param value One of the alignment constants defined in this class.
+     */
+    public void setTextAlign(int value) { textAlign = value; }
     
     /**
-     * Get the length of this record. Note that the length is
+     * Set the left margin for this text field.
+     */
+    public void setLeftMargin(int value) {
+	leftMargin = value;
+	hasLayout = true;
+    }
+    
+    /**
+     * Set the right margin for this text field.
+     */
+    public void setRightMargin(int value) {
+	rightMargin = value;
+	hasLayout = true;
+    }
+    
+    /**
+     * Set the indentation of the first line of this text field.
+     */
+    public void setTextIndent(int value) {
+	textIndent = value;
+	hasLayout = true;
+    }
+    
+    /**
+     * Set the vertical spacing for adjacent lines.
+     */
+    public void setLineSpacing(int value) {
+	lineSpacing = value;
+	hasLayout = true;
+    }
+    
+    /**
+     * Set the length of this record. Note that the length is
      * expressed in bits.
      */
     public long length() {
-	throw new UnsupportedOperationException("FIXME: Not yet implemented");
+	long length = 32 + bounds.length();
+	// Note: I'm only guessing the variable name is encoded in
+	// ANSI, i.e. every character is encoded as 8 bits. The specs
+	// don't say anything here...
+	length += varName.length() * 8;
+	if (text != null) length += text.length * 8;
+	if (hasLayout) length += 72;
+	if (hasFont) length += 32;
+	if (textColor != null) length += textColor.length();
+	return length;
     }
 
     /**
@@ -416,6 +553,47 @@ public class SWFDefineTextField extends SWFDataTypeBase {
      * @exception IOException if an I/O error occurs.
      */
     public void write(BitOutputStream out) throws IOException {
-	throw new UnsupportedOperationException("FIXME: Not yet implemented");
+	out.writeW16LSB(textID);
+	bounds.write(out);
+	out.padToByteBoundary();
+	out.writeBit(text!=null);
+	out.writeBit(useWordWrap);
+	out.writeBit(isMultiline);
+	out.writeBit(isPassword);
+	out.writeBit(isReadonly);
+	out.writeBit(textColor != null);
+	out.writeBit(maxLength >= 0);
+	out.writeBit(hasFont);
+	out.writeBits(0, 2); // Reserved flags, always 0
+	out.writeBit(hasLayout);
+	out.writeBit(!isSelectable);
+	out.writeBit(hasBorder);
+	out.writeBit(false); // Unknown flag, set to 0
+	out.writeBit(isHTML);
+	out.writeBit(false); // Unknown flag, set to 0
+	if (hasFont) {
+	    out.writeW16LSB(fontID);
+	    out.writeW16LSB(fontHeight);
+	}
+	if (textColor!=null) textColor.write(out);
+	if (maxLength >=0) out.writeW16LSB(maxLength);
+	if (hasLayout) {
+	    out.writeByte((byte)textAlign);
+	    out.writeW16LSB(leftMargin);
+	    out.writeW16LSB(rightMargin);
+	    out.writeW16LSB(textIndent);
+	    out.writeW16LSB(lineSpacing);
+	}
+	// Note: I'm only guessing the variable name is encoded in ANSI - as
+	// usual, the specs don't specify this...
+	out.write(varName.getBytes(SWFFont.getCanonicalEncodingName(SWFFont.ANSI)));
+	out.write(0); // Strings are 0-terminated
+	if (text != null) {
+	    out.write(text);
+	    out.write(0);
+	}
     }
+
+    /** Get the tag type of this object */
+    public int getTagType() { return TAG_TYPE; }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFColorRGB.java,v 1.1 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFColorRGB.java,v 1.2 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -82,6 +82,42 @@ public class SWFColorRGB extends SWFDataTypeBase {
 	}
     }
 
+    /**
+     * Copy constructor.
+     */
+    public SWFColorRGB(SWFColorRGB copy) {
+	RED   = copy.getRed();
+	GREEN = copy.getGreen();
+	BLUE  = copy.getBlue();
+    }
+
+    /**
+     * Construct a <code>SWFColorRGB</code> from a string representation.
+     * Currently, the only representation recognized is the one
+     * produced by {@link #toHexString}.
+     * @param str the string representation.
+     * @exception IllegalArgumentException if <code>str</code> is not
+     * a valid string representation of a color.
+     */
+    public SWFColorRGB(String str) {
+	try {
+	    if (str.length() < 6) {
+		throw new IllegalArgumentException(
+		       "Not a legal color representation: " + str);
+	    }
+	    RED   = Integer.parseInt(str.substring(0,2), 16);
+	    GREEN = Integer.parseInt(str.substring(2,4), 16);
+	    BLUE  = Integer.parseInt(str.substring(4,6), 16);
+	    if (RED<0 || GREEN<0 || BLUE<0) {
+		throw new IllegalArgumentException(
+		       "Not a legal color representation: " + str);
+	    }
+	} catch (NumberFormatException e) {
+	    throw new IllegalArgumentException(
+		       "Not a legal color representation: " + str);
+	}
+    }
+
     /** Get the red value */
     public int getRed() { return RED; }
 
@@ -126,4 +162,17 @@ public class SWFColorRGB extends SWFDataTypeBase {
 	String str = Integer.toHexString(value);
 	return (str.length() > 1 ? str : "0" + str);
     }
+
+    /** @see Object.equals */
+    public boolean equals(Object obj) {
+	if (obj instanceof SWFColorRGB) {
+	    SWFColorRGB other = (SWFColorRGB)obj;
+	    return other.getRed() == getRed()
+		&& other.getGreen() == getGreen()
+		&& other.getBlue() == getBlue();
+	} else return false;
+    }
+    
+    
+    
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFColorRGBA.java,v 1.1 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFColorRGBA.java,v 1.2 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -65,6 +65,46 @@ public class SWFColorRGBA extends SWFColorRGB {
     private final int ALPHA;
 
     /**
+     * Construct a <code>SWFColorRGBA</code> from a string representation.
+     * Currently, the only representation recognized is the one
+     * produced by {@link #toHexString}.
+     * @param str the string representation.
+     * @exception IllegalArgumentException if <code>str</code> is not
+     * a valid string representation of a color.
+     */
+    public SWFColorRGBA(String str) {
+	super(str);
+	try {
+	    if (str.length() < 8) ALPHA = 0xFF;
+	    else ALPHA  = Integer.parseInt(str.substring(6,8), 16);
+	    if (ALPHA < 0) {
+		throw new IllegalArgumentException(
+		       "Not a legal color representation: " + str);
+	    }
+	} catch (NumberFormatException e) {
+	    throw new IllegalArgumentException(
+		       "Not a legal color representation: " + str);
+	}
+    }
+    
+    /**
+     * Construct a <code>SWFColorRGBA</code> from a {@link
+     * SWFColorRGB} and an alpha value.
+     * @param rgb the RGB values
+     * @param alpha the alpha value. 
+     * @exception IllegalArgumentException if <code>alpha</code> is not
+     * in the range of 0..255
+     */
+    public SWFColorRGBA(SWFColorRGB rgb, int alpha) {
+	super(rgb);
+	if (alpha < 0 || alpha > 255) {
+	    throw new IllegalArgumentException("Not a legal alpha value: "
+					       + alpha);
+	}
+	ALPHA = alpha;
+    }
+    
+    /**
      * Construct a <code>SWFColorRGBA</code> from a bit input stream.
      * @exception SWFFormatException if the complete rectangle could
      * not be read from the stream.
@@ -82,6 +122,9 @@ public class SWFColorRGBA extends SWFColorRGB {
 
     /** Get the alpha value */
     public int getAlpha() { return ALPHA; }
+
+    /** Test if the alpha value differs from 0xFF */
+    public boolean hasAlpha() { return ALPHA != 0xFF; }
 
     /**
      * Get the length of this record. Note that the length is
@@ -109,6 +152,14 @@ public class SWFColorRGBA extends SWFColorRGB {
     public String toHexString(boolean withAlpha) {
 	if (withAlpha) return toHexString() + toHex(getAlpha());
 	else return toHexString();
+    }
+    
+    /** @see Object.equals */
+    public boolean equals(Object obj) {
+	if (obj instanceof SWFColorRGBA) {
+	    SWFColorRGBA other = (SWFColorRGBA)obj;
+	    return super.equals(obj) && other.getAlpha() == getAlpha();
+	} else return false;
     }
 
 }

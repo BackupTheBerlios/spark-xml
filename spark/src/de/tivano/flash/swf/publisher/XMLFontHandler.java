@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLFontHandler.java,v 1.3 2001/06/28 17:15:14 kunze Exp $
+ * $Id: XMLFontHandler.java,v 1.4 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -32,9 +32,9 @@ import org.xml.sax.Attributes;
  * The <em>&lt;Font&gt;</em> tag defines a font which is expressed in
  * SWF as either a DefineFont2 structure or a
  * DefineFont/DefineFontInfo pair.
- * @see de.tivano.flash.swf.parse.SWFDefineFont2Reader
- * @see de.tivano.flash.swf.parse.SWFDefineFontReader
- * @see de.tivano.flash.swf.parse.SWFDefineFontInfoReader
+ * @see de.tivano.flash.swf.parser.SWFDefineFont2Reader
+ * @see de.tivano.flash.swf.parser.SWFDefineFontReader
+ * @see de.tivano.flash.swf.parser.SWFDefineFontInfoReader
  */
 public class XMLFontHandler extends SWFTagHandlerBase {
 
@@ -48,7 +48,7 @@ public class XMLFontHandler extends SWFTagHandlerBase {
      * Construct a new <code>XMLFontHandler</code>.
      */
     public XMLFontHandler() {
-	registerElementHandler("Glyph", new XMLGlyphHandler());
+	registerElementHandler("Glyph", XMLGlyphHandler.class);
     }
     
     /**

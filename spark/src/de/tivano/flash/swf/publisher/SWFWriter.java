@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.6 2001/06/28 17:15:14 kunze Exp $
+ * $Id: SWFWriter.java,v 1.7 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -109,9 +109,8 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
     public SWFWriter() {
 	setCurrentXMLHandler(this);
 	// Setup the default XML element handler map.
-	registerElementHandler("SWF", this);
-	registerElementHandler("RawData", new XMLRawDataHandler());
-	registerElementHandler("ShowFrame", new XMLShowFrameHandler());
+	registerElementHandler("RawData", XMLRawDataHandler.class);
+	registerElementHandler("ShowFrame", XMLShowFrameHandler.class);
     }
 
     /**
@@ -235,7 +234,14 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 			   java.lang.String localName,
 			   java.lang.String qName)
 	   throws SAXException {
-	currentHandler.endElement();
+	currentHandler.endElementInternal();
+    }
+
+    /** Dispatch an XML element to the appropriate element handler. */
+    protected void dispatch(String name, Attributes attrib)
+	      throws SWFWriterException {
+	if (name.equals("SWF")) startElementInternal(name, attrib, this);
+	else super.dispatch(name, attrib);
     }
 
     /** Process text content */
@@ -277,6 +283,9 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
     public void addData(SWFTagWriter data) {
 	swfData.add(data);
     }
+
+    /** Get the flash version */
+    public int getFlashVersion() { return fileHeader.getVersion(); }
 
     /**
      * Process the <em>&lt;SWF&gt;</em> tag.

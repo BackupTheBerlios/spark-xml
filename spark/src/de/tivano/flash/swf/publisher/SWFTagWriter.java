@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagWriter.java,v 1.5 2001/06/27 16:21:56 kunze Exp $
+ * $Id: SWFTagWriter.java,v 1.6 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -95,7 +95,7 @@ public abstract class SWFTagWriter {
     /** Flag, tells if {@link #initDataLength} has been called already */
     private boolean lengthInitialized = false;
 
-    /** Calls {@link initDataLength} if it has not been called before */
+    /** Calls {@link #initDataLength} if it has not been called before */
     private void doInitDataLength() throws IOException {
 	if (!lengthInitialized) {
 	    lengthInitialized = true;
@@ -121,7 +121,7 @@ public abstract class SWFTagWriter {
 
     /**
      * Get the length (excluding the header) in bytes.
-     * It is guaranteed that {@link #initDatalength} has been called
+     * It is guaranteed that {@link #initDataLength} has been called
      * before the first call to this method.
      * Subclasses must implement this method.
      */

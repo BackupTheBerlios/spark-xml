@@ -17,12 +17,13 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLHandlerBase.java,v 1.5 2001/06/28 17:15:14 kunze Exp $
+ * $Id: XMLHandlerBase.java,v 1.6 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedList;
 import org.xml.sax.Attributes;
 
 /**
@@ -34,6 +35,13 @@ import org.xml.sax.Attributes;
  * child node of the current XML node has been processed. In addition,
  * this class provides the means to control which handler is used to
  * process child elements of the current XML element.</p>
+ *
+ * <p>An instance of this class may be re-used to handle more than one
+ * XML element. However, it is guaranteed that once {@link
+ * #startElement} has been called, the instance
+ * will not be re-used until the element has been handled completely,
+ * i.e. {@link #endElement} has been called.</p>
+ * 
  * @author Richard Kunze
  */
 public abstract class XMLHandlerBase {
@@ -44,16 +52,24 @@ public abstract class XMLHandlerBase {
     /** The name of the XML element currently handled by this object */
     private String elementName = null;
 
-    /** Map of XML element names to associated handlers */
+    /** Map of XML element names to associated handler classes */
     private Map handlerMap = new HashMap();
 
     /**
-     * Start processing an XML node. After some internal
-     * housekeeping, this method simply calls
-     * {@link startElement(String, Attributes)}
+     * Handler instance pool. Contains {@link LinkedList} of
+     * available instances indexed by class
      */
-    protected final void startElement(String name, Attributes attrib,
-				      XMLHandlerBase parent)
+    private static Map instancePool = new HashMap();
+
+    /**
+     * Start processing an XML node. After some internal
+     * housekeeping, this method simply calls {@link #startElement}.
+     * Subclasses overriding this method <em>must</em> call
+     * <code>super.startElementInternal(name, attrib, parent)</code>
+     * in their implementation.
+     */
+    protected void startElementInternal(String name, Attributes attrib,
+					XMLHandlerBase parent)
 	      throws SWFWriterException {
 	this.parent = parent;
 	elementName = name;
@@ -62,25 +78,36 @@ public abstract class XMLHandlerBase {
     }
 
     /**
-     * Start processing an XML node. The default implementation does nothing.
+     * Finish processing an XML node. First calls {@link #endElement},
+     * then {@link #notify} on the parent handler and finally does
+     * some internal housekeeping.
+     * Subclasses overriding this method <em>must</em> call
+     * <code>super.endElementInternal()</code> in their implementation.
      */
-    protected void startElement(String name, Attributes attrib)
-	      throws SWFWriterException {
+    protected void endElementInternal() throws SWFWriterException {
+	endElement();
+	parent.notify(elementName, this);
+	getSWFWriter().setCurrentXMLHandler(parent);
+	parent = null;
+	// Put this instance back into the pool....
+	LinkedList instances = (LinkedList)instancePool.get(this.getClass());
+	if (instances == null) {
+	    instances = new LinkedList();
+	    instancePool.put(this.getClass(), instances);
+	}
+	instances.add(this);
     }
 
     /**
-     * Finish processing an XML node. Performs the following tasks:
-     * <ul>
-     * <li>notify the parent via {@link #notify}
-     * <li>handle internal housekeeping
-     * </ul>
-     * Subclasses overriding this method <em>must</em> call
-     * <code>super.endElement()</code>!
+     * Start processing an XML node. The default implementation does nothing.
      */
-    protected void endElement() throws SWFWriterException {
-	parent.notify(elementName, this);
-	getSWFWriter().setCurrentXMLHandler(parent);
-    }
+    protected void startElement(String name, Attributes attrib)
+	      throws SWFWriterException {}
+
+    /**
+     * Finish processing an XML node. The default implementation does nothing.
+     */
+    protected void endElement() throws SWFWriterException {}
 
     /** Get the associated SWFWriter */
     protected SWFWriter getSWFWriter() {
@@ -100,18 +127,41 @@ public abstract class XMLHandlerBase {
     }
 
 
-    /** Associate a handler with an element name */
+    /**
+     * Associate a handler class with an element name
+     * @exception IllegalArgumentException if
+     * {@link XMLHandler} is not assignable from <code>handlerClass</code>.
+     */
     protected void registerElementHandler(String name,
-					  XMLHandlerBase handler) {
-	handlerMap.put(name, handler);
+					  Class handlerClass) {
+	if (!XMLHandlerBase.class.isAssignableFrom(handlerClass)) {
+	    throw new IllegalArgumentException(
+		   "Not a valid XMLHandler: " + handlerClass.getName());
+	}
+	handlerMap.put(name, handlerClass);
     }
 
     /** Dispatch an XML element to the appropriate element handler */
     protected void dispatch(String name, Attributes attrib)
 	      throws SWFWriterException {
-	XMLHandlerBase handler = (XMLHandlerBase)handlerMap.get(name);
-	if (handler != null) handler.startElement(name, attrib, this);
-	else dispatchDefault(name, attrib);
+
+	Class handlerClass = (Class)handlerMap.get(name);
+	if (handlerClass != null) {
+	    // Get an instance from the pool or create a new one if
+	    // necessary.
+	    LinkedList instances =(LinkedList)instancePool.get(handlerClass);
+	    XMLHandlerBase handler = null;
+	    if (instances != null) {
+		handler = (XMLHandlerBase)instances.removeFirst();
+	    } else {
+		try {
+		    handler = (XMLHandlerBase)handlerClass.newInstance();
+		} catch (Exception e) {
+		    fatalError(e);
+		}
+	    }
+	    handler.startElementInternal(name, attrib, this);
+	} else dispatchDefault(name, attrib);
     }
 
     /**
@@ -151,6 +201,7 @@ public abstract class XMLHandlerBase {
 				     getSWFWriter().getDocumentLocator(),
 				     cause);
     }
+
     /**
      * Signal a fatal error to the application.
      * This convenience method always throws a {@link SWFWriterException}
@@ -164,6 +215,7 @@ public abstract class XMLHandlerBase {
 	throw new SWFWriterException(message,
 				     getSWFWriter().getDocumentLocator());
     }
+
     /**
      * Signal a fatal error to the application.
      * This convenience method always throws a {@link SWFWriterException}
@@ -178,4 +230,10 @@ public abstract class XMLHandlerBase {
 				     getSWFWriter().getDocumentLocator(),
 				     cause);
     }
+
+    /**
+     * Get the handler for the parent (enclosing) XML element.
+     */
+    protected XMLHandlerBase getParent() { return parent; }
+    
 }

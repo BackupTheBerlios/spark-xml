@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFontInfo.java,v 1.4 2001/06/27 16:21:56 kunze Exp $
+ * $Id: SWFDefineFontInfo.java,v 1.5 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -121,7 +121,8 @@ import java.io.UnsupportedEncodingException;
  * for testing.</p>
  * @author Richard Kunze
  */
-public class SWFDefineFontInfo extends SWFDataTypeBase {
+public class SWFDefineFontInfo extends SWFDataTypeBase
+                               implements SWFTopLevelDataType {
     /** The SWF tag type of this class */
     public static final int TAG_TYPE = SWFTypes.DEFINE_FONTINFO;
     
@@ -350,4 +351,7 @@ public class SWFDefineFontInfo extends SWFDataTypeBase {
 	    out.write(code);
 	}
     }
+
+    /** Get the tag type of this object */
+    public int getTagType() { return TAG_TYPE; }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLGlyphHandler.java,v 1.1 2001/06/28 17:15:46 kunze Exp $
+ * $Id: XMLGlyphHandler.java,v 1.2 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -32,9 +32,9 @@ import org.xml.sax.Attributes;
  * The <em>&lt;Font&gt;</em> tag defines a font which is expressed in
  * SWF as either a DefineFont2 structure or a
  * DefineFont/DefineFontInfo pair.
- * @see de.tivano.flash.swf.parse.SWFDefineFont2Reader
- * @see de.tivano.flash.swf.parse.SWFDefineFontReader
- * @see de.tivano.flash.swf.parse.SWFDefineFontInfoReader
+ * @see de.tivano.flash.swf.parser.SWFDefineFont2Reader
+ * @see de.tivano.flash.swf.parser.SWFDefineFontReader
+ * @see de.tivano.flash.swf.parser.SWFDefineFontInfoReader
  */
 public class XMLGlyphHandler extends XMLHandlerBase {
     private Character ch;
@@ -43,8 +43,8 @@ public class XMLGlyphHandler extends XMLHandlerBase {
     private SWFShape shape;
     
     public XMLGlyphHandler() {
-	registerElementHandler("ShapeRaw", new XMLShapeRawHandler());
-	registerElementHandler("Shape", new XMLShapeHandler());
+	registerElementHandler("ShapeRaw", XMLShapeRawHandler.class);
+	registerElementHandler("Shape", XMLShapeHandler.class);
     }
 
     /** Get the character code for this glyph. */

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.8 2001/06/27 16:21:56 kunze Exp $
+ * $Id: SWFFont.java,v 1.9 2001/07/02 08:07:22 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -202,7 +202,7 @@ public class SWFFont {
     /** Check if this font includes metrics information. If this
      * method returns <code>false</code>, the values returned by
      * {@link #getAscent}, {@link #getDescent}, {@link #getLeading},
-     * {@link #getAdvance} and {@link getKerning} are meaningless.
+     * {@link #getAdvance} and {@link #getKerning} are meaningless.
      */
     public boolean hasMetrics() { return hasMetrics; }
     
@@ -413,6 +413,24 @@ public class SWFFont {
 	Glyph glyph = getGlyph(c);
 	if (glyph == null) return -1;
 	else return glyph.getIndex();
+    }
+
+    /**
+     * Mark the glyph corresponding to this character as used.
+     * @param c the character to mark
+     */
+    public void markUsed(char c) {
+	getGlyphIndex(c);
+    }
+
+    /**
+     * Mark all characters in <code>str</code> as used.
+     * @param str the string buffer to mark.
+     */
+    public void markUsed(StringBuffer str) {
+	for (int i=0; i<str.length(); i++) {
+	    markUsed(str.charAt(i));
+	}
     }
 
     /**

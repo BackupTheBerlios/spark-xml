@@ -17,24 +17,21 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLShowFrameHandler.java,v 1.2 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFTopLevelDataType.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
  */
 
-package de.tivano.flash.swf.publisher;
-import de.tivano.flash.swf.common.SWFTypes;
+package de.tivano.flash.swf.common;
+
+import java.io.IOException;
 
 /**
- * Handler for the <em>&lt;ShowFrame /&gt;</em> XML tag.
- * The <em>&lt;ShowFrame /&gt;</em> tag denotes the end of a frame in
- * SWF. This emtpy marker tag does not hold any additional data. 
+ * This interface is implemented by all classes that represent SWF data.
+ *
+ * It defines basic methods common to all SWF data types.
+ *
  * @author Richard Kunze
- * @see de.tivano.flash.swf.parser.SWFShowFrameReader
  */
-public class XMLShowFrameHandler extends SWFTagHandlerBase {
-    /**
-     * Create the SWF writer object for actually writing out raw data.
-     */
-    protected SWFTagWriter createDataObject() {
-	return new SWFEmptyTagWriter(SWFTypes.SHOW_FRAME);
-    }
+public interface SWFTopLevelDataType extends SWFDataType {
+    /** Get the type id for this data type */
+    public int getTagType();
 }
