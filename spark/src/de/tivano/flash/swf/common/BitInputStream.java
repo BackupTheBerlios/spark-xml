@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitInputStream.java,v 1.5 2001/05/14 14:17:49 kunze Exp $
+ * $Id: BitInputStream.java,v 1.6 2001/05/21 17:52:26 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -31,17 +31,19 @@ import java.io.InputStream;
  * An <code>InputStream</code> for handling unstructured bit data.
  *
  * <p>Unlike "normal" java input streams that assume a byte as the
- * smallest unit of the underlying data, this input streams treats it
- * as an unstructured stream of bits. It provides support to read
- * byte data from any position (not neccessary aligned to a byte
- * boundary) in the stream, as well as utility methods to read primitive
- * data types containing a different number of bits than 8.</p>
+ * smallest unit of data, this input streams treats its data as an
+ * unstructured stream of bits. It provides support to read byte data
+ * from any position (not neccessary aligned to a byte boundary) in
+ * the stream, as well as utility methods to read primitive data types
+ * containing a different number of bits than 8.</p>
  *
  * <p><em>Caution: This class is <strong>not</strong> thread safe. It is
  * assumed that an instance of <code>BitInputStream</code> is only
  * used by one thread at a time. If you need a thread safe bit input
  * stream, derive from this class and synchronize the
- * <code>readUBits()</code> method.</em></p>
+ * <code>readUBits()</code> method. You may also have to synchronize
+ * all of the <code>read()</code> methods if the underlying input stream is
+ * not already thread safe.</em></p>
  *
  * @author Richard Kunze
  */
