@@ -29,13 +29,27 @@ public class BitInputStream extends FilterInputStream {
     /** The next few unread bits */
     private long buffer = 0;
 
-    /** Temporary buffer for holding data from the underlying stream. */
-    private byte[] bufferTmp = new byte[7];
-
     /** The current bit position in the buffer */
     private int bitsLeft = 0;
 
-    /** @see FilterInputStream#FilterInputStream */
+    /** The bit buffer saved from <code>mark()</code> */
+    private long bufferMarkSave = 0;
+
+    /**
+     * The current bit position in the buffer saved from
+     * <code>mark()</code>
+     */
+    private int bitsLeftMarkSave = 0;
+
+    /** Temporary buffer for holding data from the underlying stream. */
+    private byte[] bufferTmp = new byte[7];
+
+    /**
+     * Creates a new <code>BitInputStream</code> instance.
+     *
+     * @param in an <code>InputStream</code> value
+     * @see FilterInputStream#FilterInputStream
+     */
     public BitInputStream(InputStream in) { super(in); }
 	
     /**
@@ -68,27 +82,32 @@ public class BitInputStream extends FilterInputStream {
 
 	// Try to read as many bytes as necessary
 	// The super.read() throws an IndexOutOfBoundsException if n >> 56
-	int byteCount = n >>> 4;
+	int byteCount = (n + 7 - bitsLeft) >>> 3;
 	int bytesRead = super.read(bufferTmp, 0, byteCount);
 
 	// Shift as many bytes into the buffer as have been actually read
 	int pos = 0;
 	switch (bytesRead) {
 	case 7:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 6:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 5:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 4:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 3:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 2:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 1:
-	    buffer = (buffer << 8) | bufferTmp[pos++];
+	    buffer = (buffer << 8) | (bufferTmp[pos++] & 0xFFL);
 	case 0:
+	    break;
+	case -1:
+	    // If we're at the end of the underlying stream, simply
+	    // return what we've still left in the bit buffer
+	    bytesRead = 0;
 	    break;
 	default:
 	    // Paranoia code. This should never happen.
@@ -99,17 +118,18 @@ public class BitInputStream extends FilterInputStream {
 	}
 
 	// Count the bits we've read from the underlying stream.
-	bitsLeft += (bytesRead << 4);
+	bitsLeft += (bytesRead << 3);
 
 	// OK, we're done reading bits. Now check if we've got enough
-	// bits to satisfy the demand
+	// bits to satisfy the request
 	if (bytesRead != byteCount)
 	    throw new EOFException();
 	
 	// Calculate the return value, and keep the remaining bits in
 	// the buffer. There are never more than 7 bits remaining.
+	bitsLeft -= n;
 	long retval = buffer >>> bitsLeft;
-	long mask   = -1L    >>> bitsLeft;
+	long mask   = (0x7F  >>> (7 - bitsLeft));
 	buffer &= mask;
 
 	return retval;
@@ -136,15 +156,12 @@ public class BitInputStream extends FilterInputStream {
      * @see #countRemainingBits()
      */
     public long readSBits(int n) throws IOException {
-	return signExpand(readUBits(n), n);
-    }
-
-    /**
-     * Do sign expansion for a value with <code>n</code> bits.
-     */
-    private long signExpand(long val, long n) {
-	long mask = -1L << (n-1);
-	return ((val & mask) == 0?val:val | mask);
+	long val = readUBits(n);
+	long wrap = 1L<<(n-1);
+	if (val >= wrap) {
+	    val -= wrap << 1;
+	}
+	return val;
     }
 
     /**
@@ -186,6 +203,16 @@ public class BitInputStream extends FilterInputStream {
      * and 7, at the end of the stream a value between 0 and 55.
      */
     public int countRemainingBits() { return bitsLeft; }
+
+    /**
+     * Returns the number of bits that can be read (or skipped over)
+     * from this input stream without blocking by the next caller of a
+     * method on this input stream.
+     * @IOException if an I/O error occurs
+     */
+    public long availableBits() throws IOException {
+	return available()*8 + bitsLeft;
+    }
 
     /**
      * Check if the current read position is at a byte boundary with
@@ -239,10 +266,24 @@ public class BitInputStream extends FilterInputStream {
      * data available. 
      */
     public int read(byte[] buffer, int off, int len) throws IOException {
+
+	// Check explictitly for buffer==null to make sure a
+	// NullPointerException is even when off==len==0. Needed to
+	// conform to the InputStream.read() documentation
+	if (buffer==null) throw new NullPointerException();
+
+	// Check explicitly for off<0, len<0 and off+len >
+	// buffer.length to make sure an IndexOutfBoudsException is
+	// thrown and the stream state is not changed. Needed to
+	// conform to the InputStream.read() documentation
+	if (len<0 || off<0 || off+len > buffer.length) {
+	    throw new IndexOutOfBoundsException();
+	}
+	
 	int end = off + len;
 	for (int pos = off; pos < end; pos++) {
 	    int tmp = read();
-	    if (tmp == -1) return pos - off - 1;
+	    if (tmp == -1) return pos - off;
 	    buffer[pos] = (byte)tmp;
 	}
 	return len;
@@ -277,12 +318,12 @@ public class BitInputStream extends FilterInputStream {
 	    n -= CHUNK_SIZE;
 	    bytesSkipped += CHUNK_SIZE;
 	}
-	bytesSkipped -= skipBits(n*8) / 8;
+	bytesSkipped += skipBits(n*8) / 8;
 	return bytesSkipped;
     }
 
     /**
-     * Skips over and discards <code>n</code> bits of data from the
+     * Skips over and discards up to <code>n</code> bits of data from the
      * input stream.
      * @param n the number of bits to skip.
      * @return the number of bits actually skipped.
@@ -290,7 +331,6 @@ public class BitInputStream extends FilterInputStream {
     public long skipBits(long n) throws IOException {
 	// Don't simply go through repeated calls to readBits() for
 	// efficiency reasons...
-
 	if (n < 0) return 0;
 	
 	int buffered  = countRemainingBits();
@@ -315,14 +355,21 @@ public class BitInputStream extends FilterInputStream {
 	// as many entire bytes as possible.
 	remaining -= super.skip(remaining/8) * 8;
 
-	// Finally, skip the remaining bits by calling readUBits().
-	// As there are at most 7 bits remaining to be skipped at this
-	// time, everything will still work even if we get an
-	// EOFException in readUBits() here...
+	// Finally, skip as many remaining bits as possible by calling
+	// readUBits().
 	try {
 	    readUBits((int)remaining);
 	    remaining = 0;
 	} catch (EOFException e) {
+	    remaining -= countRemainingBits();
+	    skipToByteBoundary();
+	} catch (IndexOutOfBoundsException e) {
+	    // We're getting here when remaining > 56 holds. In this
+	    // case, super.skip() already reached the end of the
+	    // stream, so we can simply collect the remaining bits
+	    // from the buffer and return. We don't even have to worry
+	    // about readUBits() possibling losing some data, because
+	    // it's the *purpose* of skip() to lose this data :-)
 	    remaining -= countRemainingBits();
 	    skipToByteBoundary();
 	}
@@ -398,5 +445,76 @@ public class BitInputStream extends FilterInputStream {
      */
     public long readSW32() throws IOException {
 	return readSBits(32);
+    }
+
+    /**
+     * Marks the current position in this input stream.
+     * <p>A subsequent call to the <code>reset()</code> method
+     * repositions this stream at the last marked position so that
+     * subsequent reads re-read the same bits.</p>
+     * @param readlimit the maximum limit of bytes that can be read
+     * before the mark position becomes invalid. the limit is given in
+     * bytes instead of bits to maintain compatibility with ordinary
+     * input streams.
+     */
+    public void mark(int readlimit) {
+	super.mark(readlimit);
+	// Save the buffer state only if mark is supported on the
+	// underlying stream. If not, keep both at the initial value
+	// of 0 to ensure that reset() resets to the start of the
+	// stream if it does not throw an exception.
+	if (markSupported()) {
+	    bufferMarkSave   = buffer;
+	    bitsLeftMarkSave = bitsLeft;
+	}
+    }
+
+    /**
+     * Repositions this stream to the position at the time the mark
+     * method was last called on this input stream.
+     *
+     * <p>The exact behaviour of <code>reset()</code> depends on how
+     * the underlying stream handles <code>reset()</code>. In
+     * detail:</p>
+     * <ul>
+     * <li>If <code>markSupported()</code> returns <code>true</code>
+     *   <ul>
+     *     <li>If <code>super.reset()</code> throws an
+     *        <code>IOException</code>, <code>reset()</code> throws an
+     *        <code>IOExpcetion</code>.
+     *     </li>
+     *     <li>If <code>super.reset()</code> does not throw an
+     *         exception, the stream is reset to a state such that all
+     *         the bits read since the most recent call to
+     *         <code>mark()</code> (or since the start of the stream,
+     *         if <code>mark()</code> has not been called) will be
+     *         resupplied to subsequent callers of the read method,
+     *         followed by any bits that otherwise would have been the
+     *         next input data as of the time of the call to
+     *         <code>reset()</code>.
+     *     </li>
+     *   </ul>
+     * </li>
+     * <li>If <code>markSupported()</code> returns <code>false</code>
+     *   <ul>
+     *     <li>If <code>super.reset()</code> throws an
+     *        <code>IOException</code>, <code>reset()</code> throws an
+     *        <code>IOExpcetion</code>.
+     *     </li>
+     *     <li>If <code>super.reset()</code> does not throw an
+     *         exception, the stream is reset to a fixed position
+     *         depending on the underlying stream. This fixed position
+     *         is always at a byte boundary.
+     *     </li>
+     *   </ul>
+     * </li>
+     * </ul>
+     * @exception IOException  if this stream has not been marked or
+     * if the mark has been invalidated.
+     */
+    public void reset() throws IOException {
+	super.reset();
+	buffer   = bufferMarkSave;
+	bitsLeft = bitsLeftMarkSave;
     }
 }

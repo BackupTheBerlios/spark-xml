@@ -49,6 +49,7 @@
     <filter token="date" value="${TODAY}"/>
     <filter token="log" value="true"/>
     <filter token="verbose" value="true"/>
+    
   </target>
 
   <!-- =================================================================== -->
@@ -62,13 +63,14 @@
     <echo message=""/>
     <echo message=" available targets are:"/>
     <echo message=""/>
-    <echo message="   all      -> build everything except the api docs in order (default)"/>
-    <echo message="   package  -> generates the ${name}.jar file"/>
-    <echo message="   compile  -> compiles the source code"/>
-    <echo message="   javadoc  -> generates the API documentation"/>
-    <!-- <echo message="   samples  -> generates the ${Name} sample classes"/> -->
-    <echo message="   tests    -> generates and runs ${Name} tests"/>
-    <echo message="   clean    -> cleans up the directory"/>
+    <echo message="   all       -> build everything except the api docs in order (default)"/>
+    <echo message="   package   -> generates the ${name}.jar file"/>
+    <echo message="   compile   -> compiles the source code"/>
+    <echo message="   javadoc   -> generates the API documentation"/>
+    <!-- <echo message="   samples   -> generates the ${Name} sample classes"/> -->
+    <echo message="   tests     -> generates and runs ${Name} tests"/>
+    <echo message="   emacs-jde -> generates .prj.el file for Emacs JDE"/>
+    <echo message="   clean     -> cleans up the directory"/>
     <echo message=""/>
     <echo message=" See the comments inside the build.xml file for more details."/>
     <echo message="-------------------------------------------------------------"/>
@@ -148,18 +150,22 @@
   <!-- junit targets                                                       -->
   <!-- =================================================================== -->
 
-  <!-- redefine the junit task to use the provide lib/junit.jar -->
+  <!-- redefine the junit task to use the provided lib/junit.jar -->
+  <!--
   <taskdef name="junit"
            classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
     <classpath>
       <pathelement location="${lib.dir}/junit.jar" /> 
     </classpath>
   </taskdef>
-  
+  -->
 
   <target name="compiletests" depends="compile">
     <mkdir dir="${build.tests}" />
-    <javac srcdir="${test.dir}" destdir="${build.tests}" >
+    <javac srcdir="${test.dir}"
+               destdir="${build.tests}"
+	       debug="${debug}"
+	       optimize="${optimize}">
        <include name="**/*.java" />
        <!-- include the build.dir so we can run the tests -->
        <classpath>
@@ -169,10 +175,9 @@
     </javac>
   </target>
 
-  <target name="tests" depends="compiletests">
-    <junit printsummary="yes" fork="no" haltonfailure="yes">
+  <target name="tests" depends="init,compiletests">
+    <junit printsummary="yes" fork="yes" haltonfailure="no">
       <classpath>
-	<pathelement location="${lib.dir}/junit.jar" />
 	<pathelement location="${test.dir}" />
 	<pathelement location="${src.dir}" />
 	<pathelement path="${java.class.path}" />
@@ -180,13 +185,18 @@
 	<pathelement path="${build.dest}" />
       </classpath>
       <formatter type="plain" />
-      <batchtest fork="no">
+      <batchtest fork="yes" todir="${build.dir}">
       <fileset dir="${test.dir}">
 	    <include name="**/*Test*.java" />
 	    <exclude name="**/AllTests.java" />
 	  </fileset>
       </batchtest>
     </junit>
+    <move todir="${build.dir}">
+      <fileset dir=".">
+	<include name="TEST-*.txt" />
+      </fileset>
+    </move>
   </target>
 
   <!-- =================================================================== -->
@@ -211,7 +221,7 @@
   <!-- =================================================================== -->
   <!-- The easy way.                                                       -->
   <!-- =================================================================== -->
-  <target name="all" depends="package,compile" />
+  <target name="all" depends="compile,compiletests" />
 
   <!-- =================================================================== -->
   <!-- Clean targets                                                       -->
@@ -232,8 +242,29 @@
     <delete file="${Name}-${version}.tar.gz"/>
     <delete file="${Name}-${version}.tar"/>
     <delete file="${Name}-${version}.zip"/>
+    <delete quiet="true" file=".jde.properties" />
+    <delete quiet="true" file=".prj.el" />
   </target>
 
+  <!-- =================================================================== -->
+  <!-- IDE targets                                                         -->
+  <!-- =================================================================== -->
+  <!-- generate an appropriate .prj.el file for JDE -->
+  <target name="emacs-jde" depends="init">
+    <echo file=".jde.properties">
+jde.classpath="${java.class.path}${path.separator}${build.dir}/classes${path.separator}${build.dir}/tests"</echo>
+    <echo append="true" file=".jde.properties">
+jde.srcdirs="${src.dir}${path.separator}${test.dir}"</echo>
+    <replace file=".jde.properties" token="${path.separator}" value='" "' />
+    <echo append="true" file=".jde.properties">
+jde.basedir=${basedir}</echo>
+    <copy file=".prj.el.in" tofile=".prj.el" />
+    <replace file=".prj.el" propertyfile=".jde.properties">
+      <replacefilter token="@jde.basedir@"   property="jde.basedir" />
+      <replacefilter token="@jde.classpath@" property="jde.classpath" />
+      <replacefilter token="@jde.srcdirs@" property="jde.srcdirs" />
+    </replace>
+  </target>
 </project>
 
 <!-- End of file -->
