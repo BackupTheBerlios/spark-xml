@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.4 2001/05/30 16:23:15 kunze Exp $
+ * $Id: Flash2XML.java,v 1.5 2001/06/01 08:40:07 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
@@ -44,8 +44,11 @@ public class Flash2XML {
     private class XMLWriter extends DefaultHandler {
 	private int indent = 0;
 	private String lastName = null;
+	private boolean needNewline = false;
 
 	private void printIndent() {
+	    if (needNewline) System.out.println();
+	    needNewline = false;
 	    for (int i=0; i<indent; i++) System.out.print("  ");
 	}
 	
@@ -57,7 +60,7 @@ public class Flash2XML {
 	    // first...
 	    if (lastName != null) {
 		System.out.println(">");
-	    }
+	    }	    
 	    printIndent();
 	    System.out.print("<" + localName);
 	    if (attr != null) {
@@ -89,17 +92,19 @@ public class Flash2XML {
 	    // Print the missing ">" from the previous startElement()
 	    // first, and make sure the next endElement() doesn't assume
 	    // this is an empty element...
-	    if (lastName!=null) System.out.println(">");
+	    if (lastName!=null) {
+		System.out.println(">");
+		printIndent();
+	    } else if (!needNewline) printIndent();
 	    lastName = null;
 
 	    // Print the characters, with indentation after every
 	    // newline.
-	    printIndent();
 	    for (int i=start; i<start+length; i++) {
 		System.out.print(ch[i]);
 		if (ch[i] == '\n' && i!=start+length-1) printIndent();
 	    }
-	    if (ch[start+length-1] != '\n') System.out.println();
+	    needNewline = ch[start+length-1] != '\n';
 	}
     }
 

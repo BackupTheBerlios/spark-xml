@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.6 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.7 2001/06/01 08:40:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -301,8 +301,12 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
      * @see org.xml.sax.ErrorHandler#warning
      */
     protected void warning(String msg) throws SAXException {
-	getSAXDriver().getErrorHandler().warning(
-			       createSAXParseException(msg));
+	try {
+	    getSAXDriver().getErrorHandler().warning(
+				      createSAXParseException(msg));
+	} catch (NullPointerException e) {
+	    // his means there is no error handler set. Simply ignore it.
+	}
     }
 
     /**

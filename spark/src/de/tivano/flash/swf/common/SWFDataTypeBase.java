@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDataTypeBase.java,v 1.1 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFDataTypeBase.java,v 1.2 2001/06/01 08:40:07 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -84,5 +84,21 @@ public abstract class SWFDataTypeBase implements SWFDataType {
      */
     protected static long paddedLength(long length) {
 	return (length/8)*8 + (length%8!=0?1:0);
+    }
+
+    /**
+     * Get the floating point representaion of a fixed value.
+     * The lowest 16 bits are treated as the fractional part of the value.
+     */
+    protected static double fromFixed(long fixed) {
+	return ((double)fixed) / 0xFFFFL;
+    }
+
+    /**
+     * Get the fixed point representaion of a value.
+     * The lowest 16 bits are treated as the fractional part of the value.
+     */
+    protected static long toFixed(double value) {
+	return Math.round(value * 0xFFFFL);
     }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextFieldReader.java,v 1.1 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFDefineTextFieldReader.java,v 1.2 2001/06/01 08:40:07 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -25,6 +25,9 @@ package de.tivano.flash.swf.parser;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.tivano.flash.swf.common.SWFTagHeader;
 import de.tivano.flash.swf.common.SWFDefineTextField;
@@ -42,7 +45,9 @@ import de.tivano.flash.swf.common.BitInputStream;
  *               multiline="<em>yes|no</em>" password="<em>yes|no</em>" wordwrap="<em>yes|no</em>"&gt;
  *   &lt;Text xmin="<em>xmin</em>" xmax="<em>xmax</em>"& ymin="<em>ymin</em>" ymax="<em>ymax</em>"
  *            border="<em>yes|no</em>" selectable="<em>yes|no</em>"
- *            alpha="<em>alpha value</em>"gt;
+ *            alpha="<em>alpha value</em>" indent="<em>first line indent</em>"
+ *            leftmargin="<em>left margin</em>" rightmargin="<em>right margin"
+ *            linespacing="<em>vertical distance between lines</em>"&gt;
  *     &gt;!-- Text data, may contain some markup tags. Example: -->
  *     &lt;p align="left"&gt;Text with &lt;i&gt;markup&lt;/i&gt;&lt;/p&gt;
  *   &lt;/Text&gt;
@@ -71,6 +76,31 @@ import de.tivano.flash.swf.common.BitInputStream;
  * @author Richard Kunze
  */
 public class SWFDefineTextFieldReader extends SWFTagReaderBase {
+
+    /**
+     * Map of HTML entity names to character arrays.
+     * Used in parsing the embedded HTML in Flash 5 text fields
+     */
+    private final static Map ENTITIES = new HashMap();
+
+    /** Set up the entity map */
+    static {
+	ENTITIES.put("nbsp", new char[] { 0xA0 });
+	ENTITIES.put("lt", new char[] { '<' });
+	ENTITIES.put("gt", new char[] { '>' });
+	ENTITIES.put("amp", new char[] { '&' });
+	ENTITIES.put("quot", new char[] { '"' });
+    }
+
+    /** Default character value for unknown entities */
+    private static final char[] UNKNOWN_ENTITY = { 0x25AF };
+
+    /** Attributes to use while parsing */
+    private SWFAttributes pAttr    = createAttributes();
+    private SWFAttributes fontAttr = createAttributes();
+    private SWFAttributes htmlAttr = createAttributes();
+    SWFAttributes attrib = createAttributes();
+    
     /**
      * Read the tag content.
      * @param input the SWF data stream
@@ -79,10 +109,10 @@ public class SWFDefineTextFieldReader extends SWFTagReaderBase {
     public void parse(BitInputStream input, SWFTagHeader header)
                 throws SAXException, IOException {
 	SWFDefineTextField textField = new SWFDefineTextField(input);
-	SWFAttributes attrib = createAttributes();
 	String encoding =
 	    SWFFont.getCanonicalEncodingName(SWFFont.ANSI);
 	SWFFont font = null;
+	attrib.clear();
 	if (textField.hasFont()) {
 	    font = (SWFFont)getContextMap().get(
 				  new Integer(textField.getFontID()));
@@ -173,45 +203,45 @@ public class SWFDefineTextFieldReader extends SWFTagReaderBase {
 				   int layout, double size,
 				   SWFColorRGBA color)
 	           throws SAXException {
-	SWFAttributes pAttr    = createAttributes();
-	SWFAttributes fontAttr = createAttributes();
+	pAttr.clear();
+	fontAttr.clear();
 	switch (align) {
 	case SWFDefineTextField.ALIGN_LEFT:
-	    pAttr.addAttribute("align", "left"); break;
+	    pAttr.addAttribute("ALIGN", "LEFT"); break;
 	case SWFDefineTextField.ALIGN_RIGHT:
-	    pAttr.addAttribute("align", "right"); break;
+	    pAttr.addAttribute("ALIGN", "RIGHT"); break;
 	case SWFDefineTextField.ALIGN_CENTER:
-	    pAttr.addAttribute("align", "center"); break;
+	    pAttr.addAttribute("ALIGN", "CENTER"); break;
 	case SWFDefineTextField.ALIGN_JUSTIFY:
-	    pAttr.addAttribute("align", "justify"); break;
+	    pAttr.addAttribute("ALIGN", "JUSTIFY"); break;
 	default:
-	    warning("Unknown text alignment. Defaulting to \"left\"");
-	    pAttr.addAttribute("align", "left");
+	    warning("Unknown text alignment. Defaulting to \"LEFT\"");
+	    pAttr.addAttribute("ALIGN", "LEFT");
 	    break;
 	}
 
-	if (font != null) fontAttr.addAttribute("face", font);
-	fontAttr.addAttribute("size", size);
-	fontAttr.addAttribute("color", "#" +
+	if (font != null) fontAttr.addAttribute("FACE", font);
+	fontAttr.addAttribute("SIZE", size);
+	fontAttr.addAttribute("COLOR", "#" +
 			      color.toHexString(false).toUpperCase());
 
 	// Encode every line of text as a single paragraph.
 	int start = 0;
 	int end = start;
 	do {
-	    startElement("p", pAttr);
+	    startElement("P", pAttr);
 	    while (end < text.length && text[end] != '\r') end++;
 	    end++;
 	    if (start < end) {
-		startElement("font", fontAttr);
-		if ((layout & SWFFont.BOLD) != 0) startElement("b", null);
-		if ((layout & SWFFont.ITALIC) != 0) startElement("i", null);
+		startElement("FONT", fontAttr);
+		if ((layout & SWFFont.BOLD) != 0) startElement("B", null);
+		if ((layout & SWFFont.ITALIC) != 0) startElement("I", null);
 		handleGeneratorVariables(text, start, end-1);
-		if ((layout & SWFFont.ITALIC) != 0) endElement("i");
-		if ((layout & SWFFont.BOLD) != 0) endElement("b");
-		endElement("font");
+		if ((layout & SWFFont.ITALIC) != 0) endElement("I");
+		if ((layout & SWFFont.BOLD) != 0) endElement("B");
+		endElement("FONT");
 	    }
-	    endElement("p");
+	    endElement("P");
 	    start = end;
 	} while (end < text.length);
     }
@@ -223,8 +253,100 @@ public class SWFDefineTextFieldReader extends SWFTagReaderBase {
      */
     protected void handleHTMLText(char[] text)
 	           throws SAXException {
-	// FIXME: Implement this!!
-	characters(text);
+	int start = 0;
+	int pos = start;
+
+	// XXX: this is a *very* simplistic parser. Assumes that all embedded
+	// tags in SWF files are nested correctly and that there are
+	// no empty tags. If this assumption is violated, it will
+	// produce invalid XML.
+	while (pos < text.length) {
+	    switch (text[pos]) {
+	    case '<':
+		handleGeneratorVariables(text, start, pos);
+		start = handleHTMLTag(text, pos) + 1;
+		pos = start;
+		break;
+	    case '&':
+		handleGeneratorVariables(text, start, pos++);
+		int end = pos;
+		try {
+		    while (text[end] != ';') end++;
+		} catch (IndexOutOfBoundsException e) {
+		    // No final ";" found. Assume an unescaped "&" and
+		    // send it on as a normal character...
+		    warning("Unescaped '&' found.");
+		    start = pos - 1;
+		    continue;
+		}
+		char[] entity =
+		    (char[])ENTITIES.get(new String(text, pos, end-pos));
+		if (entity == null) {
+		    warning("Unknow character entity &" +
+			    new String(text, pos, end-pos-1) +
+			    "; found. Substituting " + UNKNOWN_ENTITY);
+		    entity = UNKNOWN_ENTITY;
+		}
+		characters(entity, 0, entity.length);
+		start = end + 1;
+		pos = start;
+		break;
+	    default:
+		pos++;
+		break;
+	    }
+	}
+	handleGeneratorVariables(text, start, pos);
+    }
+
+    /**
+     * Send the appropriate XML for a single embedded start or end tag
+     * @param buffer the character buffer
+     * @param start position of the initial '<' for this tag
+     * @return the position of the final '>' for this tag. In case of
+     * errors, start-1 is returned.
+     */
+    protected int handleHTMLTag(char[] buffer, int start) throws SAXException {
+	int pos = start+1;
+	int end = pos;
+	try {
+	    if (buffer[pos] == '/') {
+		pos++;
+		while (buffer[end] != '>') end++;
+		endElement(new String(buffer, pos, end-pos));
+		return end;
+	    } else {
+		htmlAttr.clear();
+		while (buffer[end] != ' ' && buffer[end] != '>') end++;
+		String tagName = new String(buffer, pos, end-pos);
+		pos = end;
+		while (buffer[pos] == ' ') pos++;
+		end = pos;
+		while (buffer[end] != '>') {
+		    while (buffer[end] != '=') end++;
+		    String attName = new String(buffer, pos, end-pos);
+		    // XXX: I'm assuming there are no character
+		    // entities embedded in attribute values....
+		    end+=2;
+		    pos = end;
+		    while (buffer[end] != '"') end++;
+		    String attValue = new String(buffer, pos, end-pos);
+		    htmlAttr.addAttribute(attName, attValue);
+		    end++;
+		    pos = end;
+		    while (buffer[pos] == ' ') pos++;
+		    end = pos;
+		}
+		startElement(tagName, htmlAttr);
+		return end;
+	    }
+	    
+	} catch (IndexOutOfBoundsException e) {
+	    warning("Illegal syntax for embedded HTML tag: \"" +
+		    new String(buffer, start, buffer.length - start) +
+		    "\". Assuming unescaped '<'.");
+	    return start-1;
+	}
     }
 
     /**

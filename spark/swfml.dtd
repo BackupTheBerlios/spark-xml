@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.8 2001/05/30 16:23:15 kunze Exp $ -->
-<!ENTITY % boolean "(true|false|on|off|yes|no)">
+<!-- $Id: swfml.dtd,v 1.9 2001/06/01 08:40:07 kunze Exp $ -->
+<!ENTITY % boolean "(true|false|on|off|yes|no|TRUE|FALSE|ON|OFF|YES|NO)">
 
 <!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (FrameSize, FramePos?,
@@ -45,8 +45,8 @@
 >
 
 <!-- Text with layout information -->
-<!ENTITY % inline "(font | b | i | span | hspace | #CDATA)">
-<!ELEMENT Text ((p, vspace?) | %inline;)* >
+<!ENTITY % inline "(FONT | B | I | SPAN | HSPACE | #CDATA)">
+<!ELEMENT Text ((P, VSPACE?) | %inline;)* >
 <!ATTLIST Text
           id          ID        #IMPLIED
           name        ID        #IMPLIED
@@ -64,34 +64,34 @@
 >
 
 <!-- A Text paragraph -->
-<!ELEMENT p (%inline;)* >
-<!ATTLIST p
-          align (left | right | center) left
-          id    ID                      #IMPLIED
+<!ELEMENT P (%inline;)* >
+<!ATTLIST P
+          ALIGN (LEFT | RIGHT | CENTER | JUSTIFY) LEFT
+          ID    ID                      #IMPLIED
 >
 
 <!-- Inlined text with a certain font -->
-<!ELEMENT font (%inline;)* >
-<!ATTLIST font
-          face  CDATA #IMPLIED
-          size  CDATA #IMPLIED
-          color CDATA #IMPLIED
-          id    ID                      #IMPLIED
+<!ELEMENT FONT (%inline;)* >
+<!ATTLIST FONT
+          FACE  CDATA #IMPLIED
+          SIZE  CDATA #IMPLIED
+          COLOR CDATA #IMPLIED
+          ID    ID                      #IMPLIED
 >
 
 <!-- Bold/italic text and text marker -->
-<!ELEMENT b (%inline;)* >
-<!ATTLIST b id ID #IMPLIED>
-<!ELEMENT i (%inline;)* >
-<!ATTLIST i id ID #IMPLIED>
-<!ELEMENT span (%inline;)* >
-<!ATTLIST span id ID #IMPLIED>
+<!ELEMENT B (%inline;)* >
+<!ATTLIST B ID ID #IMPLIED>
+<!ELEMENT I (%inline;)* >
+<!ATTLIST I ID ID #IMPLIED>
+<!ELEMENT SPAN (%inline;)* >
+<!ATTLIST SPAN ID ID #IMPLIED>
 
 <!-- Horizontal and vertical spacing information -->
-<!ELEMENT hspace EMPTY>
-<!ATTLIST hspace value CDATA #REQUIRED>
-<!ELEMENT vspace EMPTY>
-<!ATTLIST vspace value CDATA #REQUIRED>
+<!ELEMENT HSPACE EMPTY>
+<!ATTLIST HSPACE value CDATA #REQUIRED>
+<!ELEMENT VSPACE EMPTY>
+<!ATTLIST VSPACE value CDATA #REQUIRED>
 
 <!-- One paragraph of text -->
 
