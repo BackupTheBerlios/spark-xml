@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTextRecord.java,v 1.1 2001/06/01 08:40:07 kunze Exp $
+ * $Id: SWFTextRecord.java,v 1.2 2001/06/01 17:25:53 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -69,9 +69,13 @@ public abstract class SWFTextRecord extends SWFDataTypeBase {
 				      int glyphBits, int advanceBits)
 	          throws IOException {
 	if (input.readBit()) {
-	    return new SWFTextChars(input, glyphBits, advanceBits);
+	    // FIXME: Implement this!
+	    // return new SWFTextChars(input, glyphBits, advanceBits);
+	    return null;
 	} else {
-	    return new SWFTextChange(input);
+	    // FIXME: Implement this!
+	    // return new SWFTextChange(input);
+	    return null;
 	}
     }
 }
