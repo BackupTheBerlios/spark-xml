@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFRectangle.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFRectangle.java,v 1.5 2001/06/09 17:23:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -68,16 +68,16 @@ import java.util.Arrays;
  */
 public class SWFRectangle extends SWFDataTypeBase {
     /** Minimum X coordinate */
-    private final long X_MIN;
+    private final int X_MIN;
 
     /** Minimum Y coordinate */
-    private final long Y_MIN;
+    private final int Y_MIN;
 
     /** Maximum X coordinate */
-    private final long X_MAX;
+    private final int X_MAX;
 
     /** Maximum Y coordinate */
-    private final long Y_MAX;
+    private final int Y_MAX;
 
 
     /**
@@ -89,27 +89,56 @@ public class SWFRectangle extends SWFDataTypeBase {
     public SWFRectangle(BitInputStream input) throws IOException {
 	try {
 	    int fieldLen = (int)input.readUBits(5);
-	    X_MIN = input.readSBits(fieldLen);
-	    X_MAX = input.readSBits(fieldLen);
-	    Y_MIN = input.readSBits(fieldLen);
-	    Y_MAX = input.readSBits(fieldLen);
+	    X_MIN = (int)input.readSBits(fieldLen);
+	    X_MAX = (int)input.readSBits(fieldLen);
+	    Y_MIN = (int)input.readSBits(fieldLen);
+	    Y_MAX = (int)input.readSBits(fieldLen);
 	} catch (EOFException e) {
 	    throw new SWFFormatException(
               "Premature end of file encoutered while reading a rectangle");
 	}
     }
 
+    /**
+     * Construct a <code>SWFRectangle</code> from the given data.
+     * @param xmin the minimum X coordinate
+     * @param xmax the maximum X coordinate
+     * @param ymin the minimum Y coordinate
+     * @param ymax the maximum Y coordinate
+     * @exception IllegalArgumentException if <code>xmin &gt;
+     * xmax</code> or <code>ymin &gt; ymax</code>.
+     * @exception IllegalArgumentException if any of the values does
+     * not fit into a 31 (sic!) bit field.
+     */
+    public SWFRectangle(int xmin, int xmax, int ymin, int ymax) {
+	if (xmin > xmax) {
+	    throw new IllegalArgumentException("xmin > xmax");
+	}
+	if (ymin > ymax) {
+	    throw new IllegalArgumentException("ymin > ymax");
+	}
+	if (minBitsS(xmin) > 31 || minBitsS(xmax) > 31 ||
+	    minBitsS(ymin) > 31 || minBitsS(ymax) > 31) {
+	    throw new IllegalArgumentException(
+			   "Value(s) too big for a 31 bit field");
+	}
+	X_MIN = xmin;
+	X_MAX = xmax;
+	Y_MIN = ymin;
+	Y_MAX = ymax;
+    }
+
     /** Get the minimum X coordinate */
-    public long getXMin() { return X_MIN; }
+    public int getXMin() { return X_MIN; }
 
     /** Get the minimum Y coordinate */
-    public long getYMin() { return Y_MIN; }
+    public int getYMin() { return Y_MIN; }
 
     /** Get the maximum X coordinate */
-    public long getXMax() { return X_MAX; }
+    public int getXMax() { return X_MAX; }
 
     /** Get the maximum Y coordinate */
-    public long getYMax() { return Y_MAX; }
+    public int getYMax() { return Y_MAX; }
 
     /**
      * Get the length of this record. Note that the length is

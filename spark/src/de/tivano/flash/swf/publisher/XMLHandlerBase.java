@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLHandlerBase.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
+ * $Id: XMLHandlerBase.java,v 1.3 2001/06/09 17:23:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -150,5 +150,18 @@ public abstract class XMLHandlerBase {
 	throw new SWFWriterException(message,
 				     getSWFWriter().getDocumentLocator(),
 				     cause);
+    }
+    /**
+     * Signal a fatal error to the application.
+     * This convenience method always throws a {@link SWFWriterException}
+     * with the specified message. The document locator is
+     * automatically filled in. This method never returns. 
+     * @param message the error message
+     * @param cause the exception causing the error
+     */
+    protected void fatalError(String message)
+              throws SWFWriterException {
+	throw new SWFWriterException(message,
+				     getSWFWriter().getDocumentLocator());
     }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFileHeader.java,v 1.7 2001/06/06 18:57:45 kunze Exp $
+ * $Id: SWFFileHeader.java,v 1.8 2001/06/09 17:23:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -58,16 +58,17 @@ import java.util.Arrays;
  * <tr>
  *   <td>Frame Size</td>
  *   <td>varying</td>
- *   <td>Bounding box for this Movie in TWIPS. If the length of the
- *   bounding box is not a multiple of 8, the remaining bits are set to
- *   0. See {@link SWFRectangle}.
+ *   <td>Bounding box for this Movie in pixels, as TWIPS (i.e
+ *   multiplied by 20). If the length of the bounding box is not a
+ *   multiple of 8, the remaining bits are set to 0. See {@link SWFRectangle}.
  *   </td>
  * </tr>
  * <tr>
  *   <td>Frame Rate</td>
  *   <td>16</td>
  *   <td>Frame rate in frames per second, unsigned 16 bit word in LSB
- *   order.</td> 
+ *   order interpreted as a fixed decimal value with 8 bits after the
+ *   decimal point.</td> 
  * </tr>
  * <tr>
  *   <td>Frame Count</td>
@@ -157,10 +158,10 @@ public class SWFFileHeader extends SWFDataTypeBase {
      * @param frameCount the number of frames in this file
      * @param movieSize the bounding box for this movie
      */
-    public SWFFileHeader(int version, int frameRate, int frameCount,
+    public SWFFileHeader(int version, double frameRate, int frameCount,
 			 SWFRectangle movieSize) {
 	this.version     = version;
-	this.frameRate   = frameRate;
+	this.frameRate   = (int)toFixed(frameRate);
 	this.frameCount  = frameCount;
 	this.boundingBox = movieSize;
     }
@@ -182,11 +183,22 @@ public class SWFFileHeader extends SWFDataTypeBase {
     /** Set the bounding box of the movie */
     public void setMovieSize(SWFRectangle bounds) { boundingBox = bounds; }
 
-    /** Get the frame rate */
-    public int getFrameRate() { return frameRate; }
+    /** Get the frame rate in frames per second */
+    public double getFrameRate() { return ((double)frameRate) / 256.0 ; }
+
+    /**
+     * Get the frame rate in fixed decimal notation.
+     * This is the actual value stored in the SWF file. To get the
+     * actual frames per second value, interpret it as unsigned 8.8
+     * fixed decimal value (i.e., divide by 256) or use
+     * {@link #getFrameRate} which handles the conversion.
+     */
+    public int getFrameRateFixed() { return frameRate; }
 
     /** Set the frame rate */
-    public void setFrameRate(int rate) { frameRate = rate; }
+    public void setFrameRate(double rate) {
+	frameRate = (int)Math.round(rate * 256.0);
+    }
 
     /** Get the frame count */
     public int getFrameCount() { return frameCount; }
@@ -219,7 +231,7 @@ public class SWFFileHeader extends SWFDataTypeBase {
 	out.writeW32LSB((int)getFileSize());
 	getMovieSize().write(out);
 	out.padToByteBoundary();
-	out.writeW16LSB(getFrameRate());
+	out.writeW16LSB(getFrameRateFixed());
 	out.writeW16LSB(getFrameCount());
     }
 }

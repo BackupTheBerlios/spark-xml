@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.6 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFReader.java,v 1.7 2001/06/09 17:23:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -496,15 +496,15 @@ public class SWFReader implements XMLReader {
     /**
      * Send the XML Events for the start of the file.
      *
-     * <p>This produces
-     * the follwing XML snippet:
+     * <p>This produces the follwing XML snippet:</p>
      * <pre>
-     * &lt;SWF version="<em>version</em>" framerate="<em>framerate</em>"&gt;
-     * &lt;framesize width="<em>width</em> height="<em>height</em>" /&gt;
-     * &lt;framepos  x="<em>x</em> y="<em>y</em>" /&gt;
+     * &lt;SWF version="<em>version</em>" framerate="<em>framerate</em>"
+     *         width="<em>width</em> height="<em>height</em>"
+     *         x="<em>x</em>" y="<em>y</em>"&gt;
      * </pre>
-     * The &lt;framepos&gt; tag is only present if either the
-     * <em>x</em> or <em>y</em> attribute are different from 0.</p>
+     * <p>Size and position information is in pixels, the frame rate in frames
+     * per second. The <em>x</em> or <em>y</em> attributes are only
+     * present if they are different from 0.</p>
      * <p>The &lt;/SWF&gt tag is sent from <code>parseEndOfFile()</code>
      */
     protected void parseStartOfFile(BitInputStream input)
@@ -514,24 +514,19 @@ public class SWFReader implements XMLReader {
 	SWFAttributes attr = new SWFAttributes();
 	attr.addAttribute("version", header.getVersion());
 	attr.addAttribute("framerate", header.getFrameRate());
-	// FIXME: Handle Namespaces...
-	handler.startElement("", "SWF", "", attr);
-	long x = header.getMovieSize().getXMin();
-	long y = header.getMovieSize().getYMin();
-	long width  = header.getMovieSize().getXMax() - x;
-	long height = header.getMovieSize().getYMax() - y;
-	attr.clear();
+	// Convert the values from "TWIPS" to pixels (divide by 20).
+	double x = header.getMovieSize().getXMin() / 20.0;
+	double y = header.getMovieSize().getYMin() / 20.0;
+	double width  = header.getMovieSize().getXMax() / 20.0 - x;
+	double height = header.getMovieSize().getYMax() / 20.0 - y;
 	attr.addAttribute("width", width);
 	attr.addAttribute("height", height);
-	handler.startElement("", "framesize", "", attr);
-	handler.endElement("", "framesize", "");
-	if (x != 0 || y != 0) {
-	    attr.clear();
+	if (x != 0.0 || y != 0.0) {
 	    attr.addAttribute("x", x);
 	    attr.addAttribute("y", y);
-	    handler.startElement("", "framepos", "", attr);
-	    handler.endElement("", "framepos", "");
 	}
+	// FIXME: Handle Namespaces...
+	handler.startElement("", "SWF", "", attr);
     }
 
     /**

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
+ * $Id: SWFWriter.java,v 1.3 2001/06/09 17:23:59 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -33,6 +33,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import de.tivano.flash.swf.common.BitOutputStream;
 import de.tivano.flash.swf.common.SWFFileHeader;
+import de.tivano.flash.swf.common.SWFRectangle;
 
 /**
  * The main SWF publisher class.
@@ -96,6 +97,9 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
      */
     public SWFWriter() {
 	setCurrentXMLHandler(this);
+	// Setup the default XML element handler map.
+	registerElementHandler("SWF", this);
+	registerElementHandler("RawData", new XMLRawDataHandler());
     }
 
     /**
@@ -241,5 +245,36 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
     /** Add a new SWF toplevel structure to the end of the data */
     public void addData(SWFTagWriter data) {
 	swfData.add(data);
+    }
+
+    /**
+     * Process the <em>&lt;SWF&gt;</em> tag.
+     * This method constructs the SWF file header from the
+     * <em>&lt;SWF&gt;</em> constructed by 
+     * {@link de.tivano.flash.swf.parser.SWFReader}
+     */
+    protected void startElement(java.lang.String name, Attributes attrib)
+	      throws SWFWriterException {
+	// Paranoia code.
+	if (!name.equals("SWF")) {
+	    fatalError("Illegal element for this handler: " + name);
+	}
+	fileHeader.setVersion(Integer.parseInt(attrib.getValue("","version")));
+	fileHeader.setFrameRate(
+		      Double.parseDouble(attrib.getValue("","framerate")));
+	// Get the bounding box information. Don't forget to multiply
+	// by 20 to convert from pixels to SWF "TWIPS"...
+	String tmp;
+	tmp = attrib.getValue("","x");
+	double x = (tmp != null?Double.parseDouble(tmp):0.0) * 20.0;
+	tmp = attrib.getValue("","y");
+	double y = (tmp != null?Double.parseDouble(tmp):0.0) * 20.0;
+	double width  =
+	    Double.parseDouble(attrib.getValue("","width")) * 20.0;
+	double height =
+	    Double.parseDouble(attrib.getValue("","height")) * 20.0;
+	fileHeader.setMovieSize(new SWFRectangle(
+			       (int)Math.round(x), (int)Math.round(x+width),
+			       (int)Math.round(y), (int)Math.round(y+height)));
     }
 }

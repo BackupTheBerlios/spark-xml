@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XML2Flash.java,v 1.1 2001/06/06 18:57:45 kunze Exp $
+ * $Id: XML2Flash.java,v 1.2 2001/06/09 17:23:59 kunze Exp $
  */
 
 import de.tivano.flash.swf.publisher.SWFWriter;
@@ -41,7 +41,8 @@ public class XML2Flash {
 	"org.apache.xerces.parsers.SAXParser";
     /** Parse an XML file and write the SWF data */
     public void parse(String filename) throws Exception {
-	XMLReader parser = XMLReaderFactory.createXMLReader();
+	// XMLReader parser = XMLReaderFactory.createXMLReader();
+	XMLReader parser = new org.apache.xerces.parsers.SAXParser();
 	parser.setContentHandler(new SWFWriter(System.out)); 	
 	parser.parse(filename);
     }
