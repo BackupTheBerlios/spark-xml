@@ -17,13 +17,14 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFontInfo.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFDefineFontInfo.java,v 1.4 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
 
 import java.io.IOException;
 import java.io.EOFException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * This class represents the <em>DefineFontInfo</em> tag of the SWF
@@ -230,6 +231,34 @@ public class SWFDefineFontInfo extends SWFDataTypeBase {
 	}
     }
 
+    /**
+     * Construct a <code>SWFDefineFontInfo</code> object from a
+     * <code>SWFFont</code> object. The object will only include those
+     * characters from <code>font</code> that are marked as used.
+     * @param font the font data.
+     */
+    public SWFDefineFontInfo(SWFFont font)
+	   throws UnsupportedEncodingException {
+	fontID    = font.getFontID();
+	name      = font.getFontName();
+	encoding  = font.getEncoding();
+	layout    = font.getLayout();
+	codeTable = new byte[font.glyphCount()][];
+	// Calculate the hasWideCodes flag based only on the actual
+	// character codes used. For fixed length encodings such as
+	// ANSI or UNICODE (SWF doesn't use UTF8), this is overkill,
+	// but for a variable length encoding such as SHIFT_JIS this
+	// ensures that wide codes are only used if there is at least
+	// one character *having* a wide code.
+	// Note: As usual, the SWF spec is silent on this issue. I
+	// hope this strategy works as expected...
+	hasWideCodes = false;
+	for (int i=0; i<codeTable.length; i++) {
+	    codeTable[i] = font.encode(font.getCharCode(i));
+	    hasWideCodes |= codeTable[i].length > 1;
+	}
+    }
+    
     /**
      * Get the font encoding.
      * This is one of the font encoding constants defined in {@link SWFFont}

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.4 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFWriter.java,v 1.5 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -174,7 +174,14 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	int frameCount = 0;
 	while (data.hasNext()) {
 	    SWFTagWriter tag = (SWFTagWriter)data.next();
-	    totalSize += tag.getTotalLength();
+	    try {
+		totalSize += tag.getTotalLength();
+	    } catch (Exception e) {
+		if (e instanceof SAXException) throw (SAXException)e;
+		else throw new SWFWriterException(e.getMessage(),
+						  getDocumentLocator(),
+						  e);
+	    }
 	    if (tag.getTypeID() == SWFTypes.SHOW_FRAME) frameCount++;
 	}
 

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.7 2001/06/26 16:36:23 kunze Exp $
+ * $Id: SWFFont.java,v 1.8 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -451,12 +451,34 @@ public class SWFFont {
     /**
      * Get the Java <code>String</code> representing
      * <code>input</code> in the font's character encoding.
-     * @param input the encoded string.
+     * @param chars the encoded string.
      * @exception UnsupportedEncodingException if the Java environment
      * does not support this font's encoding.
      */
     public String decode(byte[] chars) throws UnsupportedEncodingException {
 	return new String(chars, getCanonicalEncodingName());
+    }
+    
+    /**
+     * Get the byte array representing <code>input</code> in the
+     * font's character encoding.
+     * @param input the Java string.
+     * @exception UnsupportedEncodingException if the Java environment
+     * does not support this font's encoding.
+     */
+    public byte[] encode(String input) throws UnsupportedEncodingException {
+	return input.getBytes(getCanonicalEncodingName());
+    }
+    
+    /**
+     * Get the byte array representing <code>input</code> in the
+     * font's character encoding.
+     * @param input the Java string.
+     * @exception UnsupportedEncodingException if the Java environment
+     * does not support this font's encoding.
+     */
+    public byte[] encode(Character input) throws UnsupportedEncodingException {
+	return input.toString().getBytes(getCanonicalEncodingName());
     }
     
     /**

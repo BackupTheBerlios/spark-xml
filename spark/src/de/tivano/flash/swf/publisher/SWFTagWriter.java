@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagWriter.java,v 1.4 2001/06/26 16:36:23 kunze Exp $
+ * $Id: SWFTagWriter.java,v 1.5 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -48,7 +48,8 @@ public abstract class SWFTagWriter {
     }
 
     /** Get the total length (including the header) in bytes. */
-    public long getTotalLength() {
+    public long getTotalLength() throws IOException {
+	doInitDataLength();
 	// The length of the header varies with the length of the
 	// following record, so we have to set it here to get correct
 	// results...
@@ -64,31 +65,72 @@ public abstract class SWFTagWriter {
      * to <code>out</code>.
      */
     public void write(BitOutputStream out) throws IOException {
-	initWrite();
+	doInitWriteData();
 	HEADER.setRecordLength(getDataLength());
 	HEADER.write(out);
 	writeData(out);
     }
 
+    /** Flag, tells if {@link #initWriteData} has been called already */
+    private boolean dataInitialized = false;
+
+    /** Calls {@link initWriteData} if it has not been called before */
+    private void doInitWriteData() throws IOException {
+	if (!dataInitialized) {
+	    dataInitialized = true;
+	    initWriteData();
+	}
+    }
+
     /**
      * Prepare the data immediately prior to writing.
      * Subclasses may use this method to make last-minute decisions
-     * about the data they want to write. The default
-     * implementation does nothing.
+     * about the data they want to write.
+     * This method is called exactly once before the first call to
+     * {@link #writeData} and after all XML data has been processed.
+     * The default implementation does nothing.
      */
-    protected void initWrite() {}
+    protected void initWriteData() throws IOException {}
 
-    /** Get the SWF type ID for this structure */
+    /** Flag, tells if {@link #initDataLength} has been called already */
+    private boolean lengthInitialized = false;
+
+    /** Calls {@link initDataLength} if it has not been called before */
+    private void doInitDataLength() throws IOException {
+	if (!lengthInitialized) {
+	    lengthInitialized = true;
+	    initDataLength();
+	}
+    }
+
+     /**
+     * Prepare the data for calculating the length.
+     * Subclasses may use this method to make last-minute decisions
+     * about the data.
+     * This method is called exactly once before the first call to
+     * {@link #getDataLength} and after all XML data has been processed.
+     * The default implementation calls {@link #initWriteData} if it
+     * has not been called before.
+     */
+    protected void initDataLength() throws IOException {
+	doInitWriteData();
+    }
+
+   /** Get the SWF type ID for this structure */
     public int getTypeID() { return HEADER.getID(); }
 
     /**
      * Get the length (excluding the header) in bytes.
+     * It is guaranteed that {@link #initDatalength} has been called
+     * before the first call to this method.
      * Subclasses must implement this method.
      */
     protected abstract long getDataLength();
 
     /**
-     * Write the actual SWF data (excluding the header)
+     * Write the actual SWF data (excluding the header).
+     * It is guaranteed that {@link #initWriteData} has been called before
+     * the first call to this method.
      * to <code>out</code>.
      */
     public abstract void writeData(BitOutputStream out) throws IOException;

@@ -17,12 +17,13 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFontWriter.java,v 1.1 2001/06/26 16:36:23 kunze Exp $
+ * $Id: SWFFontWriter.java,v 1.2 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import de.tivano.flash.swf.common.SWFTagHeader;
 import de.tivano.flash.swf.common.BitOutputStream;
 import de.tivano.flash.swf.common.SWFFont;
@@ -53,6 +54,12 @@ public class SWFFontWriter extends SWFTagWriter {
 	private SWFTagHeader fontInfoHeader =
 	    new SWFTagHeader(SWFTypes.DEFINE_FONTINFO);
 	private SWFDefineFontInfo fontInfo;
+
+	public DefineFontPair(SWFFont fontDef)
+	    throws UnsupportedEncodingException {
+	    font = new SWFDefineFont(fontDef);
+	    fontInfo = new SWFDefineFontInfo(fontDef);
+	}
 
 	public long length() {
 	    long infoLength = fontInfo.length();
@@ -89,22 +96,35 @@ public class SWFFontWriter extends SWFTagWriter {
      * Get the length (excluding the header) in bytes.
      * @returns 0
      */
-    protected long getDataLength() {  return 0; }
+    protected long getDataLength() {
+	// We're assuming here that initWrite() has already been called.
+	return fontWriter.length();
+    }
 
     /**
-     * decide wheter to write a SWF DefineFont2 tag or a
-     * DefineFont/DefineFontInfo pair.
+     * Initialize the data.
+     * <p>This method decides wheter to write a SWF
+     * DefineFont2 tag or a DefineFont/DefineFontInfo pair. Subsequent
+     * changes to the {@link SWFFont} object associated with this
+     * object will not be reflected in the SWF data.</p>
      */
-    protected void initWrite() {
-	if (fontWriter != null) return;
+    protected void initWriteData() throws IOException {
 	if (font.hasMetrics()) {
+	    fontWriter = new SWFDefineFont2(font);
 	} else {
+	    fontWriter = new DefineFontPair(font);
 	}
+
+	// Drop the reference to the font, it's no longer needed
+	font = null;
     }
 
     /**
      * Write the actual SWF data (excluding the header)
-     * to <code>out</code>. Does nothing, as there is no data to write.
+     * to <code>out</code>.
      */
-    public void writeData(BitOutputStream out) throws IOException {}
+    public void writeData(BitOutputStream out) throws IOException {
+	// We're assuming here that initWrite() has already been called.
+	fontWriter.write(out);
+    }
 }

@@ -17,13 +17,14 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.6 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.7 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
 
 import java.io.IOException;
 import java.io.EOFException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * This class represents the <em>DefineFont2</em> tag of the SWF file format.
@@ -363,6 +364,60 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
     }
 
     /**
+     * Construct a <code>SWFDefineFont2</code> object from a
+     * <code>SWFFont</code> object. The object will only include those
+     * characters from <code>font</code> that are marked as used.
+     * @param font the font data.
+     * @exception UnsupportedEncodingException if the java platform
+     * can't handle the encoding used for this font.
+     */
+    public SWFDefineFont2(SWFFont font)
+	   throws UnsupportedEncodingException {
+	int glyphCount = font.glyphCount();
+	fontID    = font.getFontID();
+	name      = font.getFontName();
+	encoding  = font.getEncoding();
+	layout    = font.getLayout();
+	hasLayoutInfo = font.hasMetrics();
+
+	shapeTable   = new SWFShape[glyphCount];
+	codeTable    = new byte[glyphCount][];
+	advanceTable = new int[glyphCount];
+	boundsTable  = new SWFRectangle[glyphCount];
+	
+	for (int i=0; i<shapeTable.length; i++) {
+	    shapeTable[i] = font.getShape(i);
+	}
+	
+	// Calculate the hasWideCodes flag based only on the actual
+	// character codes used. For fixed length encodings such as
+	// ANSI or UNICODE (SWF doesn't use UTF8), this is overkill,
+	// but for a variable length encoding such as SHIFT_JIS this
+	// ensures that wide codes are only used if there is at least
+	// one character *having* a wide code.
+	// Note: As usual, the SWF spec is silent on this issue. I
+	// hope this strategy works as expected...
+	hasWideCodes = false;
+	for (int i=0; i<codeTable.length; i++) {
+	    codeTable[i] = font.encode(font.getCharCode(i));
+	    hasWideCodes |= codeTable[i].length > 1;
+	}
+
+	if (hasLayoutInfo) {
+	    for (int i=0; i<glyphCount; i++) {
+		advanceTable[i] = font.getAdvance(i);
+		boundsTable[i] = font.getBounds(i);
+	    }
+	    ascent = font.getAscent();
+	    descent = font.getDescent();
+	    leadingHeight = font.getLeading();
+	}
+	
+	// FIXME: Handle kerning!
+	kerningTable = new KerningRecord[0];
+    }
+    
+    /**
      * Get the font ascent
      * @return the font ascent. Always 0 if {@link #hasGlyphLayout} returns
      * <code>false</code>. 
@@ -540,9 +595,14 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 	out.writeBit((getLayout() & SWFFont.BOLD) != 0);
 	out.writeBits(0, 8); // reserved flags, zeroed out.
 
-	// ...the font name. I'm guessing here that the name is
-	// encoded in ASCII...
-	byte[] nameRaw = getName().getBytes("US-ASCII");
+	// ...the font name...
+	// XXX: I'm only guessing that the font name is
+	// encoded in the same encoding as the font itself.
+	// It's not documented anywhere in the SWF specs, but some
+	// Japanese (Shift-JIS encoded) SWF files I've tested seem
+	// to indicate this...
+	byte[] nameRaw = getName().getBytes(
+			SWFFont.getCanonicalEncodingName(getEncoding()));
 	if (nameRaw.length > 255) {
 	    throw new IllegalStateException(
 	     "Font name longer than 255 bytes found. " +

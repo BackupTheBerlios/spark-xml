@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLFontHandler.java,v 1.1 2001/06/26 16:36:23 kunze Exp $
+ * $Id: XMLFontHandler.java,v 1.2 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -33,10 +33,5 @@ import de.tivano.flash.swf.common.SWFTypes;
  * @see de.tivano.flash.swf.parse.SWFDefineFontInfoReader
  */
 public class XMLFontHandler extends SWFTagHandlerBase {
-    /**
-     * Create the SWF writer object for actually writing out raw data.
-     */
-    protected SWFTagWriter createDataObject() {
-	return new SWFEmptyTagWriter(SWFTypes.SHOW_FRAME);
-    }
+    protected SWFTagWriter createDataObject() { return null; }
 }

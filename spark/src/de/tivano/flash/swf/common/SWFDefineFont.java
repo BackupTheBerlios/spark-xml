@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFDefineFont.java,v 1.3 2001/06/27 16:21:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -90,6 +90,20 @@ public class SWFDefineFont extends SWFDataTypeBase {
 	} catch (EOFException e) {
 	    throw new SWFFormatException(
               "Premature end of file encoutered while reading a DefineFont tag");
+	}
+    }
+
+    /**
+     * Construct a <code>SWFDefineFont</code> object from a
+     * <code>SWFFont</code> object. The object will only include those
+     * characters from <code>font</code> that are marked as used.
+     * @param font the font data.
+     */
+    public SWFDefineFont(SWFFont font) {
+	fontID = font.getFontID();
+	shapeTable = new SWFShape[font.glyphCount()];
+	for (int i=0; i<shapeTable.length; i++) {
+	    shapeTable[i] = font.getShape(i);
 	}
     }
 
