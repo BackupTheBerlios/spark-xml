@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFileHeader.java,v 1.5 2001/05/14 14:17:49 kunze Exp $
+ * $Id: SWFFileHeader.java,v 1.6 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -59,7 +59,7 @@ import java.util.Arrays;
  *   <td>Frame Size</td>
  *   <td>varying</td>
  *   <td>Bounding box for this Movie in TWIPS. If the length of the
- *   bounding box is not a multiple of 8, the ramining bits are set to
+ *   bounding box is not a multiple of 8, the remaining bits are set to
  *   0. See {@link SWFRectangle}.
  *   </td>
  * </tr>
@@ -78,7 +78,7 @@ import java.util.Arrays;
  * </table>
  * @author Richard Kunze
  */
-public class SWFFileHeader {
+public class SWFFileHeader extends SWFDataTypeBase {
 
     /** The maximal length (in bytes) of an SWF file header */
     public static final int MAX_LENGTH = 29;
@@ -158,4 +158,20 @@ public class SWFFileHeader {
 
     /** Get the frame rate */
     public int getFrameRate() { return FRAME_RATE; }
+
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() {
+	return 96 + paddedLength(getMovieSize().length());
+    }
+    
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+    }
 }

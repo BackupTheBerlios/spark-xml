@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFRectangle.java,v 1.3 2001/03/15 10:57:40 kunze Exp $
+ * $Id: SWFRectangle.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -66,7 +66,7 @@ import java.util.Arrays;
  * </table>
  * @author Richard Kunze
  */
-public class SWFRectangle {
+public class SWFRectangle extends SWFDataTypeBase {
     /** Minimum X coordinate */
     private final long X_MIN;
 
@@ -110,4 +110,35 @@ public class SWFRectangle {
 
     /** Get the maximum Y coordinate */
     public long getYMax() { return Y_MAX; }
+
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() {
+	return 5 + 4*getEntryLength();
+    }
+
+    /**
+     * Get the number of bits needed to represent the individual data
+     * entries in this object.
+     */
+    private int getEntryLength() {
+	return Math.max(Math.max(minBitsS(Y_MIN), minBitsS(Y_MAX)),
+			Math.max(minBitsS(X_MIN), minBitsS(X_MAX)));
+    }
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	int entryLength = getEntryLength();
+	out.writeBits(entryLength, 5);
+	out.writeBits(X_MIN, entryLength);
+	out.writeBits(X_MAX, entryLength);
+	out.writeBits(Y_MIN, entryLength);
+	out.writeBits(Y_MAX, entryLength);
+    }
 }

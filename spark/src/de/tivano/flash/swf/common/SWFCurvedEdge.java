@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFCurvedEdge.java,v 1.1 2001/05/14 14:17:49 kunze Exp $
+ * $Id: SWFCurvedEdge.java,v 1.2 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -109,4 +109,43 @@ public class SWFCurvedEdge extends SWFShapeRecord {
 
     /** Get the Y value of the anchor point */
     public int getAnchorY() { return ANCHOR_Y; }
+
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() {
+	// The length includes the edge/state record flag...
+	return 5 + 4*getEntryLength();
+    }
+
+    /**
+     * Get the number of bits needed to represent the individual data
+     * entries in this object.
+     */
+    private int getEntryLength() {
+	int size = Math.max(Math.max(minBitsS(ANCHOR_X),
+				     minBitsS(ANCHOR_Y)),
+			    Math.max(minBitsS(CONTROL_X),
+				     minBitsS(CONTROL_Y)));
+	// Shape entries always take at least two bits...
+	return (size<2?2:size);
+    }
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	// Write the edge record flag first...
+	out.writeBits(1,1);	
+	int entryLength = getEntryLength();
+	// The SWF file holds entryLength-2, not the length itself...
+	out.writeBits(entryLength-2, 4);
+	out.writeBits(CONTROL_X, entryLength);
+	out.writeBits(CONTROL_Y, entryLength);
+	out.writeBits(ANCHOR_X, entryLength);
+	out.writeBits(ANCHOR_Y, entryLength);
+    }
 }

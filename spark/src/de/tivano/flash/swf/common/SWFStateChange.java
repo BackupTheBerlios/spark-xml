@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFStateChange.java,v 1.1 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFStateChange.java,v 1.2 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -127,10 +127,12 @@ public class SWFStateChange extends SWFShapeRecord {
     protected static final int TYPE_DEFINE_STYLE = 16;
 
     private int type;
+    private int fillBits;
+    private int lineBits;
     private SWFMoveTo moveTo = null;
     private int fillStyle0 = 0;
     private int fillStyle1 = 0;
-    private int lineStyle  = 0;
+    private int lineStyle  = 0;    
     // FIXME: Implement the rest of the state changes.
 
     /**
@@ -146,6 +148,8 @@ public class SWFStateChange extends SWFShapeRecord {
     public SWFStateChange(BitInputStream input, int fillBits, int lineBits)
            throws IOException {
 	try {
+	    this.fillBits = fillBits;
+	    this.lineBits = lineBits;
 	    type = (int)input.readUBits(5);
 	    if ((type & TYPE_MOVE_TO) != 0) {
 		moveTo =  new SWFMoveTo(input);
@@ -197,4 +201,39 @@ public class SWFStateChange extends SWFShapeRecord {
 
     /** Get the line style */
     public int getLineStyle() { return lineStyle; }
+
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() {
+	// The length includes the edge/state record flag...
+	int length = 6;
+	if (hasMoveTo()) length += getMoveTo().length();
+	if (hasFillStyle0()) length += fillBits;
+	if (hasFillStyle1()) length += fillBits;
+	if (hasLineStyle()) length += lineBits;
+	// FIXME: Implement style definition.
+	return length;
+    }
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	// Write the edge record flag first...
+	out.writeBits(0,1);	
+	out.writeBit(false /* FIXME: Implement style definition */);
+	out.writeBit(hasLineStyle());
+	out.writeBit(hasFillStyle1());
+	out.writeBit(hasFillStyle0());
+	out.writeBit(hasMoveTo());
+	if (hasMoveTo()) getMoveTo().write(out);
+	if (hasFillStyle0()) out.writeBits(getFillStyle0(), fillBits);
+	if (hasFillStyle1()) out.writeBits(getFillStyle1(), fillBits);
+	if (hasLineStyle()) out.writeBits(getLineStyle(), lineBits);
+	// FIXME: Implement style definition.
+    }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.5 2001/05/14 14:17:50 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.6 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -41,7 +41,7 @@ import java.io.InputStream;
  * for short headers and the value <code>0x3f</code> for long
  * headers. The record size of a long header is encoded in a 32 bit
  * unsigned integer following the first 16 bit word. All values are
- * stored in LSB (least significabnt byte first) order.</p>
+ * stored in LSB (least significant byte first) order.</p>
  *
  * <p><code>SWFTagHeader</code> transparently handles reading and
  * writing both header types.</p>
@@ -120,8 +120,33 @@ public class SWFTagHeader {
 	return ID;
     }
 
-    /** Get the record length */
-    public long getLength() {
+    /** Get the length of the following record in bytes. */
+    public long getRecordLength() {
 	return LENGTH;
+    }
+    
+    /**
+     * Get the length of this tag header in bits.
+     */
+    public long length() {
+	if (getRecordLength() < 63) return 16;
+	else return 48;
+    }
+
+    /**
+     * Write the SWF representation of this tag header to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	short tmp = (short)(getID() << 6);
+	if (getRecordLength() < 63) {
+	    tmp |= 0x3f;
+	    out.writeW16LSB(tmp);
+	} else {
+	    tmp |= getRecordLength();
+	    out.writeW16LSB(tmp);
+	    out.writeW32LSB((int)getRecordLength());
+	}
     }
 }

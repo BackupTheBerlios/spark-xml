@@ -17,15 +17,31 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFEndOfShape.java,v 1.1 2001/05/14 14:17:49 kunze Exp $
+ * $Id: SWFDataType.java,v 1.1 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
 
+import java.io.IOException;
+
 /**
- * This class represents the SWF end-of-shape marker.
- * <p>the end-of-shape marker consists of 6 zero bits.</p>
+ * This interface is implemented by all classes that represent SWF data.
+ *
+ * It defines basic methods common to all SWF data types.
+ *
  * @author Richard Kunze
  */
-public class SWFEndOfShape extends SWFShapeRecord {
+public interface SWFDataType {
+    /**
+     * Get the length of this objects SWF representation.
+     * Note that the length is in bits.
+     */
+    public long length();
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException;
 }

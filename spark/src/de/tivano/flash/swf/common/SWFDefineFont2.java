@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.3 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -100,7 +100,7 @@ import java.io.EOFException;
  * <tr>
  *   <td>glyphCount</td>
  *   <td>16</td>
- *   <td>Number of glyphs in this font</td>
+ *   <td>Number of glyphs in this font. Unsigned integer in LSB format</td>
  * </tr>
  * <tr>
  *   <td>offsetTable</td>
@@ -109,20 +109,22 @@ import java.io.EOFException;
  *   the beginnig of <em>offsetTable</em>. Depending on
  *   <em>hasWideOffsets</em>, each offset entry is either 16 or 32 bits
  *   wide. Contrary to the official documentation, there seems to be
- *   one more offset entry than there are glyphs in the font.</td> 
+ *   one more offset entry than there are glyphs in the font. Offsets
+ *   are in LSB format</td> 
  * </tr>
  * <tr>
  *   <td>shapeTable</td>
  *   <td>varying</td>
- *   <td>A {@link SWFShape} structure for every glyph in this font</td>
+ *   <td>A {@link SWFShape} structure for every glyph in this
+ *    font. The start of each shape structure is aligned to a byte
+ *    boundary.</td> 
  * </tr>
  * <tr>
  *   <td>codeTable</td>
  *   <td><em>glyphCount</em> * 8 or <em>glypCount</em> * 16</td>
  *   <td>The character values (in the specified encoding) for every
  *   glyph in this font. Depending on <em>hasWideCodes</em>, each
- *   entry is either 8 or 16 bits wide. The start of each glyph
- *   structure is aligned to a byte boundary.</td> 
+ *   entry is either 8 or 16 bits wide. Entries are in LSB format.</td> 
  * </tr>
  * </table>
  * <p>If the <em>hasLayout</em> flag is set, the following additional
@@ -136,17 +138,17 @@ import java.io.EOFException;
  * <tr>
  *   <td>ascent</td>
  *   <td>16</td>
- *   <td>The font ascend as signed integer</td>
+ *   <td>The font ascend as signed integer in LSB format.</td>
  * </tr>
  * <tr>
  *   <td>descent</td>
  *   <td>16</td>
- *   <td>The font descend as signed integer</td>
+ *   <td>The font descend as signed integer in LSB format.</td>
  * </tr>
  * <tr>
  *   <td>leading</td>
  *   <td>16</td>
- *   <td>The leading height as signed integer</td>
+ *   <td>The leading height as signed integer in LSB format.</td>
  * </tr>
  * <tr>
  *   <td>advanceTable</td>
@@ -163,11 +165,12 @@ import java.io.EOFException;
  * <tr>
  *   <td>kerningCount</td>
  *   <td>16</td>
- *   <td>The number of entries in <em>kerningTable</em></td>
+ *   <td>The number of entries in <em>kerningTable</em>. Unsigned
+ *   integer in LSB format.</td>
  * </tr>
  * <tr>
  *   <td>kerningTable</td>
- *   <td><em>glyphCount</em> * 32 or <em>glyphCount</em> * 48</td>
+ *   <td><em>kerningCount</em> * 32 or <em>kerningCount</em> * 48</td>
  *   <td>Kerning information for different glyph pairs</td>
  * </tr>
  * </table>
@@ -182,23 +185,26 @@ import java.io.EOFException;
  *   <td>char1</td>
  *   <td>8 or 16</td>
  *   <td>The character code for the first glyph of the kerning
- *    pair. Width depends on <em>hasWideCodes</em></td>
+ *    pair (in LSB format if 16 bit). Width depends on
+ *    <em>hasWideCodes</em></td> 
  * </tr>
  * <tr>
  *   <td>char2</td>
  *   <td>8 or 16</td>
  *   <td>The character code for the second glyph of the kerning
- *    pair. Width depends on <em>hasWideCodes</em></td>
+ *    pair (in LSB format if 16 bit). Width depends on
+ *    <em>hasWideCodes</em></td> 
  * </tr>
  * <tr>
  *   <td>kerningAdjustment</td>
  *   <td>16</td>
- *   <td>The kerning adjustment for this pair as a signed 16bit integer.</td>
+ *   <td>The kerning adjustment for this pair as a signed integer in
+ *   LSB format.</td>
  * </tr>
  * </table>
  * @author Richard Kunze
  */
-public class SWFDefineFont2 {
+public class SWFDefineFont2 extends SWFDataTypeBase {
     /** Helper structure to hold the kerning information */
     public static class KerningRecord {
 	/** Character code (in font encoding) for the first char */
@@ -445,4 +451,142 @@ public class SWFDefineFont2 {
 	return kerningTable[idx];
     }
 
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() {
+	// Calculate the length of the individual shapes. While we're
+	// at it, calculate the word width for the offset table as
+	// well.
+	long length = 0;
+	int glyphCount = getGlyphCount();
+	int charWidth =  getCharWidth();
+	int offsetWidth = 16;
+	for (int i=0; i<glyphCount; i++) {
+	    long shapeLen = paddedLength(getShape(i).length());
+	    length += shapeLen;
+	    if (shapeLen > 0xffff) offsetWidth = 32;
+	}
+	// Calculate the rest of the length.
+	length += 56 + 8*getName().length() +
+	    (glyphCount + 1) * offsetWidth +
+	    glyphCount * charWidth;
+
+	if (hasGlyphLayout()) {
+	    // Calculate the lenght of the bounds table
+	    for (int i=0; i<glyphCount; i++) {
+		length += paddedLength(getBounds(i).length());
+	    }
+	    // Calculate the length of the remaining layout stuff
+	    length += 64 + glyphCount * 16 +
+		getKerningCount() * (2*charWidth + 16);
+	}
+	return length;
+    }
+
+    /** Get the number of bits used for the font characters */
+    private int getCharWidth() {
+	// XXX: I'm guessing that word width for the codes depends on
+	// the encoding, but I may be wrong and it depends on the
+	// maximum value actually used in the font...
+	return (getEncoding() == SWFFont.ANSI?8:16);
+    }
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	int glyphCount = getGlyphCount();
+	boolean hasWideOffsets = false;
+	// Calculate the word width for the offset table.
+	for (int i=0; i<glyphCount; i++) {
+	    long shapeLen = paddedLength(getShape(i).length());
+	    if (shapeLen > 0xffff) hasWideOffsets = true;
+	}
+	// Font ID first...
+	out.writeW16LSB(getID());
+	// ...then the flags...
+	out.writeBit(hasGlyphLayout());
+	switch (getEncoding()) {
+	case SWFFont.ANSI:      out.writeBits(1,3); break;
+	case SWFFont.UNICODE:   out.writeBits(2,3); break;
+	case SWFFont.SHIFT_JIS: out.writeBits(4,3); break;
+	default:
+	    // Paranoia code.
+	    throw new IllegalStateException(
+	     "Illegal encoding value " + getEncoding() +
+	     " found. This should never happen. Please debug.");
+	}
+	out.writeBit(hasWideOffsets);
+	out.writeBit(getCharWidth() > 8);
+	out.writeBit((getLayout() & SWFFont.ITALIC) != 0);
+	out.writeBit((getLayout() & SWFFont.BOLD) != 0);
+	out.writeBits(0, 8); // reserved flags, zeroed out.
+
+	// ...the font name. I'm guessing here that the name is
+	// encoded in ASCII...
+	byte[] nameRaw = getName().getBytes("US-ASCII");
+	if (nameRaw.length > 255) {
+	    throw new IllegalStateException(
+	     "Font name longer than 255 bytes found. " +
+	     "This should never happen. Please debug.");
+	}
+	out.write(nameRaw.length);
+	out.write(nameRaw);
+
+	// ... now we're starting with font data...
+	out.writeW16LSB(glyphCount);
+	// ... the offset table. This table holds offsets to the start
+	// of every glyph shape, plus the offset to the code table
+	// (i.e, the next position after the last glyph
+	// shape). Offsets are in bytes relative to the start of the
+	// offset table.
+	int offset = (hasWideOffsets?32:16) * (glyphCount + 1);
+	if (hasWideOffsets) out.writeW32LSB(offset);
+	else out.writeW16LSB(offset);
+	for (int i=0; i<glyphCount; i++) {
+	    offset += paddedLength(getShape(i).length());
+	    if (hasWideOffsets) out.writeW32LSB(offset);
+	    else out.writeW16LSB(offset);
+	}
+	// ... and now the actual shapes ...
+	for (int i=0; i<glyphCount; i++) {
+	    getShape(i).write(out);
+	    out.padToByteBoundary();
+	}
+	// ... and finally, the code table ...
+	for (int i=0; i<glyphCount; i++) {
+	    out.write(getCode(i));
+	}
+
+	// Now, write the layout info if required.
+	if (hasGlyphLayout()) {
+	    // ... general layout info ...
+	    out.writeW16LSB(getAscent());
+	    out.writeW16LSB(getDescent());
+	    out.writeW16LSB(getLeadingHeight());
+	    // ... advance value for every glyph ...
+	    for (int i=0; i<glyphCount; i++) {
+		out.writeW16LSB(getAdvance(i));
+	    }
+	    // ... bounding box for every glyph ...
+	    for (int i=0; i<glyphCount; i++) {
+		getBounds(i).write(out);
+		// bounding boxes are byte aligned...
+		out.padToByteBoundary();
+	    }
+	    // ... and finally the kerning table ...
+	    int kerningCount = getKerningCount();
+	    out.writeW16LSB(kerningCount);
+	    for (int i=0; i<kerningCount; i++) {
+		KerningRecord entry = getKerningRecord(i);
+		out.write(entry.CHAR_1);
+		out.write(entry.CHAR_2);
+		out.writeW16LSB(entry.KERNING);
+	    }
+	}
+    }
 }

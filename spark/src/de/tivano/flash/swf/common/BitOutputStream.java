@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitOutputStream.java,v 1.2 2001/05/23 09:30:26 kunze Exp $
+ * $Id: BitOutputStream.java,v 1.3 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -173,7 +173,7 @@ public class BitOutputStream extends FilterOutputStream {
      * @param value the value to write
      * @exception IOException if an IO error occurs
      */
-    public void writeW16MSB(short value) throws IOException {
+    public void writeW16MSB(int value) throws IOException {
 	writeBits(value, 16);
     }
 
@@ -183,7 +183,7 @@ public class BitOutputStream extends FilterOutputStream {
      * @param value the value to write
      * @exception IOException if an IO error occurs
      */
-    public void writeW16LSB(short value) throws IOException {
+    public void writeW16LSB(int value) throws IOException {
 	// write() ignores the high order bits, so there is no need
 	// to mask them out.
 	write(value);

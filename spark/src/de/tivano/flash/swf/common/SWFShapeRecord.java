@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeRecord.java,v 1.3 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFShapeRecord.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -54,7 +54,7 @@ import java.util.Arrays;
  * record types.
  * @author Richard Kunze
  */
-public class SWFShapeRecord {
+public abstract class SWFShapeRecord extends SWFDataTypeBase {
     /**
      * Create a new shape record. The type is determined from the
      * input.

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFStraightEdge.java,v 1.1 2001/05/14 14:17:50 kunze Exp $
+ * $Id: SWFStraightEdge.java,v 1.2 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -133,4 +133,60 @@ public class SWFStraightEdge extends SWFShapeRecord {
 
     /** Get the Y value of the control point */
     public int getY() { return DELTA_Y; }
+
+    /** Check if this line is horizontal */
+    public boolean isHorizontal() { return DELTA_Y == 0; }
+
+    /** Check if this line is vertical */
+    public boolean isVertical() { return DELTA_X == 0; }
+
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() {
+	// The length includes the edge/state record flag...
+	if (isHorizontal() || isVertical()) return 7 + getEntryLength();
+	else return 6 + 2 * getEntryLength();
+    }
+
+    /**
+     * Get the number of bits needed to represent the individual data
+     * entries in this object.
+     */
+    private int getEntryLength() {
+	int size = Math.max(minBitsS(getX()), minBitsS(getY()));
+	// Shape entries always take at least two bits...
+	return (size<2?2:size);
+    }
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	int entryLength = getEntryLength();
+	// Write the edge record flag first...
+	out.writeBits(1,1);	
+	// The SWF file holds entryLength-2, not the length itself...
+	out.writeBits(entryLength-2, 4);
+	if (isHorizontal()) {
+	    // Write the flags for "no general line, not vertical"
+	    out.writeBits(0, 2);
+	    // And write the X value...
+	    out.writeBits(getX(), entryLength);
+	} else if (isVertical()) {
+	    // Write the flags for "no general line, vertical"
+	    out.writeBits(1, 2);
+	    // And write the > value...
+	    out.writeBits(getY(), entryLength);
+	} else {
+	    // Write the flag for "general line"
+	    out.writeBits(1, 1);
+	    // ... and the actual data
+	    out.writeBits(getX(), entryLength);
+	    out.writeBits(getY(), entryLength);
+	}
+    }
 }

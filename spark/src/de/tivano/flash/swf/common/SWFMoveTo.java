@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFMoveTo.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFMoveTo.java,v 1.3 2001/05/23 14:58:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -56,7 +56,7 @@ import java.io.EOFException;
  * shape record.</p>
  * @author Richard Kunze
  */
-public class SWFMoveTo {
+public class SWFMoveTo extends SWFDataTypeBase {
 
     private final int X;
     private final int Y;
@@ -83,4 +83,30 @@ public class SWFMoveTo {
 
     /** Get the Y value */
     public int getY() { return Y; }
+
+    /**
+     * Get the length of this record. Note that the length is
+     * expressed in bits.
+     */
+    public long length() { return 5 + 2*getEntryLength(); }
+    
+     /**
+     * Get the number of bits needed to represent the individual data
+     * entries in this object.
+     */
+    private int getEntryLength() {
+	return Math.max(minBitsS(getX()), minBitsS(getY()));
+    }
+
+    /**
+     * Write the SWF representation of this object to <code>out</code>.
+     * @param out the output stream to write on
+     * @exception IOException if an I/O error occurs.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	int entryLength = getEntryLength();
+	out.writeBits(entryLength, 5);
+	out.writeBits(getX(), entryLength);
+	out.writeBits(getY(), entryLength);
+    }
 }
