@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.1 2001/06/01 17:25:53 kunze Exp $
+ * $Id: SWFWriter.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -32,6 +32,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import de.tivano.flash.swf.common.BitOutputStream;
+import de.tivano.flash.swf.common.SWFFileHeader;
 
 /**
  * The main SWF publisher class.
@@ -63,6 +64,9 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
     /** A list of SWF top level structures to write */
     private List swfData = new ArrayList();
 
+    /** The file header for the SWF file */
+    private SWFFileHeader fileHeader = new SWFFileHeader();
+    
     /**
      * Construct a new <code>SWFWriter</code>. The SWF data will be
      * written on <code>out</code> which will be closed afterward.
@@ -136,6 +140,11 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	this.locator = locator;
     }
 
+    /** Get the associated document locator */
+    public Locator getDocumentLocator() {
+	return locator;
+    }
+
     /** @see ContentHandler#startDocument */
     public void startDocument() throws SAXException {}
 
@@ -155,8 +164,10 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	}
 
 	try {
-	    // FIXME: Set the total size in the SWF header,
-	    // and write the header
+	    // Total file size includes the header length (which gets
+	    // returned in bits but is always a multiple of 8)
+	    fileHeader.setFileSize(totalSize + fileHeader.length() / 8);
+	    fileHeader.write(out);
 	    data = swfData.iterator();
 	    while (data.hasNext()) {
 		((SWFTagWriter)data.next()).write(out);

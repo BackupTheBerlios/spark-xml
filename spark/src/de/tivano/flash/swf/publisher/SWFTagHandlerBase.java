@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHandlerBase.java,v 1.1 2001/06/01 17:27:18 kunze Exp $
+ * $Id: SWFTagHandlerBase.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -38,7 +38,8 @@ public abstract class SWFTagHandlerBase extends XMLHandlerBase {
 
     /**
      * Create a new {@link SWFTagWriter} object that holds the current
-     * data read by this handler. derived classes must implement this.
+     * data read by this handler. This method is called from
+     * {@link #endElement}. Derived classes must implement this.
      */
     protected abstract SWFTagWriter createDataObject();
 
@@ -46,7 +47,7 @@ public abstract class SWFTagHandlerBase extends XMLHandlerBase {
      * Finish processing an XML node. Performs the following tasks:
      * <ul>
      * <li>Add a new data object (obtained from
-     * {@link createDataObject()} to the list of SWF objects to write.
+     * {@link #createDataObject} to the list of SWF objects to write.
      * <li>call <code>super.endElement()</code>
      * </ul>
      */

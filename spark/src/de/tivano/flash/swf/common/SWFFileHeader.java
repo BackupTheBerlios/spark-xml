@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFileHeader.java,v 1.6 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFFileHeader.java,v 1.7 2001/06/06 18:57:45 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -87,19 +87,19 @@ public class SWFFileHeader extends SWFDataTypeBase {
     private static final byte[] SIGNATURE = { 0x46, 0x57, 0x53 };
 
     /** File version */
-    private final int VERSION;
+    private int version;
 
     /** Movie bounding box */
-    private final SWFRectangle BOUNDING_BOX;
+    private SWFRectangle boundingBox;
 
     /** File size in bytes */
-    private final long FILE_SIZE;
+    private long fileSize;
     
     /** Frame rate */
-    private final int FRAME_RATE;
+    private int frameRate;
 
     /** Number of frames */
-    private final int FRAME_COUNT;
+    private int frameCount;
 
 
     /**
@@ -121,12 +121,12 @@ public class SWFFileHeader extends SWFDataTypeBase {
 	// Read the data.
 	try {	    
 	    input.read(signature);
-	    VERSION      = input.readUByte();
-	    FILE_SIZE    = input.readUW32LSB();
-	    BOUNDING_BOX = new SWFRectangle(input);
+	    version     = input.readUByte();
+	    fileSize    = input.readUW32LSB();
+	    boundingBox = new SWFRectangle(input);
 	    input.skipToByteBoundary();
-	    FRAME_RATE   = input.readUW16LSB();
-	    FRAME_COUNT  = input.readUW16LSB();
+	    frameRate   = input.readUW16LSB();
+	    frameCount  = input.readUW16LSB();
 	} catch (EOFException e) {
 	    // Not enough data for the header, Can't be an SWF file
 	    throw new SWFFormatException(FAIL_MSG);
@@ -150,14 +150,55 @@ public class SWFFileHeader extends SWFDataTypeBase {
 	this(new BitInputStream(new ByteArrayInputStream(input)));
     }
 
+    /**
+     * Construct an SWF file header from the given data.
+     * @param version the SWF version
+     * @param frameRate the frame rate
+     * @param frameCount the number of frames in this file
+     * @param movieSize the bounding box for this movie
+     */
+    public SWFFileHeader(int version, int frameRate, int frameCount,
+			 SWFRectangle movieSize) {
+	this.version     = version;
+	this.frameRate   = frameRate;
+	this.frameCount  = frameCount;
+	this.boundingBox = movieSize;
+    }
+
+    /**
+     * Construct an SWF file header with default data.
+     */
+    public SWFFileHeader() {}
+
     /** Get the SWF version */
-    public int getVersion() { return VERSION ; }
+    public int getVersion() { return version ; }
+
+    /** Set the SWF version */
+    public void setVersion(int version) { this.version = version; }
 
     /** Get the bounding box of the movie */
-    public SWFRectangle getMovieSize() { return BOUNDING_BOX; }
+    public SWFRectangle getMovieSize() { return boundingBox; }
+
+    /** Set the bounding box of the movie */
+    public void setMovieSize(SWFRectangle bounds) { boundingBox = bounds; }
 
     /** Get the frame rate */
-    public int getFrameRate() { return FRAME_RATE; }
+    public int getFrameRate() { return frameRate; }
+
+    /** Set the frame rate */
+    public void setFrameRate(int rate) { frameRate = rate; }
+
+    /** Get the frame count */
+    public int getFrameCount() { return frameCount; }
+
+    /** Set the frame count */
+    public void setFrameCount(int count) { frameCount = count; }
+
+    /** Get the file size in bytes */
+    public long getFileSize() { return fileSize; }
+
+    /** Set the file size */
+    public void setFileSize(long size) { fileSize = size; }
 
     /**
      * Get the length of this record. Note that the length is
@@ -173,5 +214,12 @@ public class SWFFileHeader extends SWFDataTypeBase {
      * @exception IOException if an I/O error occurs.
      */
     public void write(BitOutputStream out) throws IOException {
+	out.write(SIGNATURE);
+	out.writeByte((byte)getVersion());
+	out.writeW32LSB((int)getFileSize());
+	getMovieSize().write(out);
+	out.padToByteBoundary();
+	out.writeW16LSB(getFrameRate());
+	out.writeW16LSB(getFrameCount());
     }
 }

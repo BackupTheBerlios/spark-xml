@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagWriter.java,v 1.1 2001/06/01 17:25:53 kunze Exp $
+ * $Id: SWFTagWriter.java,v 1.2 2001/06/06 18:57:46 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -39,7 +39,6 @@ public abstract class SWFTagWriter {
 
     /**
      * Construct a new tag writer for the given tag type.
-     * Derived classes <em>must</em> call this constructor.
      * @param typeID the type ID for the SWF data structure
      * @exception IllegalArgumentException if <code>tagID</code> is
      * not a legal SWF data type ID
