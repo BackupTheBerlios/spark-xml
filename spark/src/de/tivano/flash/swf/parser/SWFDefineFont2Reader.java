@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2Reader.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFDefineFont2Reader.java,v 1.3 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -40,10 +40,10 @@ import de.tivano.flash.swf.common.BitInputStream;
  *          ascent="<em>ascent</em>" descent="<em>descent</em>" leading="<em>leading height</em>"&gt;
  *   &lt;!-- One or more glyph specifications --&gt;
  *   &lt;Glyph char="<em>char code</em>" advance="<em>advance</em>"
-               width="<em>width</em>" height="<em>height</em>"&gt;
- *      &lt;Shape&gt;
- *        &lt;!-- Shape structure see {@link SWFShapeReader} --&gt;
- *      &lt;/Shape&gt;
+ *             width="<em>width</em>" height="<em>height</em>"&gt;
+ *      &lt;ShapeRaw&gt;
+ *        &lt;!-- Raw Shape data. See {@link SWFRawShapeReader} --&gt;
+ *      &lt;/ShapeRaw&gt;
  *   &lt;/Glyph&gt;
  *   &lt;!-- 0 or more kerning specifications --&gt;
  *   &lt;Kerning chars="<em>char pair</em>" advance="<em>advance</em>"/&gt;
@@ -82,7 +82,7 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 
     /** Constructor. Sets the embedded shape handler */
     public SWFDefineFont2Reader() {
-	shapeReader = new SWFShapeReader();
+	shapeReader = new SWFRawShapeReader();
     }
 
     /** @see SWFTagReaderBase#setSAXDriver */
@@ -101,6 +101,8 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 
 	SWFDefineFont2 fontTag = new SWFDefineFont2(input);
 	SWFFont font = new SWFFont();
+	font.setFontID(fontTag.getID());
+	getContextMap().put(new Integer(fontTag.getID()), font);
 
 	boolean hasGlyphLayout = fontTag.hasGlyphLayout();
 	
@@ -153,6 +155,15 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 	    startElement("Glyph", attrib);
 	    shapeReader.toXML(fontTag.getShape(i));
 	    endElement("Glyph");
+	}
+	for (int i=0; i<fontTag.getKerningCount(); i++) {
+	    SWFDefineFont2.KerningRecord entry = fontTag.getKerningRecord(i);
+	    attrib.clear();
+	    attrib.addAttribute("chars",
+				font.decode(entry.CHAR_1) +
+				font.decode(entry.CHAR_2));
+	    attrib.addAttribute("advance", entry.KERNING);
+	    emptyElement("Kerning", attrib);
 	}
 	endElement("Font");
     }

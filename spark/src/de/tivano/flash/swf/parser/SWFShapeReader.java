@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeReader.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFShapeReader.java,v 1.3 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -73,8 +73,7 @@ public class SWFShapeReader extends SWFTagReaderBase {
      * Read the content.
      * @param input the SWF data stream
      */
-    public void parse(BitInputStream input)
-                throws SAXException, IOException {
+    public void parse(BitInputStream input) throws SAXException, IOException {
 	toXML(new SWFShape(input));
     }
 
@@ -82,7 +81,7 @@ public class SWFShapeReader extends SWFTagReaderBase {
      * Convert a {@link SWFShape} to XML.
      * @param the shape structure
      */
-    public void toXML(SWFShape shape) throws SAXException {
+    public void toXML(SWFShape shape) throws IOException, SAXException {
 	SWFAttributes attrib = createAttributes();
 	startElement("Shape", null);
 	Iterator records = shape.getShapeRecords();

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.4 2001/05/16 16:54:42 kunze Exp $
+ * $Id: SWFFont.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -182,6 +182,34 @@ public class SWFFont {
     public int getEncoding() { return encoding; }
 
     /**
+     * Get the canonical Java name for <code>encoding</code>.
+     * As the SWF specs are very vague about font encoding specifics,
+     * I can only guess at how they map to the Java encoding
+     * names. The current mapping is:
+     * <ul>
+     * <li><code>SWFFont.ANSI</code>: ISO-8859-1
+     * <li><code>SWFFont.UNICODE</code>: UTF-16BE
+     * <li><code>SWFFont.SHIFT_JIS</code>: SJIS
+     * </ul>
+     * <code>SWFFont.UNICODE</code> and <code>SWFFont.ANSI</code>
+     * should work in every Java 2
+     * environment. <code>SWFFont.SHIFT_JIS</code> may need additional
+     * support, but it should work on most Java implementations, too.
+     * @param encoding the encoding constant as defined in this class.
+     */
+    public static String getCanonicalEncodingName(int encoding) {
+	switch (encoding) {
+	case ANSI: return "ISO-8859-1";
+	case UNICODE: return "UTF-16BE";
+	case SHIFT_JIS: return "SJIS";
+	default:
+	    // Paranoia code, should never happen
+	    throw new IllegalStateException(
+		   "Illegal font encoding: " + encoding);
+	}
+    }
+    
+    /**
      * Get the canonical Java name for this font's encoding.
      * As the SWF specs are very vague about font encoding specifics,
      * I can only guess at how they map to the Java encoding
@@ -197,15 +225,7 @@ public class SWFFont {
      * support, but it should work on most Java implementations, too.
      */
     public String getCanonicalEncodingName() {
-	switch (getEncoding()) {
-	case ANSI: return "ISO-8859-1";
-	case UNICODE: return "UTF-16LE";
-	case SHIFT_JIS: return "SJIS";
-	default:
-	    // Paranoia code, should never happen
-	    throw new IllegalStateException(
-		   "Illegal font encoding: " + getEncoding());
-	}
+	return getCanonicalEncodingName(getEncoding());
     }
     
     /**
@@ -276,15 +296,26 @@ public class SWFFont {
     }
 
     /** Create a new glyph. */
-    protected Glyph addGlyph() {
+    protected Glyph newGlyph() {
 	return new Glyph();
     }
 
     /** Add a new glyph entry */
     public void addGlyph(String charcode, int advance) {
-	Glyph glyph = addGlyph();
+	Glyph glyph = newGlyph();
 	glyph.setCharacter(charcode);
 	glyph.setAdvance(advance);
+    }
+
+    /** Add a new glyph entry */
+    public void addGlyph() {
+	Glyph glyph = newGlyph();
+    }
+
+    /** Add a new glyph entry */
+    public void addGlyph(String charcode) {
+	Glyph glyph = newGlyph();
+	glyph.setCharacter(charcode);
     }
 
     /**

@@ -17,10 +17,12 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
+ * $Id: Flash2XML.java,v 1.3 2001/05/28 17:51:28 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
+import de.tivano.flash.swf.parser.SWFVerboseDefineFont2Reader;
+import de.tivano.flash.swf.parser.SWFVerboseDefineFontReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 
@@ -32,6 +34,9 @@ import org.xml.sax.Attributes;
  * corresponding XML on <code>System.out</code></p>
  */
 public class Flash2XML {
+
+    /** Flag for verbose parsing */
+    private boolean verbose = false;
 
     /** A very simplistic XML writer that probably only works
      *  for SWFML data. It does pretty printing, though :-)
@@ -97,18 +102,28 @@ public class Flash2XML {
 	}
     }
 
+    public Flash2XML(boolean verbose) {
+	this.verbose = verbose;
+    }
+
     /** Parse an SWF file file */
     public void parse(String filename) throws Exception {
 	SWFReader parser = new SWFReader();
+	if (verbose) {
+	    // Verbose DefineFont2 tags
+	    parser.registerTagReader(48, new SWFVerboseDefineFont2Reader());
+	    parser.registerTagReader(10, new SWFVerboseDefineFontReader());
+	}
 	parser.setContentHandler(new XMLWriter()); 	
 	parser.parse(filename);
     }
 
     public static void main(String[] argv) throws Exception {
-	if (argv.length != 1) {
-	    System.err.println("usage: java Flash2XML <filename>");
+	if (argv.length == 0 || argv.length > 2 ||
+	    (argv.length == 2 && !argv[0].equals("-v"))) {
+	    System.err.println("usage: java Flash2XML [-v] <filename>");
 	} else {
-	    new Flash2XML().parse(argv[0]);
+	    new Flash2XML(argv[0].equals("-v")).parse(argv[argv.length-1]);
 	}
     }
 }

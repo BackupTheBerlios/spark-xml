@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.6 2001/05/16 16:54:42 kunze Exp $ -->
+<!-- $Id: swfml.dtd,v 1.7 2001/05/28 17:51:27 kunze Exp $ -->
 
 <!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (FrameSize, FramePos?,
@@ -47,6 +47,15 @@
           leading  CDATA                                    #IMPLIED
 >
 
+<!-- FontOutlines definition. A font outline definition holds one
+     Shape or ShapeRaw entry per glyph, in the same order as the
+     glyphs in the corresponding Font definition.
+-->
+<!ELEMENT FontOutlines (Shape | ShapeRaw)* >
+<!ATTLIST Font
+          id       ID                                       #REQUIRED
+>
+
 <!-- Defines kerning information for a character pair.
      "chars" defines the character pair (e.g. "VA"),
      "advance" is the x advance value to use for this
@@ -62,7 +71,7 @@
      specify the character for this glyph and the standard
      width of this character, the embedded <Shape> defines the
      glyph shape. -->
-<!ELEMENT Glyph (Shape | ShapeRaw) >
+<!ELEMENT Glyph (Shape | ShapeRaw)? >
 <!ATTLIST Glyph
           char    CDATA #IMPLIED
           advance CDATA #IMPLIED

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -205,6 +205,9 @@ import java.io.EOFException;
  * @author Richard Kunze
  */
 public class SWFDefineFont2 extends SWFDataTypeBase {
+    /** The SWF tag type of this class */
+    public static final int TAG_TYPE = 48;
+    
     /** Helper structure to hold the kerning information */
     public static class KerningRecord {
 	/** Character code (in font encoding) for the first char */
@@ -233,9 +236,10 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
     private int leadingHeight = 0;
     private int fontID;
     private boolean hasLayoutInfo;
-    
+    private boolean hasWideCodes;
+
     /**
-     * Construct a <code>SWFShape</code> from a bit input stream.
+     * Construct a <code>SWFDefineFont2</code> object from a bit input stream.
      * @param input the input stream to read from
      * @exception SWFFormatException if the complete structure could
      * not be read from the stream.
@@ -244,6 +248,7 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 	try {
 	    fontID = input.readUW16LSB();
 	    hasLayoutInfo = input.readBit();
+	    
 	    // Read the encoding flags and set encoding accordingly
 	    int encodingRaw = (int)input.readUBits(3);
 	    switch (encodingRaw) {
@@ -261,7 +266,7 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 		   "Illegal combination of font encoding flags encountered.");
 	    }
 	    int offsetWidth = (input.readBit()?32:16);
-	    boolean hasWideCodes = input.readBit();
+	    hasWideCodes = input.readBit();
 
 	    if (input.readBit()) layout |= SWFFont.ITALIC;
 	    if (input.readBit()) layout |= SWFFont.BOLD;
@@ -271,10 +276,14 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 
 	    byte[] nameRaw = new byte[input.readUByte()];
 	    input.read(nameRaw);
+
 	    // XXX: I'm only guessing that the font name is
-	    // encoded in ASCII. It's not documented anywhere in the
-	    // SWF specs.
-	    name = new String(nameRaw, "US-ASCII");
+	    // encoded in the same encoding as the font itself.
+	    // It's not documented anywhere in the SWF specs, but some
+	    // Japanese (Shift-JIS encoded) SWF files I've tested seem
+	    // to indicate this...
+	    name = new String(nameRaw,
+			      SWFFont.getCanonicalEncodingName(encoding));
 
 	    int glyphCount = input.readUW16LSB();
 	    shapeTable     = new SWFShape[glyphCount];
@@ -295,9 +304,17 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 		input.skipToByteBoundary();
 	    }
 	    for (int i=0; i<codeTable.length; i++) {
-		codeTable[i][0] = input.readSByte();
-		if (hasWideCodes) {
-		    codeTable[i][1] = input.readSByte();
+		if (hasWideCodes) codeTable[i][1] = (byte)input.read();
+		codeTable[i][0] = (byte)input.read();
+	    }
+	    // ShiftJIS is a variable length encoding -> need to fix
+	    // the encoding for some characters.
+	    if (encoding == SWFFont.SHIFT_JIS) {
+		for (int i=0; i<codeTable.length; i++) {
+		    if (codeTable[i][0] == 0) {
+			byte[] newCode = new byte[] { codeTable[i][1] };
+			codeTable[i] = newCode;
+		    }
 		}
 	    }
 
@@ -487,10 +504,7 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 
     /** Get the number of bits used for the font characters */
     private int getCharWidth() {
-	// XXX: I'm guessing that word width for the codes depends on
-	// the encoding, but I may be wrong and it depends on the
-	// maximum value actually used in the font...
-	return (getEncoding() == SWFFont.ANSI?8:16);
+	return (hasWideCodes?16:8);
     }
 
     /**
@@ -544,11 +558,11 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 	// (i.e, the next position after the last glyph
 	// shape). Offsets are in bytes relative to the start of the
 	// offset table.
-	int offset = (hasWideOffsets?32:16) * (glyphCount + 1);
+	int offset = (hasWideOffsets?4:2) * (glyphCount + 1);
 	if (hasWideOffsets) out.writeW32LSB(offset);
 	else out.writeW16LSB(offset);
 	for (int i=0; i<glyphCount; i++) {
-	    offset += paddedLength(getShape(i).length());
+	    offset += paddedLength(getShape(i).length()) / 8;
 	    if (hasWideOffsets) out.writeW32LSB(offset);
 	    else out.writeW16LSB(offset);
 	}
@@ -559,7 +573,11 @@ public class SWFDefineFont2 extends SWFDataTypeBase {
 	}
 	// ... and finally, the code table ...
 	for (int i=0; i<glyphCount; i++) {
-	    out.write(getCode(i));
+	    // Include the necessary padding byte for 1 byte ShiftJIS
+	    // characters...
+	    byte[] code = getCode(i);
+	    if (hasWideCodes && code.length == 1) out.write(0);
+	    out.write(code);
 	}
 
 	// Now, write the layout info if required.

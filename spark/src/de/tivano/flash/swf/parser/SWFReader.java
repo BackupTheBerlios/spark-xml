@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.4 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFReader.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -96,6 +96,7 @@ public class SWFReader implements XMLReader {
 	// Setup the default tag handlers
 	registerTagReader(TAGID_DEFAULT,   new SWFAnyTagReader());
 	registerTagReader(new Integer(48), new SWFDefineFont2Reader());
+	registerTagReader(new Integer(10), new SWFDefineFontReader());
     }
 
     /**
@@ -558,6 +559,12 @@ public class SWFReader implements XMLReader {
 					  SWFTagReader handler) {
 	handler.setSAXDriver(this);
 	return (SWFTagReader)tagReaderMap.put(tagID, handler);
+    }
+
+    
+    /** @see #registerTagReader(Integer, SWFTagReader) */
+    public SWFTagReader registerTagReader(int tagID, SWFTagReader handler) {
+	return registerTagReader(new Integer(tagID), handler);
     }
 
     /**

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAnyTagReader.java,v 1.6 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFAnyTagReader.java,v 1.7 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -25,44 +25,29 @@ package de.tivano.flash.swf.parser;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import de.tivano.flash.swf.common.SWFTagHeader;
 import de.tivano.flash.swf.common.BitInputStream;
 
 /**
  * Tag reader for arbitrary SWF tags.
- * This class can read arbitrary SWF tags. It will emit the following XML snippet:
+ * This class can read arbitrary SWF tags. It will emit the following
+ * XML snippet:
  * <pre>
  * &lt;UnknownTag type="<em>TagType</em>"&gt;
- *   <em>Content of the unkown tag as base64-encoded data</em>
+ *   <em>&lt;!-- Content of the unkown tag as raw or base64-encoded data --&gt;</em>
  * &lt;/UnknownTag&gt;
  * </pre>
  * <em>TagType</em> is the ID of the SWF tag.
  * @author Richard Kunze
  */
 public class SWFAnyTagReader extends SWFTagReaderBase {
-    /** Encoding table for Base64 according to RFC 1341 */
-    private final char[] BASE64_TABLE = {
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
-    };
 
-    /** Maximum length for a line of Base64-encoded data according to
-     * RFC 1341
-     */
-    private final int LINE_LENGTH = 76;
-
-    /** Buffer for building the Base64-encoded strings */
-    char[] buffer = new char[LINE_LENGTH + 1];
-    
     /**
      * Read the tag content.
      * This class simply reads <code>header.getLength()</code> bytes
-     * from <code>input</code>, encodes it in base64 and outputs it as
-     * text child of an &lt;UnknownTag&gt;.
+     * from <code>input</code> and sends it as raw data to the client.
      * @param input the SWF data stream
      * @param header the record header for this record
      */
@@ -71,36 +56,16 @@ public class SWFAnyTagReader extends SWFTagReaderBase {
 	SWFAttributes attrib = createAttributes();
 	attrib.addAttribute("type", header.getID());
 	startElement("UnknownTag", attrib);
-	long length = header.getLength();
+	long length = header.getRecordLength();
 	if (length > 0) {
-	    long groups = length / 3;
-	    int  pos    = 0;
-	    for (long i=0; i<groups; i++) {
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		if (pos == LINE_LENGTH) {
-		    buffer[pos] = '\n';
-		    characters(buffer, 0, buffer.length);
-		    pos = 0;
-		}
+	    OutputStream out = getRawDataOutputStream();
+	    try {
+		for (int i=0; i<length; i++) out.write(input.read());
+		out.close();
+	    } catch (SAXIOException e) {
+		// Re-throw the wrapped exception
+		throw e.getCause();
 	    }
-	    switch ((int)length%3) {
-	    case 2:
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(4)<<2];
-		buffer[pos++] = '=';
-		break;
-	    case 1:
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(6)];
-		buffer[pos++] = BASE64_TABLE[(int)input.readUBits(2)<<4];
-		buffer[pos++] = '=';
-		buffer[pos++] = '=';
-	    }
-	    buffer[pos] = '\n';
-	    characters(buffer, 0, pos+1);
 	}
 	endElement("UnknownTag");
     }

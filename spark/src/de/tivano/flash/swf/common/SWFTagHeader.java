@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.6 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.7 2001/05/28 17:51:28 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -48,8 +48,12 @@ import java.io.InputStream;
  * @author Richard Kunze
  */
 public class SWFTagHeader {
+    /** The maximum length (in bytes) of an SWF tag header */
+    public static final int MAX_LENGTH = 6;
+    
     /** The tag ID */
     private final Integer ID;
+    
     /** The record length */
     private final long LENGTH;
 
