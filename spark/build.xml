@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE project SYSTEM "project.dtd">
 <!--
-     Build file for the Spark project. strongly
+     Build file for the Spark project. Strongly
      inspired by the build file from the Enhydra Zeus project
 -->
 
@@ -16,10 +16,10 @@
     <property file="ant-local.properties" />
 
     <!-- Property defaults -->
-    <property name="Name" value="Spark"/>
+    <property name="Name" value="Spark - A Flash to XML converter"/>
     <property name="name" value="spark"/>
     <property name="version" value="0.2"/>
-    <property name="year" value="2001"/>
+    <property name="year" value="2001,2002"/>
 
     <echo message="----------- ${Name} ${version} [${year}] ------------"/>
 
@@ -194,34 +194,25 @@
   <!-- =================================================================== -->
   <target name="javadoc" depends="prepare-src">
     <mkdir dir="${build.javadocs}"/>
+    <property name="sourcepath" value="${src.dir}" />
     <javadoc packagenames="${javadoc.packages}"
-             sourcepath="${src.dir}"
+             sourcepath="${sourcepath}"
              destdir="${build.javadocs}"
              author="true"
              version="true"
              use="true"
              splitindex="true"
              noindex="false"
-             windowtitle="${Name} API, ${version}"
-             doctitle="${Name} ${version}"
-             bottom="Copyright &#169; ${year} Tivano Software GmbH. All Rights Reserved."
+             windowtitle="${Name} Version ${version} API documentation"
+             doctitle="${Name}"
+             bottom="Copyright &amp;copy; ${year} Tivano Software GmbH. All Rights Reserved."
     />
   </target>
 
-  <target name="javadoc-all" depends="prepare-src">
-    <mkdir dir="${build.javadocs}"/>
-    <javadoc packagenames="${javadoc.packages}"
-             sourcepath="${src.dir}:${test.dir}"
-             destdir="${build.javadocs}"
-             author="true"
-             version="true"
-             use="true"
-             splitindex="true"
-             noindex="false"
-             windowtitle="${Name} API, ${version}"
-             doctitle="${Name} ${version}"
-             bottom="Copyright &#169; ${year} Tivano Software GmbH. All Rights Reserved."
-    />
+  <target name="javadoc-all" depends="init">
+    <antcall target="javadoc">
+      <param name="sourcepath" value="${src.dir}:${test.dir}" />
+    </antcall>
   </target>
   
   <!-- =================================================================== -->
