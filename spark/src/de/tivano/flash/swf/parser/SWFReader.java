@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
+ * $Id: SWFReader.java,v 1.4 2001/05/15 18:16:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -45,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The main SWF parser class.
@@ -75,7 +76,15 @@ public class SWFReader implements XMLReader {
     private EntityResolver entityResolver = null;
 
     /** Map of SWF tag IDs to tag reader objects */
-    private HashMap tagReaderMap = new HashMap();
+    private Map tagReaderMap = new HashMap();
+
+    /**
+     * Map of IDs to context object. Used by different SWF tag
+     * readers to communicate context information (e.g. font
+     * definitions)
+     */
+    private Map context = new HashMap();
+    
 
     /** Special "tag ID" for tags which don't have a registered tag reader. */
     public final Integer TAGID_DEFAULT = new Integer(-1);
@@ -85,10 +94,8 @@ public class SWFReader implements XMLReader {
 	super();
 
 	// Setup the default tag handlers
-	SWFTagReader handler;
-	handler = new SWFAnyTagReader();
-	handler.setSAXDriver(this);
-	tagReaderMap.put(TAGID_DEFAULT, handler);
+	registerTagReader(TAGID_DEFAULT,   new SWFAnyTagReader());
+	registerTagReader(new Integer(48), new SWFDefineFont2Reader());
     }
 
     /**
@@ -500,10 +507,8 @@ public class SWFReader implements XMLReader {
 	ContentHandler handler = getContentHandler();
 	SWFFileHeader header = new SWFFileHeader(input);
 	SWFAttributes attr = new SWFAttributes();
-	attr.addAttribute("version", SWFAttributes.TYPE_CDATA,
-			  Integer.toString(header.getVersion()));
-	attr.addAttribute("framerate", SWFAttributes.TYPE_CDATA,
-			  Integer.toString(header.getFrameRate()));
+	attr.addAttribute("version", header.getVersion());
+	attr.addAttribute("framerate", header.getFrameRate());
 	// FIXME: Handle Namespaces...
 	handler.startElement("", "SWF", "", attr);
 	long x = header.getMovieSize().getXMin();
@@ -511,18 +516,14 @@ public class SWFReader implements XMLReader {
 	long width  = header.getMovieSize().getXMax() - x;
 	long height = header.getMovieSize().getYMax() - y;
 	attr.clear();
-	attr.addAttribute("width", SWFAttributes.TYPE_CDATA,
-			  Long.toString(width));
-	attr.addAttribute("height", SWFAttributes.TYPE_CDATA,
-			  Long.toString(height));
+	attr.addAttribute("width", width);
+	attr.addAttribute("height", height);
 	handler.startElement("", "framesize", "", attr);
 	handler.endElement("", "framesize", "");
 	if (x != 0 || y != 0) {
 	    attr.clear();
-	    attr.addAttribute("x", SWFAttributes.TYPE_CDATA,
-			      Long.toString(x));
-	    attr.addAttribute("y", SWFAttributes.TYPE_CDATA,
-			      Long.toString(x));
+	    attr.addAttribute("x", x);
+	    attr.addAttribute("y", y);
 	    handler.startElement("", "framepos", "", attr);
 	    handler.endElement("", "framepos", "");
 	}
@@ -590,4 +591,13 @@ public class SWFReader implements XMLReader {
 	}
 	return reader;
     }
+
+    /**
+     * Get the context map associated with this object.
+     * The context map is used by tag readers to communicate context
+     * information such as font definitions between different tag
+     * readers.
+     */
+    Map getContextMap() { return context; }
+
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAnyTagReader.java,v 1.5 2001/05/14 14:17:50 kunze Exp $
+ * $Id: SWFAnyTagReader.java,v 1.6 2001/05/15 18:16:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -69,8 +69,7 @@ public class SWFAnyTagReader extends SWFTagReaderBase {
     public void parse(BitInputStream input, SWFTagHeader header)
                 throws SAXException, IOException {
 	SWFAttributes attrib = createAttributes();
-	attrib.addAttribute("type", SWFAttributes.TYPE_CDATA,
-			    Integer.toString(header.getID()));
+	attrib.addAttribute("type", header.getID());
 	startElement("UnknownTag", attrib);
 	long length = header.getLength();
 	if (length > 0) {

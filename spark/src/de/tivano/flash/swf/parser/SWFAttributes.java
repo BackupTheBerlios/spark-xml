@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAttributes.java,v 1.1 2001/03/16 16:51:08 kunze Exp $
+ * $Id: SWFAttributes.java,v 1.2 2001/05/15 18:16:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -42,9 +42,44 @@ public class SWFAttributes extends AttributesImpl {
      * namespaces on its own.
      * @param name the name of the attribute
      * @param value the value of the attribute
+     * @param type the type of the attribute
      */
-    public void addAttribute(String name, String type, String value) {
+    public void addAttribute(String name, String value, String type) {
 	// FIXME: Really handle the name space stuff
 	super.addAttribute("", name, "", type, value);
+    }
+    
+    /** Add an attribute. This is a wrapper around
+     * <code>AttributeImpl.addAttribute()</code> that handles
+     * namespaces on its own.
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @param type the type of the attribute
+     */
+    public void addAttribute(String name, long value, String type) {
+	// FIXME: Really handle the name space stuff
+	super.addAttribute("", name, "", type, Long.toString(value));
+    }
+    
+    /** Add an attribute. This is a wrapper around
+     * <code>AttributeImpl.addAttribute()</code> that automatically
+     * converts the value to a string. The type is assumed to be
+     * <code>TYPE_CDATA</code>. 
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     */
+    public void addAttribute(String name, String value) {
+	addAttribute(name, value, TYPE_CDATA);
+    }
+    
+    /** Add an attribute. This is a wrapper around
+     * <code>AttributeImpl.addAttribute()</code> that automatically
+     * converts the value to a string. The type is assumed to be
+     * <code>TYPE_CDATA</code>. 
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     */
+    public void addAttribute(String name, long value) {
+	addAttribute(name, value, TYPE_CDATA);
     }
 }

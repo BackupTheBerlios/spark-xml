@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.1 2001/05/14 17:50:42 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.2 2001/05/15 18:16:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -198,21 +198,21 @@ import java.io.EOFException;
 public class SWFDefineFont2 {
     /** Helper structure to hold the kerning information */
     public static class KerningRecord {
-	/** Character code (in font encoding) for the first glyph */
-	public final int GLYPH_1;
-	/** Character code (in font encoding) for the second glyph */
-	public final int GLYPH_2;
+	/** Character code (in font encoding) for the first char */
+	public final byte[] CHAR_1;
+	/** Character code (in font encoding) for the second char */
+	public final byte[] CHAR_2;
 	/** Kerning adjustment */
 	public final int KERNING;
-	private KerningRecord(int glyph1, int glyph2, int kern) {
-	    GLYPH_1 = glyph1;
-	    GLYPH_2 = glyph2;
+	private KerningRecord(byte[] char1, byte[] char2, int kern) {
+	    CHAR_1 = char1;
+	    CHAR_2 = char2;
 	    KERNING = kern;
 	}
     }
     
     private SWFShape shapeTable[];
-    private int codeTable[];
+    private byte[] codeTable[];
     private int advanceTable[];
     private SWFRectangle boundsTable[];
     private KerningRecord[] kerningTable;
@@ -269,7 +269,7 @@ public class SWFDefineFont2 {
 
 	    int glyphCount = input.readUW16LSB();
 	    shapeTable     = new SWFShape[glyphCount];
-	    codeTable      = new int[glyphCount];
+	    codeTable      = new byte[glyphCount][(hasWideCodes?2:1)];
 	    advanceTable   = new int[glyphCount];
 	    boundsTable   =  new SWFRectangle[glyphCount];
 
@@ -277,20 +277,16 @@ public class SWFDefineFont2 {
 	    // reading all glyphs sequentially and we don't need the
 	    // offset table for this.
 	    input.skipBits(glyphCount * offsetWidth);
-	    if (hasWideCodes) {
-		for (int i=0; i<shapeTable.length; i++) {
-		    shapeTable[i] = new SWFShape(input);
-		}
-	    } else {
-		for (int i=0; i<shapeTable.length; i++) {
-		    shapeTable[i] = new SWFShape(input);
-		}
+	    for (int i=0; i<shapeTable.length; i++) {
+		shapeTable[i] = new SWFShape(input);
 	    }
 	    // Make sure we continue reading at a byte boundary
 	    input.skipToByteBoundary();
-	    
 	    for (int i=0; i<codeTable.length; i++) {
-		codeTable[i] = input.readUW16LSB();
+		codeTable[i][0] = input.readSByte();
+		if (hasWideCodes) {
+		    codeTable[i][1] = input.readSByte();
+		}
 	    }
 
 	    if (hasGlyphLayout()) {
@@ -307,20 +303,23 @@ public class SWFDefineFont2 {
 		input.skipToByteBoundary();
 		
 		kerningTable = new KerningRecord[input.readUW16LSB()];
-		if (hasWideCodes) {
-		    for (int i=0; i<kerningTable.length; i++) {
-			kerningTable[i] =
-			    new KerningRecord(input.readUW16LSB(),
-					      input.readUW16LSB(),
-					      input.readSW16LSB());
+		byte[] char1;
+		byte[] char2;
+		for (int i=0; i<kerningTable.length; i++) {
+		    if (hasWideCodes) {
+			char1 =
+			    new byte[] {input.readSByte(), input.readSByte()};
+			char2 =
+			    new byte[] {input.readSByte(), input.readSByte()};
+		    } else {
+			char1 =
+			    new byte[] {input.readSByte()};
+			char2 =
+			    new byte[] {input.readSByte()};
 		    }
-		} else {
-		    for (int i=0; i<kerningTable.length; i++) {
-			kerningTable[i] =
-			    new KerningRecord(input.readUByte(),
-					      input.readUByte(),
-					      input.readSW16LSB());
-		    }
+		    kerningTable[i] =
+			new KerningRecord(char1, char2,
+					  input.readSW16LSB());
 		}
 	    } else {
 		// we need an empty kerning table for
@@ -396,13 +395,13 @@ public class SWFDefineFont2 {
     
     /**
      * Get the character code of glyph number <code>idx</code>.
-     * Note: This is the character code according to the font
-     * encoding, <em>not</em> the Java <code>char</code> value.
+     * The returned array contains either a single byte or two bytes,
+     * representing the glyph's character code in this fonts encoding.
      * @param idx the index of the glyph
      * @exception IndexOutOfBoundException if <code>idx</code> is
      * outside the range of <code>0..getGlyphCount()-1</code>
      */
-    public int getCode(int idx) { return codeTable[idx]; }
+    public byte[] getCode(int idx) { return codeTable[idx]; }
 
     /**
      * Get X advance value for glyph number <code>idx</code>.
@@ -439,4 +438,5 @@ public class SWFDefineFont2 {
     public KerningRecord getKerningRecord(int idx) {
 	return kerningTable[idx];
     }
+
 }

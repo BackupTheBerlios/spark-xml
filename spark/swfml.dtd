@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.4 2001/05/14 14:17:49 kunze Exp $ -->
+<!-- $Id: swfml.dtd,v 1.5 2001/05/15 18:16:08 kunze Exp $ -->
 
 <!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (FrameSize, FramePos?,
@@ -38,7 +38,7 @@
 -->
 <!ELEMENT Font (Glyph*, Kerning*) >
 <!ATTLIST Font
-          fontid   CDATA                                    #REQUIRED
+          id       ID                                       #REQUIRED
           name     CDATA                                    #IMPLIED
           style    (standard | italic | bold | bold-italic) standard
           encoding (ansi | unicode | shift-jis)             ansi
@@ -81,7 +81,7 @@
      one or more bezier or line segments
 -->
 <!ELEMENT Shape ((LineStyle | FillStyle)*, Path,
-                 ((LineStyle | FillStyle)*, Path)*)
+                 (LineStyle | FillStyle | Path)*)
 >
 
 
@@ -98,8 +98,8 @@
 -->
 <!ELEMENT Path (Start, (Line | Bezier), (Line | Bezier)*) >
 <!ATTLIST Path
-          fillStyle CDATA #IMPLIED
-          lineStyle CDATA #IMPLIED
+          fillstyle CDATA #IMPLIED
+          linestyle CDATA #IMPLIED
 >
 
 <!ELEMENT Start EMPTY>

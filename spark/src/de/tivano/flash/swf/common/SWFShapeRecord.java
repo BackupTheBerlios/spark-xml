@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeRecord.java,v 1.1 2001/05/14 14:17:50 kunze Exp $
+ * $Id: SWFShapeRecord.java,v 1.2 2001/05/15 18:16:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -96,7 +96,7 @@ public class SWFShapeRecord {
 		// the same time.
 		throw new SWFFormatException(
 		   "FIXME: State change records of type " + type +
-		   "not yet implemented.");
+		   " not yet implemented.");
 	    }
 	}
     }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.4 2001/05/15 18:16:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -26,13 +26,14 @@ import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
 
 import java.io.IOException;
+import java.util.Map;
 
 import de.tivano.flash.swf.common.SWFTagHeader;
 import de.tivano.flash.swf.common.BitInputStream;
 
 /**
  * Base class for SWF tag readers. 
- * <p>This class provides a number ov convenience methods for SWF tag
+ * <p>This class provides a number of convenience methods for SWF tag
  * readers. Most SWF tag readers want to extend this class instead of
  * implementing <code>SWFTagReader</code> directly.</p>
  * @author Richard Kunze
@@ -86,6 +87,22 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
     }
 
     /**
+     * Send a "start element" event and an "end element"
+     * event. Convenience method to handle the many empty elements
+     * used to model SWF.
+     * @param name the (local) name for the XML element
+     * @param attrib the attribute list for this element.
+     * @see org.xml.sax.ContentHandler#startElement
+     * @exception IllegalStateException if no <code>SWFReader</code>
+     * has been associated with this tag handler.
+     */
+    protected void emptyElement(String name, Attributes attrib) 
+	throws SAXException {
+	startElement(name, attrib);
+	endElement(name);
+    }
+
+    /**
      * Send a "end element" event. In essence, this is a wrapper
      * around <code>ContentHandler.endElement()</code> which handles the
      * namespace stuff on its own.
@@ -122,5 +139,13 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
      */
     public abstract void parse(BitInputStream input, SWFTagHeader header)
 	throws SAXException, IOException;
+
+    /**
+     * Get the context map associated with this object's SAX driver.
+     * The context map is used to communicate context information such
+     * as font definitions between different tag readers.
+     */
+    Map getContextMap() { return getSAXDriver().getContextMap(); }
+    
 }
 
