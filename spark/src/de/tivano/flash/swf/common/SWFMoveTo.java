@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFMoveTo.java,v 1.1 2001/05/14 14:17:50 kunze Exp $
+ * $Id: SWFMoveTo.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.io.EOFException;
 
 /**
- * This class represents a "move to" shape record.
+ * This class represents a "move to" operation in a shape.
  * <p>"Move to" means that the current point position is changed
  * without drawing a line or curve to the previous point. A move to
- * shape record has the following structure:</p>
+ * operation has the following structure:</p>
  * <table border=1 cellspacing=2 cellpadding=7 align=center>
  * <tr>
  *  <td bgcolor="#CCCCCC"><b>Field</b></td>
@@ -52,10 +52,11 @@ import java.io.EOFException;
  *   <td>Y value relative to the shape origin as a signed integer</td>
  * </tr>
  * </table>
- * A move to shape record can be part of a {@link SWFMixedStateChangeRecord}
+ * <p>The "move to" structure is part of a {@link SWFStateChange}
+ * shape record.</p>
  * @author Richard Kunze
  */
-public class SWFMoveTo extends SWFShapeRecord {
+public class SWFMoveTo {
 
     private final int X;
     private final int Y;

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.3 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFFont.java,v 1.4 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -187,17 +187,18 @@ public class SWFFont {
      * I can only guess at how they map to the Java encoding
      * names. The current mapping is:
      * <ul>
-     * <li><code>SWFFont.ANSI</code>: Cp1252
+     * <li><code>SWFFont.ANSI</code>: ISO-8859-1
      * <li><code>SWFFont.UNICODE</code>: UTF-16LE
      * <li><code>SWFFont.SHIFT_JIS</code>: SJIS
      * </ul>
-     * <code>SWFFont.UNICODE</code> works on any JDK 1.2
-     * implementation. The other encodings may need additional
-     * support, but they should work on most Java implementations.
+     * <code>SWFFont.UNICODE</code> and <code>SWFFont.ANSI</code>
+     * should work in every Java 2
+     * environment. <code>SWFFont.SHIFT_JIS</code> may need additional
+     * support, but it should work on most Java implementations, too.
      */
     public String getCanonicalEncodingName() {
 	switch (getEncoding()) {
-	case ANSI: return "Cp1252";
+	case ANSI: return "ISO-8859-1";
 	case UNICODE: return "UTF-16LE";
 	case SHIFT_JIS: return "SJIS";
 	default:

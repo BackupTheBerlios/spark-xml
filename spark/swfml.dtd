@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.5 2001/05/15 18:16:08 kunze Exp $ -->
+<!-- $Id: swfml.dtd,v 1.6 2001/05/16 16:54:42 kunze Exp $ -->
 
 <!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (FrameSize, FramePos?,
@@ -62,28 +62,46 @@
      specify the character for this glyph and the standard
      width of this character, the embedded <Shape> defines the
      glyph shape. -->
-<!ELEMENT Glyph (GlypSize?, Shape) >
+<!ELEMENT Glyph (Shape | ShapeRaw) >
 <!ATTLIST Glyph
           char    CDATA #IMPLIED
           advance CDATA #IMPLIED
+          xmin    CDATA #IMPLIED
+          xmax    CDATA #IMPLIED
+          ymin    CDATA #IMPLIED
+          ymax    CDATA #IMPLIED
 >
-
-<!ELEMENT GlyphSize EMPTY>
-<!ATTLIST GlyphSize
-          width  CDATA #REQUIRED
-          height CDATA #REQUIRED
->
-
 
 <!-- A shape. Shapes consists of optional line- and fill-style
      definitions, followed by one or more path definitions.
      Each path definition has a starting point followed by
      one or more bezier or line segments
 -->
-<!ELEMENT Shape ((LineStyle | FillStyle)*, Path,
-                 (LineStyle | FillStyle | Path)*)
+<!ELEMENT Shape ((DefineLineStyle | DefineFillStyle)*,
+                 ((LineStyle | FillStyle)*, Path),
+                 (DefineLineStyle | DefineFillStyle |
+                  ((LineStyle | FillStyle)*, Path)))*
 >
 
+<!-- The raw data of a shape. Used instead of <Shape> to save space
+     if the shape structure is not really needed.
+-->
+<!ELEMENT ShapeRaw #CDATA>
+
+<!-- A fill style change. This sets one of the two current fill styles
+     in a shape
+-->
+<!ELEMENT FillStyle EMPTY>
+<!ATTLIST FillStyle
+          slot  (0 | 1) #REQUIRED
+          style CDATA   #REQUIRED
+>
+
+<!-- A line style change. This sets the current line style in a shape -->
+<!ELEMENT LineStyle EMPTY>
+<!ATTLIST LineStyle
+          style CDATA   #REQUIRED
+>
 
 <!-- A path is an (open or closed) curve made up of one or
      more line or bezier curve segments (of order 2, i.e. quadratic).
@@ -97,10 +115,6 @@
      of the shape.
 -->
 <!ELEMENT Path (Start, (Line | Bezier), (Line | Bezier)*) >
-<!ATTLIST Path
-          fillstyle CDATA #IMPLIED
-          linestyle CDATA #IMPLIED
->
 
 <!ELEMENT Start EMPTY>
 <!ATTLIST Start

@@ -17,15 +17,15 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeReader.java,v 1.1 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFShapeReader.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
 
 import de.tivano.flash.swf.common.SWFShape;
 import de.tivano.flash.swf.common.SWFShapeRecord;
-import de.tivano.flash.swf.common.SWFEndOfShape;
 import de.tivano.flash.swf.common.SWFMoveTo;
+import de.tivano.flash.swf.common.SWFStateChange;
 import de.tivano.flash.swf.common.SWFStraightEdge;
 import de.tivano.flash.swf.common.SWFCurvedEdge;
 import de.tivano.flash.swf.common.SWFTagHeader;
@@ -43,7 +43,8 @@ import java.util.Iterator;
  * <pre>
  * &lt;Shape&gt;
  *   &lt;!-- There may be any number of path elements in a shape --&gt;
- *   &lt;Path&gt;
+ *   &lt;Path fillstyle0="<em>style</em>" fillstyle1="<em>style</em>"
+ *            linestyle="<em>style</em>"&gt;
  *     &lt;Start  x="<em>X</em>" y="<em>Y</em>" /gt;
  *     &lt;!-- There may be any number of Line and Bezier elements in
  *             a Path, in any order --&gt;
@@ -52,8 +53,8 @@ import java.util.Iterator;
  *   &lt;/Path&gt;
  * &lt;/Shape&gt;
  * </pre>
- * Currently, <code>SWFShapeHelper</code> does not support line or
- * fill styles. This will change in later versions.
+ * <p>Currently, <code>SWFShape</code> does not support fill and line
+ * style definitions. This will change in a future version.</p>
  * @author Richard Kunze
  */
 public class SWFShapeReader extends SWFTagReaderBase {
@@ -87,12 +88,12 @@ public class SWFShapeReader extends SWFTagReaderBase {
 	Iterator records = shape.getShapeRecords();
 	boolean insidePath = false;
 	while (records.hasNext()) {
+	    attrib.clear();
 	    Object entry = records.next();
 	    if (entry instanceof SWFCurvedEdge) {
 		// Paranoia code. Should never happen.
 		if (!insidePath) throw new SAXException(
                   "SWF edge record found without preceding MoveTo");
-		attrib.clear();
 		SWFCurvedEdge c = (SWFCurvedEdge)entry;
 		attrib.addAttribute("x", c.getAnchorX());
 		attrib.addAttribute("y", c.getAnchorY());
@@ -106,25 +107,47 @@ public class SWFShapeReader extends SWFTagReaderBase {
 		attrib.addAttribute("x", s.getX());
 		attrib.addAttribute("y", s.getY());
 		emptyElement("Line", attrib);
-	    } else {
+	    } else if (entry instanceof SWFStateChange) {
 		if (insidePath) {
 		    endElement("Path");
 		    insidePath = false;
 		}
-		if (entry instanceof SWFEndOfShape) {
-		    // Do nothing....
-		} else if (entry instanceof SWFMoveTo) {
+		SWFStateChange state = (SWFStateChange)entry;
+		if (!state.isEndOfShape()) {
+		    if (state.hasFillStyle0()) {
+			attrib.clear();
+			attrib.addAttribute("slot", 0);
+			attrib.addAttribute("style",
+					    state.getFillStyle0());
+			emptyElement("FillStyle", attrib);
+		    }
+		    if (state.hasFillStyle1()) {
+			attrib.clear();
+			attrib.addAttribute("slot", 1);
+			attrib.addAttribute("style",
+					    state.getFillStyle1());
+			emptyElement("FillStyle", attrib);
+		    }
+		    if (state.hasLineStyle()) {
+			attrib.clear();
+			attrib.addAttribute("style",
+					    state.getLineStyle());
+			emptyElement("LineStyle", attrib);
+		    }
 		    startElement("Path", null);
 		    insidePath = true;
 		    attrib.clear();
-		    SWFMoveTo m = (SWFMoveTo)entry;
-		    attrib.addAttribute("x", m.getX());
-		    attrib.addAttribute("y", m.getY());
+		    if (state.hasMoveTo()) {
+			SWFMoveTo m = state.getMoveTo();
+			attrib.addAttribute("x", m.getX());
+			attrib.addAttribute("y", m.getY());
+		    } else {
+			// XXX: Don't know what to do except implicitly
+			// starting at (0, 0);
+			attrib.addAttribute("x", 0);
+			attrib.addAttribute("y", 0);
+		    }
 		    emptyElement("Start", attrib);
-		} else {
-		    throw new SAXException(
-		      "FIXME: " + entry.getClass().getName() +
-		      " not yet supported.");
 		}
 	    }
 	}

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2Reader.java,v 1.1 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFDefineFont2Reader.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -39,11 +39,10 @@ import de.tivano.flash.swf.common.BitInputStream;
  * &lt;Font id="<em>id</em>" name="<em>font name</em>" style="<em>style</em> encoding="<em>encoding</em>"
  *          ascent="<em>ascent</em>" descent="<em>descent</em>" leading="<em>leading height</em>"&gt;
  *   &lt;!-- One or more glyph specifications --&gt;
- *   &lt;Glyph char="<em>char code</em>" advance="<em>advance</em>"&gt;
- *      &lt;!-- Glyph size may be missing --&gt;
- *      &lt;GlyphSize width="<em>width</em>" height="<em>height</em>"&gt;
+ *   &lt;Glyph char="<em>char code</em>" advance="<em>advance</em>"
+               width="<em>width</em>" height="<em>height</em>"&gt;
  *      &lt;Shape&gt;
- *        &lt;!-- Shape structure see {@link SWFShapeHelper} --&gt;
+ *        &lt;!-- Shape structure see {@link SWFShapeReader} --&gt;
  *      &lt;/Shape&gt;
  *   &lt;/Glyph&gt;
  *   &lt;!-- 0 or more kerning specifications --&gt;
@@ -78,7 +77,13 @@ import de.tivano.flash.swf.common.BitInputStream;
  */
 public class SWFDefineFont2Reader extends SWFTagReaderBase {
     /** Helper class for converting SWF shape structures to XML */
-    private SWFShapeReader shapeReader = new SWFShapeReader();
+    protected SWFShapeReader shapeReader;
+
+
+    /** Constructor. Sets the embedded shape handler */
+    public SWFDefineFont2Reader() {
+	shapeReader = new SWFShapeReader();
+    }
 
     /** @see SWFTagReaderBase#setSAXDriver */
     public void setSAXDriver(SWFReader driver) {
@@ -111,6 +116,7 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 	case SWFFont.UNICODE: encoding = "unicode"; break;
 	case SWFFont.SHIFT_JIS: encoding = "shift-jis"; break;
 	}
+	font.setEncoding(fontTag.getEncoding());
 	
 	SWFAttributes attrib = createAttributes();
 	attrib.addAttribute("id", fontTag.getID(), SWFAttributes.TYPE_ID);
@@ -137,17 +143,14 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 	    if (hasGlyphLayout) {
 		attrib.addAttribute("advance", advance);
 	    }
-	    startElement("Glyph", attrib);
 	    if (hasGlyphLayout) {
-		attrib.clear();
 		SWFRectangle bounds = fontTag.getBounds(i);
-		long width  = bounds.getXMax() - bounds.getXMin();
-		long height = bounds.getYMax() - bounds.getYMin();
-		attrib.addAttribute("width",  width);
-		attrib.addAttribute("height", height);
-		startElement("GlyphSize", attrib);
-		endElement("GlyphSize");
+		attrib.addAttribute("xmin",  bounds.getXMin());
+		attrib.addAttribute("ymin",  bounds.getYMin());
+		attrib.addAttribute("xmax",  bounds.getXMax());
+		attrib.addAttribute("ymax",  bounds.getYMax());
 	    }
+	    startElement("Glyph", attrib);
 	    shapeReader.toXML(fontTag.getShape(i));
 	    endElement("Glyph");
 	}

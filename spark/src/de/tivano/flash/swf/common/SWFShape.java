@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.2 2001/05/14 17:50:42 kunze Exp $
+ * $Id: SWFShape.java,v 1.3 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -102,10 +102,10 @@ public class SWFShape {
 					      currentFillBits,
 					      currentLineBits);
 		// FIXME: Change current...Bits according to the
-		// information in a "new styles" record.
-
+		// information in a state change record.
 		records.add(record);
-	    } while (!(record instanceof SWFEndOfShape));
+	    } while (!((record instanceof SWFStateChange)
+		        && ((SWFStateChange)record).isEndOfShape()));
 	} catch (EOFException e) {
 	    throw new SWFFormatException(
               "Premature end of file encoutered while reading a shape");

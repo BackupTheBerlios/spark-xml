@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.2 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.3 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -104,11 +104,12 @@ import java.io.EOFException;
  * </tr>
  * <tr>
  *   <td>offsetTable</td>
- *   <td><em>glyphCount</em> * 16 or <em>glyphCount * 32</em></td>
+ *   <td>(<em>glyphCount</em> + 1) * 16 or (<em>glyphCount</em> + 1) * 32</td>
  *   <td>Offsets into <em>codeTable</em> for each glyph, starting at
  *   the beginnig of <em>offsetTable</em>. Depending on
  *   <em>hasWideOffsets</em>, each offset entry is either 16 or 32 bits
- *   wide.</td> 
+ *   wide. Contrary to the official documentation, there seems to be
+ *   one more offset entry than there are glyphs in the font.</td> 
  * </tr>
  * <tr>
  *   <td>shapeTable</td>
@@ -120,7 +121,8 @@ import java.io.EOFException;
  *   <td><em>glyphCount</em> * 8 or <em>glypCount</em> * 16</td>
  *   <td>The character values (in the specified encoding) for every
  *   glyph in this font. Depending on <em>hasWideCodes</em>, each
- *   entry is either 8 or 16 bits wide.</td> 
+ *   entry is either 8 or 16 bits wide. The start of each glyph
+ *   structure is aligned to a byte boundary.</td> 
  * </tr>
  * </table>
  * <p>If the <em>hasLayout</em> flag is set, the following additional
@@ -155,7 +157,8 @@ import java.io.EOFException;
  *   <td>boundsTable</td>
  *   <td>varying</td>
  *   <td>The bounding boxes for every glyph. One {@link SWFRectangle}
- *   structure per glyph.</td>
+ *   structure per glyph. The start of each bounding box is aligned to
+ *   a byte boundary.</td>
  * </tr>
  * <tr>
  *   <td>kerningCount</td>
@@ -276,12 +279,15 @@ public class SWFDefineFont2 {
 	    // Skip the font offset table. We're only interested in
 	    // reading all glyphs sequentially and we don't need the
 	    // offset table for this.
-	    input.skipBits(glyphCount * offsetWidth);
+	    // Note: Contrary to the official docs, the offset table
+	    // seems to have one entry more than the number of glyphs
+	    // in the font.
+	    input.skipBits((glyphCount+1) * offsetWidth);
 	    for (int i=0; i<shapeTable.length; i++) {
 		shapeTable[i] = new SWFShape(input);
+		// Make sure we continue reading at a byte boundary
+		input.skipToByteBoundary();
 	    }
-	    // Make sure we continue reading at a byte boundary
-	    input.skipToByteBoundary();
 	    for (int i=0; i<codeTable.length; i++) {
 		codeTable[i][0] = input.readSByte();
 		if (hasWideCodes) {
@@ -298,9 +304,9 @@ public class SWFDefineFont2 {
 		}
 		for (int i=0; i<boundsTable.length; i++) {
 		    boundsTable[i] = new SWFRectangle(input);
+		    // Bounds rectangles are aligned to byte boundaries...
+		    input.skipToByteBoundary();
 		}
-		// Make sure we continue reading at a byte boundary
-		input.skipToByteBoundary();
 		
 		kerningTable = new KerningRecord[input.readUW16LSB()];
 		byte[] char1;

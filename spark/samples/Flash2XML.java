@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.1 2001/03/16 16:51:08 kunze Exp $
+ * $Id: Flash2XML.java,v 1.2 2001/05/16 16:54:42 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
@@ -55,9 +55,11 @@ public class Flash2XML {
 	    }
 	    printIndent();
 	    System.out.print("<" + localName);
-	    for (int i=0; i<attr.getLength(); i++) {
-		System.out.print(" " + attr.getLocalName(i) +
-				 "=\"" + attr.getValue(i) + "\"");
+	    if (attr != null) {
+		for (int i=0; i<attr.getLength(); i++) {
+		    System.out.print(" " + attr.getLocalName(i) +
+				     "=\"" + attr.getValue(i) + "\"");
+		}
 	    }
 	    indent++;
 	    lastName = localName;

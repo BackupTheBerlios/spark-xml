@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeRecord.java,v 1.2 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFShapeRecord.java,v 1.3 2001/05/16 16:54:42 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -55,13 +55,6 @@ import java.util.Arrays;
  * @author Richard Kunze
  */
 public class SWFShapeRecord {
-    
-    protected static final int TYPE_MOVE_TO      = 1;
-    protected static final int TYPE_FILL_STYLE_0 = 2;
-    protected static final int TYPE_FILL_STYLE_1 = 4;
-    protected static final int TYPE_LINE_STYLE   = 8;
-    protected static final int TYPE_DEFINE_STYLE = 16;
-	
     /**
      * Create a new shape record. The type is determined from the
      * input.
@@ -80,24 +73,7 @@ public class SWFShapeRecord {
 	    if (input.readBit()) return new SWFStraightEdge(input);
 	    else return new SWFCurvedEdge(input);
 	} else {
-	    // None-Edge record. Determine what type it is.
-	    int type = (int)input.readUBits(5);
-	    switch (type) {
-	    case 0:
-		return new SWFEndOfShape();
-	    case TYPE_MOVE_TO:
-		return new SWFMoveTo(input);
-	    case TYPE_FILL_STYLE_0:
-	    case TYPE_FILL_STYLE_1:
-	    case TYPE_LINE_STYLE:
-	    case TYPE_DEFINE_STYLE:
-	    default:
-		// A record that makes more than one state change at
-		// the same time.
-		throw new SWFFormatException(
-		   "FIXME: State change records of type " + type +
-		   " not yet implemented.");
-	    }
+	    return new SWFStateChange(input, fillBits, lineBits);
 	}
     }
 }
