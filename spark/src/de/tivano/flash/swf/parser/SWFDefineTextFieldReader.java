@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextFieldReader.java,v 1.2 2001/06/01 08:40:07 kunze Exp $
+ * $Id: SWFDefineTextFieldReader.java,v 1.3 2001/06/28 17:15:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -83,8 +83,10 @@ public class SWFDefineTextFieldReader extends SWFTagReaderBase {
      */
     private final static Map ENTITIES = new HashMap();
 
-    /** Set up the entity map */
+    /** Set up the entity map. */
     static {
+	// XXX: If you change this map, don't forget to update the reverse
+	// mapping in XMLTextHandler aus well.
 	ENTITIES.put("nbsp", new char[] { 0xA0 });
 	ENTITIES.put("lt", new char[] { '<' });
 	ENTITIES.put("gt", new char[] { '>' });

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Base64Decoder.java,v 1.3 2001/06/11 23:41:53 kunze Exp $
+ * $Id: Base64Decoder.java,v 1.4 2001/06/28 17:15:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -48,7 +48,7 @@ public class Base64Decoder {
     }
 
     /**
-     * Decode some data. This metod will not attemtp to read from
+     * Decode some data. This method will not attempt to read from
      * <code>data</code> outside the range of <code>start</code>
      * through <code>start + length - 1</code>. 
      * @param data the base64 data

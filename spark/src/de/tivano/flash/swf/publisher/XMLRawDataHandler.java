@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLRawDataHandler.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
+ * $Id: XMLRawDataHandler.java,v 1.3 2001/06/28 17:15:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -33,7 +33,7 @@ import de.tivano.flash.swf.common.BitOutputStream;
  * simply holds the base64-encoded data of the corresponding SWF
  * toplevel structure.
  * @author Richard Kunze
- * @see de.tivano.flash.swf.parse.SWFAnyTagReader
+ * @see de.tivano.flash.swf.parser.SWFAnyTagReader
  */
 public class XMLRawDataHandler extends SWFTagHandlerBase {
 

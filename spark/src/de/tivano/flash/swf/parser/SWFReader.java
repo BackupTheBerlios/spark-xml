@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.9 2001/06/11 23:41:53 kunze Exp $
+ * $Id: SWFReader.java,v 1.10 2001/06/28 17:15:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -613,6 +613,6 @@ public class SWFReader implements XMLReader {
      * information such as font definitions between different tag
      * readers.
      */
-    Map getContextMap() { return context; }
+    protected Map getContextMap() { return context; }
 
 }

@@ -17,13 +17,14 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.5 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFShape.java,v 1.6 2001/06/28 17:15:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.EOFException;
 
@@ -83,7 +84,7 @@ public class SWFShape extends SWFDataTypeBase {
     /**
      * Construct a <code>SWFShape</code> from a bit input stream.
      * @param input the input stream to read from
-     * @exception SWFFormatException if the complete rectangle could
+     * @exception SWFFormatException if the complete shape could
      * not be read from the stream.
      */
     public SWFShape(BitInputStream input) throws IOException {
@@ -109,7 +110,17 @@ public class SWFShape extends SWFDataTypeBase {
 	    throw new SWFFormatException(
               "Premature end of file encoutered while reading a shape");
 	}
-    }    
+    }
+
+    /**
+     * Construct a <code>SWFShape</code> from a byte array.
+     * @param input the byte array to read from
+     * @exception SWFFormatException if the complete shape could not be read.
+     */
+    public SWFShape(byte[] input) throws IOException {
+	this(new BitInputStream(new ByteArrayInputStream(input)));
+    }
+    
 
     /**
      * Get an iterator over the list of shape records (edges and state

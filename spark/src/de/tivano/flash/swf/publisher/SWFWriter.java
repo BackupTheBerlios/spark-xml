@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.5 2001/06/27 16:21:56 kunze Exp $
+ * $Id: SWFWriter.java,v 1.6 2001/06/28 17:15:14 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -36,6 +36,8 @@ import de.tivano.flash.swf.common.SWFFileHeader;
 import de.tivano.flash.swf.common.SWFTagHeader;
 import de.tivano.flash.swf.common.SWFRectangle;
 import de.tivano.flash.swf.common.SWFTypes;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * The main SWF publisher class.
@@ -69,6 +71,13 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 
     /** The file header for the SWF file */
     private SWFFileHeader fileHeader = new SWFFileHeader();
+    
+    /**
+     * Map of IDs to context object. Used by different XML element
+     * readers to communicate context information (e.g. font
+     * definitions)
+     */
+    private Map context = new HashMap();
     
     /**
      * Construct a new <code>SWFWriter</code>. The SWF data will be
@@ -299,5 +308,13 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 			       (int)Math.round(x), (int)Math.round(x+width),
 			       (int)Math.round(y), (int)Math.round(y+height)));
     }
+    
+    /**
+     * Get the context map associated with this object.
+     * The context map is used by xml tag readers to communicate context
+     * information such as font definitions between different tag
+     * readers.
+     */
+    protected Map getContextMap() { return context; }
 
 }
