@@ -90,7 +90,7 @@
         <point val="22.2857,-10.0419"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="22.2357,-10.0919;53.1933,-7.59192"/>
+        <rectangle val="22.2357,-10.0919;53.1933,-7.5919"/>
       </attribute>
       <attribute name="elem_corner">
         <point val="22.2857,-10.0419"/>
@@ -412,121 +412,10 @@
     </object>
     <object type="UML - Class" version="0" id="O4">
       <attribute name="obj_pos">
-        <point val="21.9921,1.59653"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="21.9421,1.54653;44.6581,4.84653"/>
-      </attribute>
-      <attribute name="elem_corner">
-        <point val="21.9921,1.59653"/>
-      </attribute>
-      <attribute name="elem_width">
-        <real val="22.616"/>
-      </attribute>
-      <attribute name="elem_height">
-        <real val="3.2"/>
-      </attribute>
-      <attribute name="name">
-        <string>#SWFTagDispatcher#</string>
-      </attribute>
-      <attribute name="stereotype">
-        <string/>
-      </attribute>
-      <attribute name="abstract">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="suppress_attributes">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="suppress_operations">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="visible_attributes">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="visible_operations">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="attributes"/>
-      <attribute name="operations">
-        <composite type="umloperation">
-          <attribute name="name">
-            <string>#&lt;&lt;constructor&gt;&gt;#</string>
-          </attribute>
-          <attribute name="type">
-            <string/>
-          </attribute>
-          <attribute name="visibility">
-            <enum val="3"/>
-          </attribute>
-          <attribute name="abstract">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="class_scope">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="parameters">
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#factory#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#SWFTagReaderFactory#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-          </attribute>
-        </composite>
-        <composite type="umloperation">
-          <attribute name="name">
-            <string>#dispatch#</string>
-          </attribute>
-          <attribute name="type">
-            <string>#void#</string>
-          </attribute>
-          <attribute name="visibility">
-            <enum val="3"/>
-          </attribute>
-          <attribute name="abstract">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="class_scope">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="parameters">
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#swf#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#java.io.InputStream#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-          </attribute>
-        </composite>
-      </attribute>
-      <attribute name="template">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="templates"/>
-    </object>
-    <object type="UML - Class" version="0" id="O5">
-      <attribute name="obj_pos">
         <point val="1.48747,-2.06041"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="1.43747,-2.11041;19.7903,0.389587"/>
+        <rectangle val="1.43747,-2.11041;19.7903,0.38959"/>
       </attribute>
       <attribute name="elem_corner">
         <point val="1.48747,-2.06041"/>
@@ -599,7 +488,7 @@
       </attribute>
       <attribute name="templates"/>
     </object>
-    <object type="Standard - Line" version="0" id="O6">
+    <object type="Standard - Line" version="0" id="O5">
       <attribute name="obj_pos">
         <point val="1.48747,0.339587"/>
       </attribute>
@@ -614,11 +503,11 @@
         <int val="11"/>
       </attribute>
       <connections>
-        <connection handle="0" to="O5" connection="5"/>
-        <connection handle="1" to="O5" connection="7"/>
+        <connection handle="0" to="O4" connection="5"/>
+        <connection handle="1" to="O4" connection="7"/>
       </connections>
     </object>
-    <object type="UML - Association" version="0" id="O7">
+    <object type="UML - Association" version="0" id="O6">
       <attribute name="obj_pos">
         <point val="9.08267,14.6323"/>
       </attribute>
@@ -673,16 +562,16 @@
         </composite>
       </attribute>
       <connections>
-        <connection handle="0" to="O9" connection="1"/>
-        <connection handle="1" to="O6" connection="4"/>
+        <connection handle="0" to="O8" connection="1"/>
+        <connection handle="1" to="O5" connection="4"/>
       </connections>
     </object>
-    <object type="UML - Realizes" version="0" id="O8">
+    <object type="UML - Realizes" version="0" id="O7">
       <attribute name="obj_pos">
         <point val="10.5924,-11.7067"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="9.74241,-12.5567;11.4639,-1.21041"/>
+        <rectangle val="9.7424,-12.5567;11.4639,-1.21041"/>
       </attribute>
       <attribute name="orth_points">
         <point val="10.5924,-11.7067"/>
@@ -703,10 +592,10 @@
       </attribute>
       <connections>
         <connection handle="0" to="O2" connection="6"/>
-        <connection handle="1" to="O5" connection="1"/>
+        <connection handle="1" to="O4" connection="1"/>
       </connections>
     </object>
-    <object type="Standard - Line" version="0" id="O9">
+    <object type="Standard - Line" version="0" id="O8">
       <attribute name="obj_pos">
         <point val="5.63653,14.6323"/>
       </attribute>
@@ -725,152 +614,12 @@
         <connection handle="1" to="O3" connection="2"/>
       </connections>
     </object>
-    <object type="UML - Class" version="0" id="O10">
-      <attribute name="obj_pos">
-        <point val="21.9469,-4.52768"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="21.8969,-4.57768;44.6129,-1.27768"/>
-      </attribute>
-      <attribute name="elem_corner">
-        <point val="21.9469,-4.52768"/>
-      </attribute>
-      <attribute name="elem_width">
-        <real val="22.616"/>
-      </attribute>
-      <attribute name="elem_height">
-        <real val="3.2"/>
-      </attribute>
-      <attribute name="name">
-        <string>#SWFFrameReader#</string>
-      </attribute>
-      <attribute name="stereotype">
-        <string/>
-      </attribute>
-      <attribute name="abstract">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="suppress_attributes">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="suppress_operations">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="visible_attributes">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="visible_operations">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="attributes"/>
-      <attribute name="operations">
-        <composite type="umloperation">
-          <attribute name="name">
-            <string>#&lt;&lt;constructor&gt;&gt;#</string>
-          </attribute>
-          <attribute name="type">
-            <string/>
-          </attribute>
-          <attribute name="visibility">
-            <enum val="3"/>
-          </attribute>
-          <attribute name="abstract">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="class_scope">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="parameters">
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#factory#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#SWFTagReaderFactory#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-          </attribute>
-        </composite>
-        <composite type="umloperation">
-          <attribute name="name">
-            <string>#read#</string>
-          </attribute>
-          <attribute name="type">
-            <string>#void#</string>
-          </attribute>
-          <attribute name="visibility">
-            <enum val="3"/>
-          </attribute>
-          <attribute name="abstract">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="class_scope">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="parameters">
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#swf#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#java.io.InputStream#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-          </attribute>
-        </composite>
-      </attribute>
-      <attribute name="template">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="templates"/>
-    </object>
-    <object type="UML - Realizes" version="0" id="O11">
-      <attribute name="obj_pos">
-        <point val="13.6345,-11.7067"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="12.7845,-12.5567;28.4509,-3.67768"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="13.6345,-11.7067"/>
-        <point val="13.6345,-6.01355"/>
-        <point val="27.6009,-6.01355"/>
-        <point val="27.6009,-4.52768"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="name">
-        <string/>
-      </attribute>
-      <attribute name="stereotype">
-        <string/>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O20" connection="1"/>
-        <connection handle="1" to="O21" connection="0"/>
-      </connections>
-    </object>
-    <object type="UML - LargePackage" version="0" id="O12">
+    <object type="UML - LargePackage" version="0" id="O9">
       <attribute name="obj_pos">
         <point val="58.1111,-16.1564"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="58.0611,-18.0064;68.2118,-0.0353884"/>
+        <rectangle val="58.0611,-18.0064;68.2117,-0.0354"/>
       </attribute>
       <attribute name="elem_corner">
         <point val="58.1111,-16.1564"/>
@@ -888,7 +637,7 @@
         <string/>
       </attribute>
     </object>
-    <object type="UML - Class" version="0" id="O13">
+    <object type="UML - Class" version="0" id="O10">
       <attribute name="obj_pos">
         <point val="20.4649,23.8157"/>
       </attribute>
@@ -966,7 +715,7 @@
       </attribute>
       <attribute name="templates"/>
     </object>
-    <object type="UML - Realizes" version="0" id="O14">
+    <object type="UML - Realizes" version="0" id="O11">
       <attribute name="obj_pos">
         <point val="3.00854,0.339587"/>
       </attribute>
@@ -991,11 +740,11 @@
         <string/>
       </attribute>
       <connections>
-        <connection handle="0" to="O6" connection="0"/>
-        <connection handle="1" to="O13" connection="3"/>
+        <connection handle="0" to="O5" connection="0"/>
+        <connection handle="1" to="O10" connection="3"/>
       </connections>
     </object>
-    <object type="Standard - Line" version="0" id="O15">
+    <object type="Standard - Line" version="0" id="O12">
       <attribute name="obj_pos">
         <point val="20.4649,23.8157"/>
       </attribute>
@@ -1010,11 +759,11 @@
         <int val="11"/>
       </attribute>
       <connections>
-        <connection handle="0" to="O13" connection="0"/>
-        <connection handle="1" to="O13" connection="2"/>
+        <connection handle="0" to="O10" connection="0"/>
+        <connection handle="1" to="O10" connection="2"/>
       </connections>
     </object>
-    <object type="UML - Note" version="0" id="O16">
+    <object type="UML - Note" version="0" id="O13">
       <attribute name="obj_pos">
         <point val="35.9112,20.4182"/>
       </attribute>
@@ -1056,141 +805,16 @@ SWF tag type)#</string>
         </composite>
       </attribute>
     </object>
-    <object type="UML - Class" version="0" id="O17">
+    <object type="UML - Dependency" version="0" id="O14">
       <attribute name="obj_pos">
-        <point val="16.8293,9.33522"/>
+        <point val="41.9224,-7.64192"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="16.7793,9.28522;47.7369,12.9852"/>
-      </attribute>
-      <attribute name="elem_corner">
-        <point val="16.8293,9.33522"/>
-      </attribute>
-      <attribute name="elem_width">
-        <real val="30.8576"/>
-      </attribute>
-      <attribute name="elem_height">
-        <real val="3.6"/>
-      </attribute>
-      <attribute name="name">
-        <string>#SWFTagReaderFactory#</string>
-      </attribute>
-      <attribute name="stereotype">
-        <string/>
-      </attribute>
-      <attribute name="abstract">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="suppress_attributes">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="suppress_operations">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="visible_attributes">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="visible_operations">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="attributes"/>
-      <attribute name="operations">
-        <composite type="umloperation">
-          <attribute name="name">
-            <string>#getTagReader#</string>
-          </attribute>
-          <attribute name="type">
-            <string>#SWFTagReader#</string>
-          </attribute>
-          <attribute name="visibility">
-            <enum val="3"/>
-          </attribute>
-          <attribute name="abstract">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="class_scope">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="parameters">
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#tagID#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#long#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-          </attribute>
-        </composite>
-        <composite type="umloperation">
-          <attribute name="name">
-            <string>#registerTagReader#</string>
-          </attribute>
-          <attribute name="type">
-            <string>#void#</string>
-          </attribute>
-          <attribute name="visibility">
-            <enum val="0"/>
-          </attribute>
-          <attribute name="abstract">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="class_scope">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="parameters">
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#tagID#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#long#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-            <composite type="umlparameter">
-              <attribute name="name">
-                <string>#reader#</string>
-              </attribute>
-              <attribute name="type">
-                <string>#SWFTagReader.class#</string>
-              </attribute>
-              <attribute name="value">
-                <string/>
-              </attribute>
-              <attribute name="kind">
-                <enum val="0"/>
-              </attribute>
-            </composite>
-          </attribute>
-        </composite>
-      </attribute>
-      <attribute name="template">
-        <boolean val="false"/>
-      </attribute>
-      <attribute name="templates"/>
-    </object>
-    <object type="UML - Dependency" version="0" id="O18">
-      <attribute name="obj_pos">
-        <point val="36.4659,12.9352"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="28.7413,12.0852;37.3159,24.6657"/>
+        <rectangle val="28.7413,-8.49192;42.7724,24.6657"/>
       </attribute>
       <attribute name="orth_points">
-        <point val="36.4659,12.9352"/>
-        <point val="36.4659,17.1638"/>
+        <point val="41.9224,-7.64192"/>
+        <point val="41.9224,17.1638"/>
         <point val="29.5913,17.1638"/>
         <point val="29.5913,23.8157"/>
       </attribute>
@@ -1209,30 +833,11 @@ SWF tag type)#</string>
         <string>#&#171;instantiate&#187;#</string>
       </attribute>
       <connections>
-        <connection handle="0" to="O19" connection="6"/>
-        <connection handle="1" to="O13" connection="1"/>
+        <connection handle="0" to="O23" connection="6"/>
+        <connection handle="1" to="O10" connection="1"/>
       </connections>
     </object>
-    <object type="Standard - Line" version="0" id="O19">
-      <attribute name="obj_pos">
-        <point val="16.8293,12.9352"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="16.7793,12.8852;47.7369,12.9852"/>
-      </attribute>
-      <attribute name="conn_endpoints">
-        <point val="16.8293,12.9352"/>
-        <point val="47.6869,12.9352"/>
-      </attribute>
-      <attribute name="numcp">
-        <int val="10"/>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O17" connection="5"/>
-        <connection handle="1" to="O17" connection="7"/>
-      </connections>
-    </object>
-    <object type="Standard - Line" version="0" id="O20">
+    <object type="Standard - Line" version="0" id="O15">
       <attribute name="obj_pos">
         <point val="1.46601,-11.7067"/>
       </attribute>
@@ -1251,69 +856,18 @@ SWF tag type)#</string>
         <connection handle="1" to="O2" connection="7"/>
       </connections>
     </object>
-    <object type="Standard - Line" version="0" id="O21">
+    <object type="UML - Association" version="0" id="O16">
       <attribute name="obj_pos">
-        <point val="21.9469,-4.52768"/>
+        <point val="37.7145,-7.6419"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="21.8969,-4.57768;44.6129,-4.47768"/>
-      </attribute>
-      <attribute name="conn_endpoints">
-        <point val="21.9469,-4.52768"/>
-        <point val="44.5629,-4.52768"/>
-      </attribute>
-      <attribute name="numcp">
-        <int val="3"/>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O10" connection="0"/>
-        <connection handle="1" to="O10" connection="2"/>
-      </connections>
-    </object>
-    <object type="UML - Dependency" version="0" id="O22">
-      <attribute name="obj_pos">
-        <point val="21.9921,4.29653"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="15.8481,-0.510413;22.8421,5.14653"/>
+        <rectangle val="12.206,-9.0919;39.1645,-0.46041"/>
       </attribute>
       <attribute name="orth_points">
-        <point val="21.9921,4.29653"/>
-        <point val="21.9921,2.36626"/>
-        <point val="16.6981,2.36626"/>
-        <point val="16.6981,0.339587"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="draw_arrow">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="name">
-        <string/>
-      </attribute>
-      <attribute name="stereotype">
-        <string/>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O4" connection="10"/>
-        <connection handle="1" to="O6" connection="9"/>
-      </connections>
-    </object>
-    <object type="UML - Association" version="0" id="O23">
-      <attribute name="obj_pos">
-        <point val="28.0502,12.9352"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="26.6002,11.4852;29.5202,25.4157"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="28.0502,12.9352"/>
-        <point val="28.0502,18.9833"/>
-        <point val="28.0702,18.9833"/>
-        <point val="28.0702,23.8157"/>
+        <point val="37.7145,-7.6419"/>
+        <point val="37.7145,-4.18122"/>
+        <point val="13.656,-4.18122"/>
+        <point val="13.656,-2.06041"/>
       </attribute>
       <attribute name="orth_orient">
         <enum val="1"/>
@@ -1357,11 +911,11 @@ SWF tag type)#</string>
         </composite>
       </attribute>
       <connections>
-        <connection handle="0" to="O19" connection="3"/>
-        <connection handle="1" to="O15" connection="4"/>
+        <connection handle="0" to="O1" connection="6"/>
+        <connection handle="1" to="O28" connection="1"/>
       </connections>
     </object>
-    <object type="UML - Class" version="0" id="O24">
+    <object type="UML - Class" version="0" id="O17">
       <attribute name="obj_pos">
         <point val="58.8382,-15.5673"/>
       </attribute>
@@ -1405,7 +959,7 @@ SWF tag type)#</string>
       </attribute>
       <attribute name="templates"/>
     </object>
-    <object type="UML - Class" version="0" id="O25">
+    <object type="UML - Class" version="0" id="O18">
       <attribute name="obj_pos">
         <point val="59.6315,-3.47053"/>
       </attribute>
@@ -1449,7 +1003,7 @@ SWF tag type)#</string>
       </attribute>
       <attribute name="templates"/>
     </object>
-    <object type="UML - Class" version="0" id="O26">
+    <object type="UML - Class" version="0" id="O19">
       <attribute name="obj_pos">
         <point val="60.1603,-7.96549"/>
       </attribute>
@@ -1493,7 +1047,7 @@ SWF tag type)#</string>
       </attribute>
       <attribute name="templates"/>
     </object>
-    <object type="Standard - Line" version="0" id="O27">
+    <object type="Standard - Line" version="0" id="O20">
       <attribute name="obj_pos">
         <point val="58.8382,-15.5673"/>
       </attribute>
@@ -1508,11 +1062,11 @@ SWF tag type)#</string>
         <int val="1"/>
       </attribute>
       <connections>
-        <connection handle="0" to="O24" connection="0"/>
-        <connection handle="1" to="O24" connection="5"/>
+        <connection handle="0" to="O17" connection="0"/>
+        <connection handle="1" to="O17" connection="5"/>
       </connections>
     </object>
-    <object type="UML - Realizes" version="0" id="O28">
+    <object type="UML - Realizes" version="0" id="O21">
       <attribute name="obj_pos">
         <point val="63.2873,-7.96549"/>
       </attribute>
@@ -1537,16 +1091,16 @@ SWF tag type)#</string>
         <string/>
       </attribute>
       <connections>
-        <connection handle="0" to="O26" connection="1"/>
+        <connection handle="0" to="O19" connection="1"/>
         <connection handle="1" to="O1" connection="4"/>
       </connections>
     </object>
-    <object type="UML - Dependency" version="0" id="O29">
+    <object type="UML - Dependency" version="0" id="O22">
       <attribute name="obj_pos">
         <point val="37.7145,-10.0419"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="36.8645,-14.2173;65.1907,-9.19192"/>
+        <rectangle val="36.8645,-14.2173;65.1907,-9.1919"/>
       </attribute>
       <attribute name="orth_points">
         <point val="37.7145,-10.0419"/>
@@ -1570,10 +1124,10 @@ SWF tag type)#</string>
       </attribute>
       <connections>
         <connection handle="0" to="O1" connection="1"/>
-        <connection handle="1" to="O40" connection="1"/>
+        <connection handle="1" to="O27" connection="1"/>
       </connections>
     </object>
-    <object type="Standard - Line" version="0" id="O30">
+    <object type="Standard - Line" version="0" id="O23">
       <attribute name="obj_pos">
         <point val="22.2857,-7.64192"/>
       </attribute>
@@ -1592,7 +1146,7 @@ SWF tag type)#</string>
         <connection handle="1" to="O1" connection="7"/>
       </connections>
     </object>
-    <object type="UML - Dependency" version="0" id="O31">
+    <object type="UML - Dependency" version="0" id="O24">
       <attribute name="obj_pos">
         <point val="50.338,-7.64192"/>
       </attribute>
@@ -1622,11 +1176,11 @@ SWF tag type)#</string>
         <string/>
       </attribute>
       <connections>
-        <connection handle="0" to="O30" connection="9"/>
-        <connection handle="1" to="O25" connection="1"/>
+        <connection handle="0" to="O23" connection="9"/>
+        <connection handle="1" to="O18" connection="1"/>
       </connections>
     </object>
-    <object type="UML - Dependency" version="0" id="O32">
+    <object type="UML - Dependency" version="0" id="O25">
       <attribute name="obj_pos">
         <point val="19.7188,-12.2067"/>
       </attribute>
@@ -1655,228 +1209,19 @@ SWF tag type)#</string>
       </attribute>
       <connections>
         <connection handle="0" to="O2" connection="9"/>
-        <connection handle="1" to="O40" connection="0"/>
+        <connection handle="1" to="O27" connection="0"/>
       </connections>
     </object>
-    <object type="UML - Dependency" version="0" id="O33">
+    <object type="UML - Dependency" version="0" id="O26">
       <attribute name="obj_pos">
-        <point val="30.7014,-7.64192"/>
+        <point val="18.2192,0.339587"/>
       </attribute>
       <attribute name="obj_bb">
-        <rectangle val="29.8514,-8.52465;34.1049,-3.67768"/>
+        <rectangle val="11.6788,-0.510413;19.0692,15.4823"/>
       </attribute>
       <attribute name="orth_points">
-        <point val="30.7014,-7.64192"/>
-        <point val="30.7014,-7.67465"/>
-        <point val="33.2549,-7.67465"/>
-        <point val="33.2549,-4.52768"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="draw_arrow">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="name">
-        <string/>
-      </attribute>
-      <attribute name="stereotype">
-        <string/>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O30" connection="2"/>
-        <connection handle="1" to="O10" connection="1"/>
-      </connections>
-    </object>
-    <object type="UML - Association" version="0" id="O34">
-      <attribute name="obj_pos">
-        <point val="33.3001,1.59653"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="31.8049,-2.77768;34.7501,3.19653"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="33.3001,1.59653"/>
-        <point val="33.3001,-0.0970881"/>
-        <point val="33.2549,-0.0970881"/>
-        <point val="33.2549,-1.32768"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="name">
-        <string/>
-      </attribute>
-      <attribute name="direction">
-        <enum val="0"/>
-      </attribute>
-      <attribute name="ends">
-        <composite>
-          <attribute name="role">
-            <string/>
-          </attribute>
-          <attribute name="multiplicity">
-            <string/>
-          </attribute>
-          <attribute name="arrow">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="aggregate">
-            <enum val="0"/>
-          </attribute>
-        </composite>
-        <composite>
-          <attribute name="role">
-            <string/>
-          </attribute>
-          <attribute name="multiplicity">
-            <string/>
-          </attribute>
-          <attribute name="arrow">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="aggregate">
-            <enum val="2"/>
-          </attribute>
-        </composite>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O4" connection="1"/>
-        <connection handle="1" to="O10" connection="6"/>
-      </connections>
-    </object>
-    <object type="UML - Association" version="0" id="O35">
-      <attribute name="obj_pos">
-        <point val="36.1153,9.33522"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="34.6653,-9.09192;48.9828,10.9352"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="36.1153,9.33522"/>
-        <point val="36.1153,5.86585"/>
-        <point val="47.5328,5.86585"/>
-        <point val="47.5328,-7.64192"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="name">
-        <string/>
-      </attribute>
-      <attribute name="direction">
-        <enum val="0"/>
-      </attribute>
-      <attribute name="ends">
-        <composite>
-          <attribute name="role">
-            <string/>
-          </attribute>
-          <attribute name="multiplicity">
-            <string/>
-          </attribute>
-          <attribute name="arrow">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="aggregate">
-            <enum val="0"/>
-          </attribute>
-        </composite>
-        <composite>
-          <attribute name="role">
-            <string/>
-          </attribute>
-          <attribute name="multiplicity">
-            <string/>
-          </attribute>
-          <attribute name="arrow">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="aggregate">
-            <enum val="2"/>
-          </attribute>
-        </composite>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O39" connection="4"/>
-        <connection handle="1" to="O30" connection="8"/>
-      </connections>
-    </object>
-    <object type="UML - Association" version="0" id="O36">
-      <attribute name="obj_pos">
-        <point val="32.2581,9.33522"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="30.8081,3.34653;34.7501,10.9352"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="32.2581,9.33522"/>
-        <point val="32.2581,9.31913"/>
-        <point val="33.3001,9.31913"/>
-        <point val="33.3001,4.79653"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="name">
-        <string/>
-      </attribute>
-      <attribute name="direction">
-        <enum val="0"/>
-      </attribute>
-      <attribute name="ends">
-        <composite>
-          <attribute name="role">
-            <string/>
-          </attribute>
-          <attribute name="multiplicity">
-            <string/>
-          </attribute>
-          <attribute name="arrow">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="aggregate">
-            <enum val="0"/>
-          </attribute>
-        </composite>
-        <composite>
-          <attribute name="role">
-            <string/>
-          </attribute>
-          <attribute name="multiplicity">
-            <string/>
-          </attribute>
-          <attribute name="arrow">
-            <boolean val="false"/>
-          </attribute>
-          <attribute name="aggregate">
-            <enum val="1"/>
-          </attribute>
-        </composite>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O17" connection="1"/>
-        <connection handle="1" to="O4" connection="6"/>
-      </connections>
-    </object>
-    <object type="UML - Dependency" version="0" id="O37">
-      <attribute name="obj_pos">
-        <point val="21.9921,4.29653"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="11.6788,3.35474;22.8421,15.4823"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="21.9921,4.29653"/>
-        <point val="21.9921,4.20474"/>
+        <point val="18.2192,0.339587"/>
+        <point val="18.2192,4.20474"/>
         <point val="12.5288,4.20474"/>
         <point val="12.5288,14.6323"/>
       </attribute>
@@ -1895,64 +1240,11 @@ SWF tag type)#</string>
         <string>#&#171;instantiate&#187;#</string>
       </attribute>
       <connections>
-        <connection handle="0" to="O4" connection="10"/>
-        <connection handle="1" to="O9" connection="3"/>
+        <connection handle="0" to="O5" connection="10"/>
+        <connection handle="1" to="O8" connection="3"/>
       </connections>
     </object>
-    <object type="UML - Dependency" version="0" id="O38">
-      <attribute name="obj_pos">
-        <point val="53.1433,-7.64192"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="39.1225,-8.49192;53.9933,10.1852"/>
-      </attribute>
-      <attribute name="orth_points">
-        <point val="53.1433,-7.64192"/>
-        <point val="49.7949,-7.64192"/>
-        <point val="49.7949,7.49219"/>
-        <point val="39.9725,7.49219"/>
-        <point val="39.9725,9.33522"/>
-      </attribute>
-      <attribute name="orth_orient">
-        <enum val="0"/>
-        <enum val="1"/>
-        <enum val="0"/>
-        <enum val="1"/>
-      </attribute>
-      <attribute name="draw_arrow">
-        <boolean val="true"/>
-      </attribute>
-      <attribute name="name">
-        <string>#registerTagReader()#</string>
-      </attribute>
-      <attribute name="stereotype">
-        <string>#&#171;delegate&#187;#</string>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O1" connection="7"/>
-        <connection handle="1" to="O39" connection="5"/>
-      </connections>
-    </object>
-    <object type="Standard - Line" version="0" id="O39">
-      <attribute name="obj_pos">
-        <point val="16.8293,9.33522"/>
-      </attribute>
-      <attribute name="obj_bb">
-        <rectangle val="16.7793,9.28522;47.7369,9.38522"/>
-      </attribute>
-      <attribute name="conn_endpoints">
-        <point val="16.8293,9.33522"/>
-        <point val="47.6869,9.33522"/>
-      </attribute>
-      <attribute name="numcp">
-        <int val="7"/>
-      </attribute>
-      <connections>
-        <connection handle="0" to="O17" connection="0"/>
-        <connection handle="1" to="O17" connection="2"/>
-      </connections>
-    </object>
-    <object type="Standard - Line" version="0" id="O40">
+    <object type="Standard - Line" version="0" id="O27">
       <attribute name="obj_pos">
         <point val="58.8382,-13.3673"/>
       </attribute>
@@ -1967,8 +1259,27 @@ SWF tag type)#</string>
         <int val="2"/>
       </attribute>
       <connections>
-        <connection handle="0" to="O24" connection="5"/>
-        <connection handle="1" to="O24" connection="7"/>
+        <connection handle="0" to="O17" connection="5"/>
+        <connection handle="1" to="O17" connection="7"/>
+      </connections>
+    </object>
+    <object type="Standard - Line" version="0" id="O28">
+      <attribute name="obj_pos">
+        <point val="1.48747,-2.06041"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="1.43747,-2.11041;19.7903,-2.01041"/>
+      </attribute>
+      <attribute name="conn_endpoints">
+        <point val="1.48747,-2.06041"/>
+        <point val="19.7403,-2.06041"/>
+      </attribute>
+      <attribute name="numcp">
+        <int val="2"/>
+      </attribute>
+      <connections>
+        <connection handle="0" to="O4" connection="0"/>
+        <connection handle="1" to="O4" connection="2"/>
       </connections>
     </object>
   </layer>
