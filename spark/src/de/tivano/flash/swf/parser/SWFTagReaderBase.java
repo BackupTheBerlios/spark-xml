@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.7 2001/06/01 08:40:08 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.8 2001/06/11 23:41:53 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -134,14 +134,14 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
 		buffer[bufPos++] =
 		    BASE64_TABLE[(currentTriplet >>>  6) & 0x3F];
 		buffer[bufPos++] =
-		    BASE64_TABLE[(currentTriplet <<   2) & 0x3F];
+		    BASE64_TABLE[currentTriplet & 0x3F];
 		buffer[bufPos++] = '=';
 		break;
 	    case 1:
 		buffer[bufPos++] =
 		    BASE64_TABLE[(currentTriplet >>>  6) & 0x3F];
 		buffer[bufPos++] =
-		    BASE64_TABLE[(currentTriplet <<   4) & 0x3F];
+		    BASE64_TABLE[currentTriplet & 0x3F];
 		buffer[bufPos++] = '=';
 		buffer[bufPos++] = '=';
 	    }

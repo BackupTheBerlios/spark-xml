@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDataTypeBase.java,v 1.3 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFDataTypeBase.java,v 1.4 2001/06/11 23:41:53 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -83,7 +83,7 @@ public abstract class SWFDataTypeBase implements SWFDataType {
      * hold the value.
      */
     protected static long paddedLength(long length) {
-	return (length/8)*8 + (length%8!=0?1:0);
+	return (length/8)*8 + (length%8!=0?8:0);
     }
 
     /**

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.8 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFReader.java,v 1.9 2001/06/11 23:41:53 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -97,22 +97,20 @@ public class SWFReader implements XMLReader {
 	// Setup the default tag handlers
 	registerTagReader(TAGID_DEFAULT,
 			  new SWFAnyTagReader());
-	// Ignore the SWF "End" tag. It's implicityl created by the
+	// Ignore the SWF "End" tag. It's implicitly created by the
 	// publisher...
 	registerTagReader(SWFTypes.END, new SWFIgnoreTagReader());
 
 	// Now for the real tags...
 	registerTagReader(SWFTypes.SHOW_FRAME, new SWFShowFrameReader());
-	/*
-	registerTagReader(SWTypes.DEFINE_FONT2,
+	registerTagReader(SWFTypes.DEFINE_FONT2,
 			  new SWFDefineFont2Reader());
 	registerTagReader(SWFTypes.DEFINE_FONT,
 			  new SWFDefineFontReader());
 	registerTagReader(SWFTypes.DEFINE_FONTINFO,
-			  new SWFDefineFontInfoReader());
+	 		  new SWFDefineFontInfoReader());
 	registerTagReader(SWFTypes.DEFINE_TEXTFIELD,
 			  new SWFDefineTextFieldReader());
-	*/
     }
 
     /**

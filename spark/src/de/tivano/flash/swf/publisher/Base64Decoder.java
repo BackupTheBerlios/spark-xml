@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Base64Decoder.java,v 1.2 2001/06/11 18:34:05 kunze Exp $
+ * $Id: Base64Decoder.java,v 1.3 2001/06/11 23:41:53 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -31,14 +31,20 @@ import de.tivano.flash.swf.common.BitOutputStream;
  * @author Richard Kunze
  */
 public class Base64Decoder {
-    BitOutputStream out;
+    OutputStream out;
+
+    /** The write buffer */
+    int buffer = 0;
+
+    /** The number of valid bits in the write buffer */
+    int validBits = 0;
     
     /**
      * Create a new base64 decoder.
      * @param out the stream to write the decoded data to.
      **/
     public Base64Decoder(OutputStream out) {
-	this.out = new BitOutputStream(out);
+	this.out = out;
     }
 
     /**
@@ -64,33 +70,79 @@ public class Base64Decoder {
      * encoded data.
      */
     public void write(char data) throws IOException {
+	byte value;
 	if (data >= 'A' && data <= 'Z') {
-	    out.writeBits((int)(data - 'A'), 6);
+	    value = (byte)(data - 'A');
 	} else if (data >= 'a' && data <= 'z') {
-	    out.writeBits((int)(data - 'a') + 26, 6);
+	    value = (byte)(data - 'a' + 26);
 	} else if (data >= '0' && data <= '9') {
-	    out.writeBits((int)(data - '0') + 52, 6);
+	    value = (byte)(data - '0' + 52);
 	} else if (data == '+') {
-	    out.writeBits(62, 6);
+	    value = 62;
 	} else if (data == '/') {
-	    out.writeBits(63, 6);
+	    value = 63;
 	} else if (data == '=') {
-	    out.discardRemainingBits();
+	    return;
 	} else if (Character.isSpace(data)) {
 	    // Ignore whitespace
+	    return;
 	} else {
 	    throw new IllegalArgumentException(
 		  "Not a legal base64 character: " + data);
-	}	
+	}
+	validBits += 6;
+	buffer <<= 6;
+	buffer |= (value & 0x3F);
+	if (validBits == 24) {
+	    out.write((buffer >>> 16) & 0xFF);
+	    out.write((buffer >>> 8) & 0xFF);
+	    out.write(buffer & 0xFF);
+	    buffer = 0;
+	    validBits = 0;
+	}
     }
 
-    /** Close the associated output stream */
-    public void close() throws IOException { out.close(); }
+    /**
+     * Close the associated output stream. If there are still bits
+     * pending, they are implicitly assumed to be 0.
+     */
+    public void close() throws IOException {
+	writeRemaining();
+	out.close();
+    }
 
     /**
-     * Flush the data. If there are bits left to be written (i.e. the
-     * number of characters written so far is not a multiple of 4),
-     * the remaining bits are assumed to be 0.
+     * Flush the data. If there are still bits pending, they are
+     * implicitly assumed to be 0.
      */
-    public void flush() throws IOException { out.padAndFlush(); }
+    public void flush() throws IOException {
+	writeRemaining();
+	buffer = 0;
+	validBits = 0;
+	out.flush();
+    }
+
+    /** Write the remaining bytes */
+    private void writeRemaining() throws IOException {
+	switch (validBits) {
+	case 18:
+	    out.write((buffer >>> 8) & 0xFF);
+	    out.write(buffer & 0xFF);
+	    break;
+	case 12:
+	    out.write(buffer & 0xFF);
+	    break;
+	case 6:
+	    buffer <<= 2;
+	    out.write(buffer & 0xFF);
+	    break;
+	case 0:
+	    break;
+	default:
+	    // Paranoia
+	    throw new IllegalStateException(
+	       "Got " + validBits + " bits left at the end of decoding. " +
+	       "This should never happen. Please debug.");
+	}
+    }
 }

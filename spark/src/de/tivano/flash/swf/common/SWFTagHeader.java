@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.9 2001/06/11 18:34:05 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.10 2001/06/11 23:41:53 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -45,6 +45,17 @@ import java.io.InputStream;
  *
  * <p><code>SWFTagHeader</code> transparently handles reading and
  * writing both header types.</p>
+ *
+ * <p>Note: Observation of existing SWF files shows that some SWF tag
+ * types seem to always have a long header, regardless of their actual
+ * size, and some tags have a long header depending on other size
+ * limits than the standard 62 bits.. Needless to say, the SWF specs
+ * don't mention this with a single word. Here are the special rules
+ * as used by this class:
+ * <ul>
+ * <li>13 (DefineFontInfo): Always create a long header
+ * <li>37 (DefineTextField): Create a long header if size &gt;= 45 bytes (??)
+ * </ul>
  * @author Richard Kunze
  */
 public class SWFTagHeader {
@@ -161,13 +172,28 @@ public class SWFTagHeader {
 	    ("length " + length + " is outside the allowed range of 0..2^32");
 	this.length = length;
     }
+
+    /**
+     * Determine if a long header is needed
+     */
+    private boolean isLongHeader() {
+	// Some tags seem to always have a long header, some only
+	// above certain length limits but differing from the standard
+	// 62, and of course the specs don't mention this fact with a
+	// single word. SWF sucks.
+	switch (getID()) {
+	case SWFTypes.DEFINE_FONTINFO: return true;
+	case SWFTypes.DEFINE_TEXTFIELD: return getRecordLength() >= 45;
+	default: return getRecordLength() >= 63;
+	}
+    }
     
     /**
      * Get the length of this tag header in bits.
      */
     public long length() {
-	if (getRecordLength() < 63) return 16;
-	else return 48;
+	if (isLongHeader()) return 48;
+	else return 16;
     }
 
     /**
@@ -177,13 +203,13 @@ public class SWFTagHeader {
      */
     public void write(BitOutputStream out) throws IOException {
 	int tmp = getID() << 6;
-	if (getRecordLength() < 63) {
-	    tmp |= getRecordLength();
-	    out.writeW16LSB(tmp);
-	} else {
+	if (isLongHeader()) {
 	    tmp |= 0x3f;
 	    out.writeW16LSB(tmp);
 	    out.writeW32LSB((int)getRecordLength());
+	} else {
+	    tmp |= getRecordLength();
+	    out.writeW16LSB(tmp);
 	}
     }
 }
