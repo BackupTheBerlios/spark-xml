@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFRectangleTest.java,v 1.2 2001/03/14 12:27:12 kunze Exp $
+ * $Id: SWFRectangleTest.java,v 1.3 2001/03/15 10:57:40 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -38,6 +38,15 @@ import java.io.EOFException;
  */
 public class SWFRectangleTest extends TestCase {
 
+    /** The bit input stream to read the rectangle from */
+    private BitInputStream data;
+
+    /** The rectangle value to compare against */
+    private final long XMIN;
+    private final long XMAX;
+    private final long YMIN;
+    private final long YMAX;
+
     /**
      * Construct a byte array with the data for an SWF rectangle
      * structure.
@@ -51,9 +60,9 @@ public class SWFRectangleTest extends TestCase {
      * if one of the parameters exceeds the range given in the SWF
      * documentation.
      */
-    public static byte[] createRectangle(int nbits,
-					 long xmin, long xmax,
-					 long ymin, long ymax)
+    private byte[] createRectangle(int nbits,
+				   long xmin, long xmax,
+				   long ymin, long ymax)
     {
 	assert("The field size must be between 0 and 31",
 	       nbits>=0 && nbits<32);
@@ -88,5 +97,55 @@ public class SWFRectangleTest extends TestCase {
 	    retval[i] = value;
 	}
 	return retval;
+    }
+
+    /**
+     * Setup the test
+     * @param nbits the number of bits for the rectangle value fields
+     * @param xmin the minimum X coordinate
+     * @param xmax the maximum X coordinate
+     * @param ymin the minimum Y coordinate
+     * @param ymax the maximum Y coordinate
+     */
+    public SWFRectangleTest(int nbits,
+			    long xmin, long xmax,
+			    long ymin, long ymax) {
+	super("Min: ("   + xmin + ", " + ymin +
+	      ") Max: (" + xmax + ", " + ymax +
+	      ") Bits: " + nbits);
+	data = new BitInputStream(new ByteArrayInputStream(
+		    createRectangle(nbits, xmin, xmax, ymin, ymax)));
+	XMIN = xmin;
+	YMIN = ymin;
+	XMAX = xmax;
+	YMAX = ymax;
+    }
+
+    /** Do the test */
+    public void runTest() throws Exception {
+	SWFRectangle rect = new SWFRectangle(data);
+	assertEquals(XMIN, rect.getXMin());
+	assertEquals(XMAX, rect.getXMax());
+	assertEquals(YMIN, rect.getYMin());
+	assertEquals(YMAX, rect.getYMax());
+    }
+
+    /** Create the test suite */
+    public static Test suite() {
+	TestSuite suite = new TestSuite();
+	suite.addTest(new SWFRectangleTest(0, 0, 0, 0, 0));
+	for (int nbits=1; nbits<32; nbits++) {
+	    long maxNeg = -1L << (nbits-1);
+	    long maxPos = -1L >>> (64-nbits+1);
+	    long wrap   = 1 << (nbits-1);
+	    suite.addTest(new SWFRectangleTest(nbits,
+					       1%wrap, 2%wrap,
+					       3%wrap, 4%wrap));
+	    suite.addTest(new SWFRectangleTest(nbits,
+					       maxNeg, maxPos,
+					       maxNeg, maxPos));
+	    
+	}
+	return suite;
     }
 }

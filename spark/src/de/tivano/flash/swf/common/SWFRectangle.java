@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFRectangle.java,v 1.2 2001/03/14 12:27:11 kunze Exp $
+ * $Id: SWFRectangle.java,v 1.3 2001/03/15 10:57:40 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -89,10 +89,10 @@ public class SWFRectangle {
     public SWFRectangle(BitInputStream input) throws IOException {
 	try {
 	    int fieldLen = (int)input.readUBits(5);
-	    X_MIN = input.readUBits(fieldLen);
-	    X_MAX = input.readUBits(fieldLen);
-	    Y_MIN = input.readUBits(fieldLen);
-	    Y_MAX = input.readUBits(fieldLen);
+	    X_MIN = input.readSBits(fieldLen);
+	    X_MAX = input.readSBits(fieldLen);
+	    Y_MIN = input.readSBits(fieldLen);
+	    Y_MAX = input.readSBits(fieldLen);
 	} catch (EOFException e) {
 	    throw new SWFFormatException(
               "Premature end of file encoutered while reading a rectangle");
@@ -103,11 +103,11 @@ public class SWFRectangle {
     public long getXMin() { return X_MIN; }
 
     /** Get the minimum Y coordinate */
-    public long getYMin() { return X_MIN; }
+    public long getYMin() { return Y_MIN; }
 
     /** Get the maximum X coordinate */
     public long getXMax() { return X_MAX; }
 
     /** Get the maximum Y coordinate */
-    public long getYMax() { return X_MAX; }
+    public long getYMax() { return Y_MAX; }
 }
