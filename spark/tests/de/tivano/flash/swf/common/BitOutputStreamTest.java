@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitOutputStreamTest.java,v 1.1 2001/05/21 17:52:26 kunze Exp $
+ * $Id: BitOutputStreamTest.java,v 1.2 2001/05/23 09:30:26 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -35,10 +35,21 @@ import java.io.EOFException;
  */
 public class BitOutputStreamTest extends TestCase {
 
+
+    /** A quick-and-dirty speed optimization for
+     * ByteArrayOutputStream
+     */
+    private static class FastByteArrayOutputStream
+	    extends ByteArrayOutputStream {
+	public FastByteArrayOutputStream() { super(); }
+	public FastByteArrayOutputStream(int size) { super(size); }
+	public byte[] toByteArray() { return buf; }
+    }
+
     /** Bit patterns for testing the writeXXX() methods */
-    private static final int[] PATTERNS = {
-	0x00000000, 0xffffffff, 0x55555555, 0xaaaaaaaa, 0x33333333,
-	0xcccccccc, 0xff00ff00
+    private static final long[] PATTERNS = {
+	0x00000000L, 0xffffffffL, 0x55555555L, 0xaaaaaaaaL, 0x33333333L,
+	0xccccccccL, 0xff00ff00L
     };
 
     /** the output stream for testing */
@@ -59,7 +70,7 @@ public class BitOutputStreamTest extends TestCase {
 
     /** Build the fixture */
     public void setUp() {
-	streamRaw = new ByteArrayOutputStream();
+	streamRaw = new FastByteArrayOutputStream(WRITE_REPEAT*4);
 	stream = new BitOutputStream(streamRaw);
     }
 
@@ -67,7 +78,7 @@ public class BitOutputStreamTest extends TestCase {
      * Read <code>n</code> bits from the data, starting at
      * bit position <code>pos</code>.
      */
-    private long readBits(int n, int pos) {
+    private long readBits(int pos, int n) {
 	byte[] data = streamRaw.toByteArray();
 	long retval = 0;
 	int end = pos + n;
@@ -88,12 +99,13 @@ public class BitOutputStreamTest extends TestCase {
     /**
      * Test <code>writeBits()</code> with a given write size and bit pattern.
      */
-    public void testWriteBits(long pattern, int bits) throws Exception {
+    public void testWriteBits(int p, int bits) throws Exception {
+	long pattern = (p << 32) | p;
 	for (int i=0; i<WRITE_REPEAT; i++) {
 	    stream.writeBits(pattern, bits);
 	}
+	long expected = pattern & (-1L >>> (64-bits));
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = pattern & (-1L >>> 64-bits);
 	    assertEquals("at bit position " + (i*bits),
 			 expected, readBits(i*bits, bits));
 	}
@@ -112,29 +124,46 @@ public class BitOutputStreamTest extends TestCase {
 	}
 	stream.writeBits(0, 8-shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = pattern;
 	    assertEquals("at bit position " + (i*8+shift),
-			 expected, readBits(i*8+shift, 8));
+			 pattern, (byte)readBits(i*8+shift, 8));
 	}
     }
 
     /**
-     * Test <code>write(byte[])</code> with a given bit shift.
+     * Test <code>write(byte[])</code> with a given bit shift and pattern.
      * This test assumes a working
      * <code>BitOutputstream.writeBits()</code> method.
      */
-    public void testWrite2(int shift, byte[] data) throws Exception {
+    public void testWrite2(byte pattern, int shift) throws Exception {
+	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	byte[] data = new byte[WRITE_REPEAT];
+	for (int i=0; i<data.length; i++) data[i] = pattern;
+	stream.writeBits(0, shift);
+	stream.write(data);
+	stream.writeBits(0, 8-shift);
+	for (int i=0; i<WRITE_REPEAT; i++) {
+	    assertEquals("at bit position " + (i*8+shift),
+			 pattern, (byte)readBits(i*8+shift, 8));
+	}
     }
 
     /**
      * Test <code>write(byte[], int, int)</code> with a given bit
-     * shift, offset and write length.
+     * shift.
      * This test assumes a working
      * <code>BitOutputstream.writeBits()</code> method.
      */
-    public void testWrite3(int shift, byte[] data, int offset, int
-			   len)
-	   throws Exception {
+    public void testWrite3(byte pattern, int shift) throws Exception {
+	assert("bit shift must be between 0 and 7", shift >=0 && shift<8);
+	byte[] data = new byte[WRITE_REPEAT];
+	for (int i=0; i<data.length; i++) data[i] = pattern;
+	stream.writeBits(0, shift);
+	stream.write(data, 0, data.length);
+	stream.writeBits(0, 8-shift);
+	for (int i=0; i<WRITE_REPEAT; i++) {
+	    assertEquals("at bit position " + (i*8+shift),
+			 pattern, (byte)readBits(i*8+shift, 8));
+	}
     }
 
     /**
@@ -163,9 +192,8 @@ public class BitOutputStreamTest extends TestCase {
 	}
 	stream.writeBits(0, 8-shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = pattern;
 	    assertEquals("at bit position " + (i*8+shift),
-			 expected, readBits(i*8+shift, 8));
+			 pattern, (byte)readBits(i*8+shift, 8));
 	}
     }
 
@@ -182,9 +210,8 @@ public class BitOutputStreamTest extends TestCase {
 	}
 	stream.writeBits(0, 8-shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = pattern;
 	    assertEquals("at bit position " + (i*16+shift),
-			 expected, readBits(i*16+shift, 16));
+			 pattern, (short)readBits(i*16+shift, 16));
 	}
     }
 
@@ -201,9 +228,8 @@ public class BitOutputStreamTest extends TestCase {
 	}
 	stream.writeBits(0, 8-shift);
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = pattern;
 	    assertEquals("at bit position " + (i*32+shift),
-			 expected, readBits(i*32+shift, 32));
+			 pattern, (int)readBits(i*32+shift, 32));
 	}
     }
 
@@ -219,8 +245,12 @@ public class BitOutputStreamTest extends TestCase {
 	    stream.writeW16LSB(pattern);
 	}
 	stream.writeBits(0, 8-shift);
+	long expected = 0;
+	for (int j=0; j<2; j++) {
+	    expected = (expected << 8) | (pattern & 0xFF);
+	    pattern  = (short)(pattern >>> 8);
+	}
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = (pattern & 0xFF) << 8 | (pattern >> 8);
 	    assertEquals("at bit position " + (i*16+shift),
 			 expected, readBits(i*16+shift, 16));
 	}
@@ -238,12 +268,12 @@ public class BitOutputStreamTest extends TestCase {
 	    stream.writeW32LSB(pattern);
 	}
 	stream.writeBits(0, 8-shift);
+	long expected = 0;
+	for (int j=0; j<4; j++) {
+	    expected = (expected << 8) | (pattern & 0xFF);
+	    pattern  = (pattern >>> 8);
+	}
 	for (int i=0; i<WRITE_REPEAT; i++) {
-	    long expected = 0;
-	    for (int j=0; j<4; j++) {
-		expected = (pattern & 0xFF);
-		pattern  = (pattern >> 8);
-	    }
 	    assertEquals("at bit position " + (i*32+shift),
 			 expected, readBits(i*32+shift, 32));
 	}
@@ -275,6 +305,21 @@ public class BitOutputStreamTest extends TestCase {
      * <code>BitOutputstream.writeBits()</code> method.
      */
     public void testPadToByteBoundary() throws Exception {
+	for (int bits=1; bits<=8; bits++) {
+	    stream.writeBits(-1, bits);
+	    stream.padToByteBoundary();
+	}
+	stream.writeBits(0x55, 8);
+	byte[] result = streamRaw.toByteArray();
+	assertEquals((byte)0x80, result[0]);
+	assertEquals((byte)0xC0, result[1]);
+	assertEquals((byte)0xE0, result[2]);
+	assertEquals((byte)0xF0, result[3]);
+	assertEquals((byte)0xF8, result[4]);
+	assertEquals((byte)0xFC, result[5]);
+	assertEquals((byte)0xFE, result[6]);
+	assertEquals((byte)0xFF, result[7]);
+	assertEquals((byte)0x55, result[8]);
     }
 
     /**
@@ -306,12 +351,12 @@ public class BitOutputStreamTest extends TestCase {
 
 	// Test read routines with different bit patterns.
 	for (int p=0; p<PATTERNS.length; p++) {
-	    String header = Integer.toString(PATTERNS[p], 2);
-	    while (header.length() < 8) {
+	    String header = Long.toString(PATTERNS[p], 2);
+	    while (header.length() < 32) {
 		header = "0" + header;
 	    }
 	    header = "pattern '" + header + "': ";
-	    final int PATTERN = PATTERNS[p];
+	    final int PATTERN = (int)PATTERNS[p];
 	    
 	    // Test writeBits() with all possible word lengths
 	    for (int bits=1; bits<57; bits++) {
@@ -339,6 +384,24 @@ public class BitOutputStreamTest extends TestCase {
 		    };
 		suite.addTest(test);
 
+		name = header + "write(byte[]) with bit shift "
+		    + shift;
+		test = new BitOutputStreamTest(name) {
+			public void runTest() throws Exception {
+			    this.testWrite2((byte)PATTERN, SHIFT);
+			}
+		    };
+		suite.addTest(test);
+		
+		name = header + "write(byte[], int, int) with bit shift "
+		    + shift;
+		test = new BitOutputStreamTest(name) {
+			public void runTest() throws Exception {
+			    this.testWrite3((byte)PATTERN, SHIFT);
+			}
+		    };
+		suite.addTest(test);
+		
 		name = header + "writeByte(" + PATTERN + ") with bit shift "
 		    + shift;
 		test = new BitOutputStreamTest(name) {
@@ -409,6 +472,14 @@ public class BitOutputStreamTest extends TestCase {
 	test = new BitOutputStreamTest(name) {
 		public void runTest() throws Exception {
 		    this.testIsAtByteBoundary();
+		}
+	    };
+	suite.addTest(test);
+
+	name = "padToByteBoundary()";
+	test = new BitOutputStreamTest(name) {
+		public void runTest() throws Exception {
+		    this.testPadToByteBoundary();
 		}
 	    };
 	suite.addTest(test);

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: BitOutputStream.java,v 1.1 2001/05/21 17:52:26 kunze Exp $
+ * $Id: BitOutputStream.java,v 1.2 2001/05/23 09:30:26 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -49,7 +49,6 @@ import java.io.OutputStream;
  */
 
 public class BitOutputStream extends FilterOutputStream {
-
     /** The current bit position in the buffer */
     private int bitsLeft = 0;
 
@@ -59,14 +58,16 @@ public class BitOutputStream extends FilterOutputStream {
 
     /** temporary buffer for holding data to write to the underlying stream. */
     private byte[] bufferTmp = new byte[8];
-    
+
     /**
      * Creates a new <code>BitOutputStream</code> instance.
      *
      * @param in an <code>OutputStream</code> value
      * @see FilterOutputStream#FilterOutputStream
      */
-    public BitOutputStream(OutputStream in) { super(in); }
+    public BitOutputStream(OutputStream out) {
+	super(out);
+    }
 	
     /**
      * Write up to 56 bits to the stream.
@@ -88,7 +89,7 @@ public class BitOutputStream extends FilterOutputStream {
 	// your local C, Assembler or other bit fiddling wizard if you
 	// have trouble understanding it.
 
-	value |= (buffer << n);
+	value = (value & (-1L >>> (64-n))) | (((long)buffer) << n);
 	n += bitsLeft;
 	int remaining = n%8;
 	int bytes = n/8;
@@ -109,7 +110,7 @@ public class BitOutputStream extends FilterOutputStream {
 	    bufferTmp[6] = (byte)(value >> (8+remaining));
 	case 1:
 	    bufferTmp[7] = (byte)(value >> remaining);
-	    super.write(bufferTmp, 8-bytes, bytes);
+	    out.write(bufferTmp, 8-bytes, bytes);
 	case 0:
 	    bitsLeft = remaining;
 	    // Store the remaining bits. Don't bother with masking out
@@ -130,7 +131,7 @@ public class BitOutputStream extends FilterOutputStream {
      * @see #countRemainingBits()
      */
     public void padToByteBoundary() throws IOException {
-	writeBits(0L, bitsLeft);
+	writeBits(0L, countRemainingBits());
     }
 
     /**
@@ -139,7 +140,7 @@ public class BitOutputStream extends FilterOutputStream {
      * @return the number of bits remaining. A value between 0
      * and 7.
      */
-    public int countRemainingBits() { return bitsLeft; }
+    public int countRemainingBits() { return (8-bitsLeft)%8; }
 
     /**
      * Check if the current read position is at a byte boundary with
@@ -220,7 +221,7 @@ public class BitOutputStream extends FilterOutputStream {
      * @exception IOException if an IO error occurs
      */
     public void write(int b) throws IOException {
-	if (bitsLeft == 0) super.write(b);
+	if (bitsLeft == 0) out.write(b);
 	else writeBits(b, 8);
     }
 
@@ -238,9 +239,9 @@ public class BitOutputStream extends FilterOutputStream {
 	// If we're at a byte boundary, we can use the (probably) more
 	// efficient method of the underlying stream. If not, we have
 	// to go through writeBits().
-	if (bitsLeft == 0) super.write(b, off, len);
+	if (bitsLeft == 0) out.write(b, off, len);
 	else {
-	    for (int i=off; i<len; i++) writeBits(b[i], 8);
+	    for (int i=off; i<off+len; i++) writeBits(b[i], 8);
 	}
     }
 
