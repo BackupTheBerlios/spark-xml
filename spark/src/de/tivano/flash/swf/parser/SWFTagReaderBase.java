@@ -16,8 +16,9 @@
  *
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
+ *      Torsten Curdt
  *
- * $Id: SWFTagReaderBase.java,v 1.10 2002/05/21 08:40:00 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.11 2002/05/21 17:31:07 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -204,7 +205,7 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
 	throws SAXException {
 	// FIXME: Really handle the name space stuff
 	if (attrib == null) attrib = EMPTY_ATTRIBUTES;
-	getSAXDriver().getContentHandler().startElement("", name, "", attrib);
+	getSAXDriver().getContentHandler().startElement("", name, name, attrib);
     }
 
     /**
@@ -235,7 +236,7 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
     protected void endElement(String name)
 	throws SAXException {
 	// FIXME: Really handle the name space stuff
-	getSAXDriver().getContentHandler().endElement("", name, "");
+	getSAXDriver().getContentHandler().endElement("", name, name);
     }
 
     /**

@@ -16,8 +16,9 @@
  *
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
+ *      Torsten Curdt
  *
- * $Id: SWFAttributes.java,v 1.3 2001/05/30 16:23:16 kunze Exp $
+ * $Id: SWFAttributes.java,v 1.4 2002/05/21 17:31:07 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -46,7 +47,7 @@ public class SWFAttributes extends AttributesImpl {
      */
     public void addAttribute(String name, String value, String type) {
 	// FIXME: Really handle the name space stuff
-	super.addAttribute("", name, "", type, value);
+	super.addAttribute("", name, name, type, value);
     }
     
     /** Add an attribute. This is a wrapper around
@@ -58,7 +59,7 @@ public class SWFAttributes extends AttributesImpl {
      */
     public void addAttribute(String name, long value, String type) {
 	// FIXME: Really handle the name space stuff
-	super.addAttribute("", name, "", type, Long.toString(value));
+	super.addAttribute("", name, name, type, Long.toString(value));
     }
     
     /** Add an attribute. This is a wrapper around
@@ -70,7 +71,7 @@ public class SWFAttributes extends AttributesImpl {
      */
     public void addAttribute(String name, double value, String type) {
 	// FIXME: Really handle the name space stuff
-	super.addAttribute("", name, "", type, Double.toString(value));
+	super.addAttribute("", name, name, type, Double.toString(value));
     }
     
     /** Add an attribute. This is a wrapper around

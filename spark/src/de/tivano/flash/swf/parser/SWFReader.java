@@ -16,8 +16,9 @@
  *
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
+ *      Torsten Curdt
  *
- * $Id: SWFReader.java,v 1.11 2001/07/02 19:10:55 kunze Exp $
+ * $Id: SWFReader.java,v 1.12 2002/05/21 17:31:07 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -539,7 +540,7 @@ public class SWFReader implements XMLReader {
 	    attr.addAttribute("y", y);
 	}
 	// FIXME: Handle Namespaces...
-	handler.startElement("", "SWF", "", attr);
+	handler.startElement("", "SWF", "SWF", attr);
     }
 
     /**
@@ -553,7 +554,7 @@ public class SWFReader implements XMLReader {
     protected void parseEndOfFile(BitInputStream input)
 	           throws IOException, SAXException {
 	// FIXME: Handle Namespaces!
-	getContentHandler().endElement("", "SWF", "");
+	getContentHandler().endElement("", "SWF", "SWF");
     }
 	    
     
