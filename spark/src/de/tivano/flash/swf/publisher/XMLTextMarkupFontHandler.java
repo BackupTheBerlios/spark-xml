@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextMarkupFontHandler.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
+ * $Id: XMLTextMarkupFontHandler.java,v 1.2 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -79,5 +79,6 @@ public class XMLTextMarkupFontHandler extends XMLTextMarkupHandlerBase {
 	textHandler.setNextColor(oldColor);
 	textHandler.setNextFontName(oldName);
 	textHandler.setNextFontSize(oldSize);
+	textHandler.finishCurrentText(false);
     }
 }

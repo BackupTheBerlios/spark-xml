@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFWriter.java,v 1.7 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFWriter.java,v 1.8 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -111,6 +111,9 @@ public class SWFWriter extends XMLHandlerBase implements ContentHandler {
 	// Setup the default XML element handler map.
 	registerElementHandler("RawData", XMLRawDataHandler.class);
 	registerElementHandler("ShowFrame", XMLShowFrameHandler.class);
+	registerElementHandler("Font", XMLFontHandler.class);
+	registerElementHandler("Text", XMLTextHandler.class);
+	registerElementHandler("TextInput", XMLTextInputHandler.class);
     }
 
     /**

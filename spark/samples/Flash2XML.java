@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.5 2001/06/01 08:40:07 kunze Exp $
+ * $Id: Flash2XML.java,v 1.6 2001/07/02 19:10:55 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
@@ -25,7 +25,9 @@ import de.tivano.flash.swf.parser.SWFVerboseDefineFont2Reader;
 import de.tivano.flash.swf.parser.SWFVerboseDefineFontReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
-
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 /**
  * A very simple Flash to XML converter.
@@ -45,11 +47,26 @@ public class Flash2XML {
 	private int indent = 0;
 	private String lastName = null;
 	private boolean needNewline = false;
+	private boolean dontIndent = false;
+	private PrintWriter out;
+
+	public XMLWriter() throws UnsupportedEncodingException {
+	    out = new PrintWriter(new OutputStreamWriter(System.out, "ISO-8859-1"));
+	}
 
 	private void printIndent() {
-	    if (needNewline) System.out.println();
+	    if (dontIndent) return;
+	    if (needNewline) out.println();
 	    needNewline = false;
-	    for (int i=0; i<indent; i++) System.out.print("  ");
+	    for (int i=0; i<indent; i++) out.print("  ");
+	}
+	
+	public void startDocument() {
+	    out.println("<?xml  version=\"1.0\" encoding=\"" +
+			       "ISO-8859-1\" standalone=\"yes\" ?> ");
+	}
+	public void endDocument() {
+	    out.close();
 	}
 	
 	public void startElement(String uri,
@@ -59,16 +76,18 @@ public class Flash2XML {
 	    // Print the missing ">" from the previos startElement()
 	    // first...
 	    if (lastName != null) {
-		System.out.println(">");
+		out.print(">");
+		needNewline = true;
 	    }	    
 	    printIndent();
-	    System.out.print("<" + localName);
+	    out.print("<" + localName);
 	    if (attr != null) {
 		for (int i=0; i<attr.getLength(); i++) {
-		    System.out.print(" " + attr.getLocalName(i) +
+		    out.print(" " + attr.getLocalName(i) +
 				     "=\"" + attr.getValue(i) + "\"");
 		}
 	    }
+	    if (localName.equals("P")) dontIndent = true;
 	    indent++;
 	    lastName = localName;
 	}
@@ -78,11 +97,13 @@ public class Flash2XML {
 	    indent--;
 	    // Is this an empty element?
 	    if (localName.equals(lastName)) {
-		System.out.println(" />");
+		out.print(" />");
 	    } else {
 		printIndent();
-		System.out.println("</" + localName + ">");
+		out.print("</" + localName + ">");
 	    }
+	    if (localName.equals("P")) dontIndent = false;
+	    needNewline = true;
 	    lastName = null;
 	}
 	
@@ -93,7 +114,8 @@ public class Flash2XML {
 	    // first, and make sure the next endElement() doesn't assume
 	    // this is an empty element...
 	    if (lastName!=null) {
-		System.out.println(">");
+		out.print(">");
+		needNewline = true;
 		printIndent();
 	    } else if (!needNewline) printIndent();
 	    lastName = null;
@@ -101,8 +123,19 @@ public class Flash2XML {
 	    // Print the characters, with indentation after every
 	    // newline.
 	    for (int i=start; i<start+length; i++) {
-		System.out.print(ch[i]);
-		if (ch[i] == '\n' && i!=start+length-1) printIndent();
+		switch (ch[i]) {
+		case '<': out.print("&lt;"); break;
+		case '>': out.print("&gt;"); break;
+		case '"': out.print("&quot;"); break;
+		case '&': out.print("&amp;"); break;
+		case '\n':
+		    out.print(ch[i]);
+		    if (i!=start+length-1) printIndent();
+		    break;
+		default:
+		    out.print(ch[i]);
+		    break;
+		}
 	    }
 	    needNewline = ch[start+length-1] != '\n';
 	}

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLFontHandler.java,v 1.4 2001/07/02 08:07:22 kunze Exp $
+ * $Id: XMLFontHandler.java,v 1.5 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -39,10 +39,10 @@ import org.xml.sax.Attributes;
 public class XMLFontHandler extends SWFTagHandlerBase {
 
     /** The font object to build */
-    SWFFont font = new SWFFont();
+    SWFFont font;
 
     /** the font writer for this font */
-    SWFFontWriter fontWriter = new SWFFontWriter(font);
+    SWFFontWriter fontWriter;
     
     /**
      * Construct a new <code>XMLFontHandler</code>.
@@ -62,8 +62,13 @@ public class XMLFontHandler extends SWFTagHandlerBase {
 	// template) file. In a generator template, all characters are
 	// included in a font, regardless of wheter they are used by
 	// texts or not.
-	font.addGlyph(gh.getChar(), gh.getAdvance(),
-		      gh.getBounds(), gh.getShape(), false);
+	SWFRectangle bounds = gh.getBounds();
+	if (bounds != null) {
+	    font.addGlyph(gh.getChar(), gh.getAdvance(),
+			  bounds, gh.getShape(), false);
+	} else {
+	    font.addGlyph(gh.getChar(), gh.getShape(), false);
+	}
     }
 
     /**
@@ -76,9 +81,57 @@ public class XMLFontHandler extends SWFTagHandlerBase {
 	if (!name.equals("Font")) {
 	    fatalError("Illegal element for this handler: " + name);
 	}
+	font = new SWFFont();
+	fontWriter = new SWFFontWriter(font);
+    
 
 	// Get the attributes.
-	font.setFontName(attrib.getValue("", "name"));
+	String tmp;
+	tmp = attrib.getValue("", "name");
+	if (tmp!=null) font.setFontName(tmp);
+	else fatalError("No font name specified");
+	try {
+	    tmp = attrib.getValue("", "id");
+	    font.setFontID(Integer.parseInt(tmp));
+	} catch (Exception e) {
+	    fatalError("Illegal font id: " + tmp);
+	}
+	tmp = attrib.getValue("", "style");
+	if ("bold".equals(tmp)) {
+	    font.setLayout(SWFFont.BOLD);
+	} else if ("bold-italic".equals(tmp)) {
+	    font.setLayout(SWFFont.BOLD|SWFFont.ITALIC);
+	} else if ("italic".equals(tmp)) {
+	    font.setLayout(SWFFont.ITALIC);
+	} else {
+	    font.setLayout(0);
+	}
+	tmp = attrib.getValue("", "encoding");
+	if ("unicode".equals(tmp)) {
+	    font.setEncoding(SWFFont.UNICODE);
+	} else if ("shift-jis".equals(tmp)) {
+	    font.setEncoding(SWFFont.SHIFT_JIS);
+	} else {
+	    font.setEncoding(SWFFont.ANSI);
+	}
+	try {
+	    tmp = attrib.getValue("", "ascent");
+	    if (tmp!=null) font.setAscent(Integer.parseInt(tmp));
+	} catch (Exception e) {
+	    fatalError("Illegal font ascent value: " + tmp);
+	}
+	try {
+	    tmp = attrib.getValue("", "descent");
+	    if (tmp!=null) font.setDescent(Integer.parseInt(tmp));
+	} catch (Exception e) {
+	    fatalError("Illegal font descent value: " + tmp);
+	}
+	try {
+	    tmp = attrib.getValue("", "leading");
+	    if (tmp!=null) font.setLeading(Integer.parseInt(tmp));
+	} catch (Exception e) {
+	    fatalError("Illegal font leading height value: " + tmp);
+	}
     }
     
     /**

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextMarkupItalicHandler.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
+ * $Id: XMLTextMarkupItalicHandler.java,v 1.2 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -44,6 +44,8 @@ public class XMLTextMarkupItalicHandler extends XMLTextMarkupHandlerBase {
 
     /** Reset the old font layout */
     protected void endElement() throws SWFWriterException {
-	getTextHandler().setNextFontLayout(oldLayout);
+	XMLTextHandler textHandler = getTextHandler();
+	textHandler.setNextFontLayout(oldLayout);
+	textHandler.finishCurrentText(false);
     }
 }

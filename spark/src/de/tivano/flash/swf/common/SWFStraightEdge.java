@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFStraightEdge.java,v 1.2 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFStraightEdge.java,v 1.3 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -34,6 +34,11 @@ import java.io.EOFException;
  *  <td bgcolor="#CCCCCC"><b>Field</b></td>
  *  <td bgcolor="#CCCCCC"><b>Length (bits)</b></td>
  *  <td bgcolor="#CCCCCC"><b>Comment</b></td>
+ * </tr>
+ * <tr>
+ *   <td>typeFlag</td>
+ *   <td>1</td>
+ *   <td>The edge type. Always 1 for straight edges.</td>
  * </tr>
  * <tr>
  *   <td>NBits</td>
@@ -167,8 +172,8 @@ public class SWFStraightEdge extends SWFShapeRecord {
      */
     public void write(BitOutputStream out) throws IOException {
 	int entryLength = getEntryLength();
-	// Write the edge record flag first...
-	out.writeBits(1,1);	
+	// Write the edge record and edge type flags first...
+	out.writeBits(3,2);	
 	// The SWF file holds entryLength-2, not the length itself...
 	out.writeBits(entryLength-2, 4);
 	if (isHorizontal()) {

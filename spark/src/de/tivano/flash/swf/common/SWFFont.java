@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.9 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFFont.java,v 1.10 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -148,7 +148,7 @@ public class SWFFont {
 	/** Set the boundig box */
 	public void setBounds(SWFRectangle value) {
 	    bounds = value;
-	    hasMetrics = true;
+	    hasMetrics |= (value != null);
 	}
 	/** Get the shape. */
 	public SWFShape getShape() { return shape; }
@@ -372,6 +372,14 @@ public class SWFFont {
     }
 
     /** Add a new glyph entry */
+    public void addGlyph(Character charcode, SWFShape shape,
+			 boolean marked) {
+	Glyph glyph = createGlyph(marked);
+	glyph.setCharacter(charcode);
+	glyph.setShape(shape);
+    }
+
+    /** Add a new glyph entry */
     public void addGlyph(Character charcode, int advance, boolean marked) {
 	Glyph glyph = createGlyph(marked);
 	glyph.setCharacter(charcode);
@@ -410,6 +418,17 @@ public class SWFFont {
      * glyph for <code>c</code>.
      */
     public int getGlyphIndex(char c) {
+	return getGlyphIndex(new Character(c));
+    }
+    
+    /**
+     * Get the glyph index for a given character.
+     * The glyph is automatically marked as used.
+     * @param c the character to encode
+     * @return the glyph index, or -1 if this font does not contain a
+     * glyph for <code>c</code>.
+     */
+    public int getGlyphIndex(Character c) {
 	Glyph glyph = getGlyph(c);
 	if (glyph == null) return -1;
 	else return glyph.getIndex();

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.10 2001/06/28 17:15:14 kunze Exp $
+ * $Id: SWFReader.java,v 1.11 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -483,6 +483,8 @@ public class SWFReader implements XMLReader {
 	throws IOException, SAXException {
 
 
+	ContentHandler handler = getContentHandler();
+	handler.startDocument();
 	// Handle the file header
 	parseStartOfFile(input);
 	
@@ -501,6 +503,7 @@ public class SWFReader implements XMLReader {
 
 	// finally, send the </SWF> tag
 	parseEndOfFile(input);
+	handler.endDocument();
     }
 
     /**

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextFieldReader.java,v 1.3 2001/06/28 17:15:14 kunze Exp $
+ * $Id: SWFDefineTextFieldReader.java,v 1.4 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -372,7 +372,7 @@ public class SWFDefineTextFieldReader extends SWFTagReaderBase {
 	int pos = start;
 	while (start < end) {
 	    while (pos < end && buffer[pos] != '{') pos++;
-	    characters(buffer, start, pos-start);
+	    if (pos!=start) characters(buffer, start, pos-start);
 	    start = pos + 1;
 	    if (pos < end) {
 		while (pos < end && buffer[pos] != '}') pos++;

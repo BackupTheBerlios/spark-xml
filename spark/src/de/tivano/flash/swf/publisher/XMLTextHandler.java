@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextHandler.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
+ * $Id: XMLTextHandler.java,v 1.2 2001/07/02 19:10:55 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -54,7 +54,7 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	private int fontSize;
 	private int align;
 	private boolean addNewline = false;
-	private StringBuffer text;
+	private StringBuffer text = new StringBuffer();
 	
 	public TextChunk(SWFFont font, int fontSize,
 			 SWFColorRGB color, int align) {
@@ -104,49 +104,58 @@ public class XMLTextHandler extends SWFTagHandlerBase {
     private boolean isSelectable;
 
     /** If set, this text includes layout information */
-    private boolean hasLayout = false;
+    private boolean hasLayout;
 
     /** The left margin */
-    private int leftMargin = 0;
+    private int leftMargin;
 
     /** The right margin */
-    private int rightMargin = 0;
+    private int rightMargin;
 
     /** The text indentation for the first line */
-    private int indent = 0;
+    private int indent;
 
     /** The vertical spacing between lines */
-    private int lineSpacing = 0;
+    private int lineSpacing;
 
     /** The variable name for this text */
-    private String varName = "";
+    private String varName;
 
     /** The text ID */
     private int id;
     
     /** If set, this text has a visible border line */
-    private boolean hasBorder = false;
+    private boolean hasBorder;
 
     /** The bounding box for this text */
     private SWFRectangle bounds;
 
     /** The font header for the next text chunk. */
-    private FontKey nextFont = new FontKey("Times new roman", 0);
+    private FontKey nextFont;
+
+    /** The default font key */
+    private static final FontKey DEFAULT_FONT = new FontKey("Times new roman", 0);
     
     /** font size for the next text chunk */
-    private int nextFontSize = 240;
+    private int nextFontSize;
     
     /** alignment for the next text chunk */
-    private int nextAlign = SWFDefineTextField.ALIGN_LEFT;
+    private int nextAlign;
 
     /** The color for the next text chunk. By default, black. */
-    private SWFColorRGB nextColor = new SWFColorRGB("000000");
+    private SWFColorRGB nextColor;
+
+    /** The default color */
+    private static final SWFColorRGB DEFAULT_COLOR = new SWFColorRGB("000000");
 
     /** The alpha value. By default opaque (i.e. 0xFF) */
-    private int alpha = 0xFF;
+    private int alpha;
     
     /** The current text chunk */
-    private TextChunk currentText = null;
+    private TextChunk currentText;
+
+    /** Flag, indicates "start a new text chunk" */
+    private boolean needNewTextChunk;
 
     public XMLTextHandler() {
 	registerElementHandler("P", XMLTextMarkupParHandler.class);
@@ -189,11 +198,27 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	      throws SWFWriterException {
 	String tmp;
 
+	// Initialize state data
+	textChunks.clear();
+	hasLayout = false;
+	leftMargin = 0;
+	rightMargin = 0;
+	indent = 0;
+	lineSpacing = 0;
+	nextFont = DEFAULT_FONT;
+	nextFontSize = 240;
+	nextAlign = SWFDefineTextField.ALIGN_LEFT;
+	nextColor = DEFAULT_COLOR;
+	alpha  = 0xFF;
+	currentText = null;
+	needNewTextChunk = true;
+	
 	try {
 	    tmp = attrib.getValue("", "id");
 	    if (tmp != null) id = Integer.parseInt(tmp);
 	    tmp = attrib.getValue("", "name");
 	    if (tmp != null) varName = tmp;
+	    else varName = "";
 	    try {
 		bounds = new SWFRectangle(
 			Integer.parseInt(attrib.getValue("", "xmin")),
@@ -282,9 +307,9 @@ public class XMLTextHandler extends SWFTagHandlerBase {
 	    texts.next();
 	    boolean multiFormat = false;
 	    while (!multiFormat && texts.hasNext()) {
-		multiFormat = firstText.attribEquals((TextChunk)texts.next());
+		multiFormat = !firstText.attribEquals((TextChunk)texts.next());
 	    }
-	    useHTML = !multiFormat;
+	    useHTML = multiFormat;
 	}
 	byte[] text = null;
 	try {
@@ -397,28 +422,31 @@ public class XMLTextHandler extends SWFTagHandlerBase {
     }
 
 
+    /** Start a new text chunk now */
+    public void newTextChunk() throws SWFWriterException {
+	SWFFont font =
+	    (SWFFont)getSWFWriter().getContextMap().get(nextFont);
+	if (font == null) {
+	    String layout;
+	    switch (nextFont.getLayout()) {
+	    case SWFFont.BOLD: layout = "(bold)"; break;
+	    case SWFFont.BOLD|SWFFont.ITALIC:
+		layout = "(bold,italic)"; break;
+	    case SWFFont.ITALIC: layout = "(italic)"; break;
+	    default: layout = "(standard)";
+	    }
+	    fatalError("Font not found: " + nextFont.getName() + " " +
+		       layout);
+	}
+	currentText = new TextChunk(font, nextFontSize,
+				    nextColor, nextAlign);
+	textChunks.add(currentText);
+    }
+    
     /** Add some text to the current text chunk */
     public void addText(char[] ch, int start, int length)
 	    throws SWFWriterException {
-	if (currentText == null) {
-	    SWFFont font =
-		(SWFFont)getSWFWriter().getContextMap().get(nextFont);
-	    if (font == null) {
-		String layout;
-		switch (nextFont.getLayout()) {
-		case SWFFont.BOLD: layout = "(bold)"; break;
-		case SWFFont.BOLD|SWFFont.ITALIC:
-		    layout = "(bold,italic)"; break;
-		case SWFFont.ITALIC: layout = "(italic)"; break;
-		default: layout = "(standard)";
-		}
-		fatalError("Font not found: " + nextFont.getName() + " " +
-			   layout + " not found.");
-	    }
-	    currentText = new TextChunk(font, nextFontSize,
-					nextColor, nextAlign);
-	    textChunks.add(currentText);
-	}
+	if (needNewTextChunk) newTextChunk();
 	currentText.addText(ch, start, length);
     }
 
@@ -426,11 +454,14 @@ public class XMLTextHandler extends SWFTagHandlerBase {
      * Close the current text chunk. The next characters will go on a
      * new text chunk.
      * @param newline if <code>true</code>, the next text chunk will
-     * start on a new line.
+     * start immediately and on a new line. Otherwise, the next text
+     * chunk will not start before the next call to {@link #addText}
      */
-    public void finishCurrentText(boolean newline) {
-	currentText.setNewline(newline);
-	currentText = null;
+    public void finishCurrentText(boolean newline) throws SWFWriterException {
+	if (newline) {
+	    currentText.setNewline(true);
+	    newTextChunk();
+	} else needNewTextChunk = true;
     }
 	
 }

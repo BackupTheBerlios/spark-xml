@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLTextMarkupParHandler.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
+ * $Id: XMLTextMarkupParHandler.java,v 1.2 2001/07/02 19:10:56 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -50,6 +50,8 @@ public class XMLTextMarkupParHandler extends XMLTextMarkupHandlerBase {
 
     /** Reset the text alignment to the previous value */
     protected void endElement() throws SWFWriterException {
-	getTextHandler().setNextAlign(oldAlign);
+	XMLTextHandler textHandler = getTextHandler();
+	textHandler.setNextAlign(oldAlign);
+	textHandler.finishCurrentText(true);
     }
 }
