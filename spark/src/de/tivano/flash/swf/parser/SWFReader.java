@@ -17,15 +17,12 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFReader.java,v 1.6 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
 
-import de.tivano.flash.swf.common.SWFTagHeader;
-import de.tivano.flash.swf.common.SWFFileHeader;
-import de.tivano.flash.swf.common.BitInputStream;
-import de.tivano.flash.swf.common.SWFFormatException;
+import de.tivano.flash.swf.common.*;
 
 import org.xml.sax.XMLReader;
 import org.xml.sax.ContentHandler;
@@ -94,9 +91,16 @@ public class SWFReader implements XMLReader {
 	super();
 
 	// Setup the default tag handlers
-	registerTagReader(TAGID_DEFAULT,   new SWFAnyTagReader());
-	registerTagReader(new Integer(48), new SWFDefineFont2Reader());
-	registerTagReader(new Integer(10), new SWFDefineFontReader());
+	registerTagReader(TAGID_DEFAULT,
+			  new SWFAnyTagReader());
+	registerTagReader(SWFDefineFont2.TAG_TYPE,
+			  new SWFDefineFont2Reader());
+	registerTagReader(SWFDefineFont.TAG_TYPE,
+			  new SWFDefineFontReader());
+	registerTagReader(SWFDefineFontInfo.TAG_TYPE,
+			  new SWFDefineFontInfoReader());
+	registerTagReader(SWFDefineTextField.TAG_TYPE,
+			  new SWFDefineTextFieldReader());
     }
 
     /**
@@ -561,7 +565,6 @@ public class SWFReader implements XMLReader {
 	return (SWFTagReader)tagReaderMap.put(tagID, handler);
     }
 
-    
     /** @see #registerTagReader(Integer, SWFTagReader) */
     public SWFTagReader registerTagReader(int tagID, SWFTagReader handler) {
 	return registerTagReader(new Integer(tagID), handler);

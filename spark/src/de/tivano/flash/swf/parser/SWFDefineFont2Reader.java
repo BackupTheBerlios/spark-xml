@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2Reader.java,v 1.3 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFDefineFont2Reader.java,v 1.4 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -71,8 +71,8 @@ import de.tivano.flash.swf.common.BitInputStream;
  * <em>&lt;Glyph&gt;</em> for this particular character pair.</p>
  * 
  * <p>The font information is stored in the context map (see
- * {@link #getContextMap}) as a {@link SWFFont} instance indexed by
- * its font ID.</p>
+ * {@link #getContextMap}) as a {@link SWFFont}
+ * instance indexed by its font ID.</p>
  * @author Richard Kunze
  */
 public class SWFDefineFont2Reader extends SWFTagReaderBase {
@@ -102,6 +102,7 @@ public class SWFDefineFont2Reader extends SWFTagReaderBase {
 	SWFDefineFont2 fontTag = new SWFDefineFont2(input);
 	SWFFont font = new SWFFont();
 	font.setFontID(fontTag.getID());
+	font.setFontName(fontTag.getName());
 	getContextMap().put(new Integer(fontTag.getID()), font);
 
 	boolean hasGlyphLayout = fontTag.hasGlyphLayout();

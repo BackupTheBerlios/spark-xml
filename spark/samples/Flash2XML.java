@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.3 2001/05/28 17:51:28 kunze Exp $
+ * $Id: Flash2XML.java,v 1.4 2001/05/30 16:23:15 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
@@ -41,7 +41,7 @@ public class Flash2XML {
     /** A very simplistic XML writer that probably only works
      *  for SWFML data. It does pretty printing, though :-)
      */
-    private static class XMLWriter extends DefaultHandler {
+    private class XMLWriter extends DefaultHandler {
 	private int indent = 0;
 	private String lastName = null;
 
@@ -99,6 +99,7 @@ public class Flash2XML {
 		System.out.print(ch[i]);
 		if (ch[i] == '\n' && i!=start+length-1) printIndent();
 	    }
+	    if (ch[start+length-1] != '\n') System.out.println();
 	}
     }
 

@@ -17,12 +17,13 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.6 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.Attributes;
 
 import java.io.InputStream;
@@ -244,6 +245,15 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
 	getSAXDriver().getContentHandler().characters(ch, start, length);
     }
 
+    /**
+     * Send a "characters" event. Exactly the same as
+     * <code>characters(ch, 0, ch.length)</code>
+     * @see #characters(char[], int, int)
+     */
+    protected void characters(char[] ch) throws SAXException {
+	characters(ch, 0, ch.length);
+    }
+
     /** Get an <code>Attributes</code> object. */
     protected SWFAttributes createAttributes() {
 	return new SWFAttributes();
@@ -262,7 +272,7 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
      * The context map is used to communicate context information such
      * as font definitions between different tag readers.
      */
-    Map getContextMap() { return getSAXDriver().getContextMap(); }
+    protected Map getContextMap() { return getSAXDriver().getContextMap(); }
 
     /**
      * Get an output stream for sending raw data.
@@ -284,5 +294,49 @@ public abstract class SWFTagReaderBase implements SWFTagReader {
     protected OutputStream getRawDataOutputStream() {
 	return new Base64DataOutputStream();
     }
+
+    /**
+     * Send a warning to the client application.
+     * @param msg the error message
+     * @see org.xml.sax.ErrorHandler#warning
+     */
+    protected void warning(String msg) throws SAXException {
+	getSAXDriver().getErrorHandler().warning(
+			       createSAXParseException(msg));
+    }
+
+    /**
+     * Send a recoverable error to the client application.
+     * @param msg the error message
+     * @see org.xml.sax.ErrorHandler#error
+     */
+    protected void error(String msg) throws SAXException {
+	getSAXDriver().getErrorHandler().error(
+			       createSAXParseException(msg));
+    }
+    /**
+     * Send a fatal error to the client application.
+     * @param msg the error message
+     * @see org.xml.sax.ErrorHandler#error
+     */
+    protected void fatalError(String msg)
+	      throws SAXException {
+	getSAXDriver().getErrorHandler().fatalError(
+			       createSAXParseException(msg));
+    }
+
+    /** Helper method to construct a SAXParseException with a given
+     * error message. */
+    private SAXParseException createSAXParseException(String msg) {
+	// XXX: Don't really know how to provide a working Locator for
+	// binary SWF data. For now, take the easy way out...
+	return new SAXParseException(msg, null);
+    }
+
+    /**
+     * Convert from SWF "TWIPS" to the underlying unit.
+     * Simply divides the value by 20.
+     */
+    protected double fromTwips(double value) { return value / 20; }
 }
 

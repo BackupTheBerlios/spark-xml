@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFontInfo.java,v 1.1 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFDefineFontInfo.java,v 1.2 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -102,7 +102,7 @@ import java.io.EOFException;
  * </table>
  * <p>The value for <em>glyphCount</em> is not specified in the tag
  * itself, it must be obtained by querying the corresponding
- * <em>DefineFont</em> structure.</p>
+ * <em>DefineFont</em> structure or inferred from the tag length.</p>
  * <p><a name="fonts"><em>Author's note:</em></a> The SWF specs seem to be
  * incorrect with regard to the font encoding flags. The flag for
  * ShiftJIS encoding (according to spec) is set on every European font

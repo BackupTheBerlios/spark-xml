@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFVerboseDefineFont2Reader.java,v 1.1 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFVerboseDefineFont2Reader.java,v 1.2 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -27,7 +27,7 @@ package de.tivano.flash.swf.parser;
  *
  * <p>This tag reader will produce nearly the same structure as {@link
  * SWFDefineFont2Reader}, the sole difference is that the more verbose
- * <code>&lt;Shape&gt;</code> element (see {@link SWFShapereader}) is
+ * <code>&lt;Shape&gt;</code> element (see {@link SWFShapeReader}) is
  * produced instead of <code>&lt;ShapRaw&gt;</code>.
  * Replace the handler for SWF tag id 48 with an instance of this
  * class if you want structured access to the outlines of each glyph

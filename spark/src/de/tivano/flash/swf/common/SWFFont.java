@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.5 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFFont.java,v 1.6 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -296,25 +296,25 @@ public class SWFFont {
     }
 
     /** Create a new glyph. */
-    protected Glyph newGlyph() {
+    protected Glyph createGlyph() {
 	return new Glyph();
     }
 
     /** Add a new glyph entry */
     public void addGlyph(String charcode, int advance) {
-	Glyph glyph = newGlyph();
+	Glyph glyph = createGlyph();
 	glyph.setCharacter(charcode);
 	glyph.setAdvance(advance);
     }
 
     /** Add a new glyph entry */
     public void addGlyph() {
-	Glyph glyph = newGlyph();
+	Glyph glyph = createGlyph();
     }
 
     /** Add a new glyph entry */
     public void addGlyph(String charcode) {
-	Glyph glyph = newGlyph();
+	Glyph glyph = createGlyph();
 	glyph.setCharacter(charcode);
     }
 
@@ -339,6 +339,17 @@ public class SWFFont {
      */
     public String getCharCode(int glyph) {
 	return getGlyph(glyph).getCharacter();
+    }
+
+    /**
+     * Set the character code for a given glyph index.
+     * @param glyph the glyph index.
+     * @param charcode the character code for this glyph.
+     * @exception IndexOutOfBoundsException if <code>glyph</code> is
+     * outside the range of 0 to <code>glyphCount()</code>.
+     */
+    public void setCharCode(int glyph, String charcode) {
+	getGlyph(glyph).setCharacter(charcode);
     }
 
     /**

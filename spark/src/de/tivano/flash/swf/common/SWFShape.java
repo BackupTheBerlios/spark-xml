@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.4 2001/05/23 14:58:14 kunze Exp $
+ * $Id: SWFShape.java,v 1.5 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -50,8 +50,7 @@ import java.io.EOFException;
  * <tr>
  *   <td>shapes</td>
  *   <td>&gt;= 6</td>
- *   <td>A list of {@link SWFShapeRecord} values, terminated by
- *   {@link SWFEndOfShape}</td>
+ *   <td>A list of {@link SWFShapeRecord} values</td>
  * </tr>
  * </table>
  * @author Richard Kunze

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAnyTagReader.java,v 1.7 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFAnyTagReader.java,v 1.8 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -35,9 +35,9 @@ import de.tivano.flash.swf.common.BitInputStream;
  * This class can read arbitrary SWF tags. It will emit the following
  * XML snippet:
  * <pre>
- * &lt;UnknownTag type="<em>TagType</em>"&gt;
+ * &lt;RawData type="<em>TagType</em>"&gt;
  *   <em>&lt;!-- Content of the unkown tag as raw or base64-encoded data --&gt;</em>
- * &lt;/UnknownTag&gt;
+ * &lt;/RawData&gt;
  * </pre>
  * <em>TagType</em> is the ID of the SWF tag.
  * @author Richard Kunze
@@ -55,7 +55,7 @@ public class SWFAnyTagReader extends SWFTagReaderBase {
                 throws SAXException, IOException {
 	SWFAttributes attrib = createAttributes();
 	attrib.addAttribute("type", header.getID());
-	startElement("UnknownTag", attrib);
+	startElement("RawData", attrib);
 	long length = header.getRecordLength();
 	if (length > 0) {
 	    OutputStream out = getRawDataOutputStream();
@@ -67,6 +67,6 @@ public class SWFAnyTagReader extends SWFTagReaderBase {
 		throw e.getCause();
 	    }
 	}
-	endElement("UnknownTag");
+	endElement("RawData");
     }
 }

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFAttributes.java,v 1.2 2001/05/15 18:16:08 kunze Exp $
+ * $Id: SWFAttributes.java,v 1.3 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -62,6 +62,18 @@ public class SWFAttributes extends AttributesImpl {
     }
     
     /** Add an attribute. This is a wrapper around
+     * <code>AttributeImpl.addAttribute()</code> that handles
+     * namespaces on its own.
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @param type the type of the attribute
+     */
+    public void addAttribute(String name, double value, String type) {
+	// FIXME: Really handle the name space stuff
+	super.addAttribute("", name, "", type, Double.toString(value));
+    }
+    
+    /** Add an attribute. This is a wrapper around
      * <code>AttributeImpl.addAttribute()</code> that automatically
      * converts the value to a string. The type is assumed to be
      * <code>TYPE_CDATA</code>. 
@@ -80,6 +92,17 @@ public class SWFAttributes extends AttributesImpl {
      * @param value the value of the attribute
      */
     public void addAttribute(String name, long value) {
+	addAttribute(name, value, TYPE_CDATA);
+    }
+    
+    /** Add an attribute. This is a wrapper around
+     * <code>AttributeImpl.addAttribute()</code> that automatically
+     * converts the value to a string. The type is assumed to be
+     * <code>TYPE_CDATA</code>. 
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     */
+    public void addAttribute(String name, double value) {
 	addAttribute(name, value, TYPE_CDATA);
     }
 }

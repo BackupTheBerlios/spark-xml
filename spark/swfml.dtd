@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- $Id: swfml.dtd,v 1.7 2001/05/28 17:51:27 kunze Exp $ -->
+<!-- $Id: swfml.dtd,v 1.8 2001/05/30 16:23:15 kunze Exp $ -->
+<!ENTITY % boolean "(true|false|on|off|yes|no)">
 
 <!-- Toplevel element for SWF data -->
 <!ELEMENT SWF (FrameSize, FramePos?,
-              (UnknownTag |
-               Font)*)
+              (RawData |
+               Font |
+               Text |
+               TextInput)*)
 >
 <!ATTLIST SWF
           version   CDATA   #REQUIRED
@@ -25,10 +28,72 @@
 <!-- Catch-all tag for unkown SWF data elements. Simply holds
      the base64-encoded contents of the corresponding SWF data chunk.
 -->
-<!ELEMENT UnkownTag #CDATA>
-<!ATTLIST UnkownTag
+<!ELEMENT RawData #CDATA>
+<!ATTLIST RawData
           type CDATA #REQUIRED
 >
+
+<!-- Editable text field -->
+<!ELEMENT TextInput Text>
+<!ATTLIST TextInput
+          id         ID        #IMLPIED
+          name       ID        #IMPLIED
+          multiline  %boolean; no
+          password   %boolean; no
+          wordwrap   %boolean; no
+          maxlength  CDATA     #IMPLIED
+>
+
+<!-- Text with layout information -->
+<!ENTITY % inline "(font | b | i | span | hspace | #CDATA)">
+<!ELEMENT Text ((p, vspace?) | %inline;)* >
+<!ATTLIST Text
+          id          ID        #IMPLIED
+          name        ID        #IMPLIED
+          xmin        CDATA     #IMPLIED
+          xmax        CDATA     #IMPLIED
+          ymin        CDATA     #IMPLIED
+          ymax        CDATA     #IMPLIED
+          border      %boolean; no
+          selectable  %boolean; yes
+          leftmargin  CDATA     #IMPLIED
+          rightmargin CDATA     #IMPLIED
+          indent      CDATA     #IMPLIED
+          linespacing CDATA     #IMPLIED
+          alpha       CDATA     #IMPLIED
+>
+
+<!-- A Text paragraph -->
+<!ELEMENT p (%inline;)* >
+<!ATTLIST p
+          align (left | right | center) left
+          id    ID                      #IMPLIED
+>
+
+<!-- Inlined text with a certain font -->
+<!ELEMENT font (%inline;)* >
+<!ATTLIST font
+          face  CDATA #IMPLIED
+          size  CDATA #IMPLIED
+          color CDATA #IMPLIED
+          id    ID                      #IMPLIED
+>
+
+<!-- Bold/italic text and text marker -->
+<!ELEMENT b (%inline;)* >
+<!ATTLIST b id ID #IMPLIED>
+<!ELEMENT i (%inline;)* >
+<!ATTLIST i id ID #IMPLIED>
+<!ELEMENT span (%inline;)* >
+<!ATTLIST span id ID #IMPLIED>
+
+<!-- Horizontal and vertical spacing information -->
+<!ELEMENT hspace EMPTY>
+<!ATTLIST hspace value CDATA #REQUIRED>
+<!ELEMENT vspace EMPTY>
+<!ATTLIST vspace value CDATA #REQUIRED>
+
+<!-- One paragraph of text -->
 
 <!-- Font definition. A font definition holds a
      number of Glyph definitions along with optional
@@ -53,7 +118,7 @@
 -->
 <!ELEMENT FontOutlines (Shape | ShapeRaw)* >
 <!ATTLIST Font
-          id       ID                                       #REQUIRED
+          id       IDREF                                    #REQUIRED
 >
 
 <!-- Defines kerning information for a character pair.

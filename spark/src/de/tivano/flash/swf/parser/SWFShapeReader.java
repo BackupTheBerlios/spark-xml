@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShapeReader.java,v 1.3 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFShapeReader.java,v 1.4 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -91,8 +91,11 @@ public class SWFShapeReader extends SWFTagReaderBase {
 	    Object entry = records.next();
 	    if (entry instanceof SWFCurvedEdge) {
 		// Paranoia code. Should never happen.
-		if (!insidePath) throw new SAXException(
-                  "SWF edge record found without preceding MoveTo");
+		if (!insidePath) {
+		    fatalError(
+		      "SWF edge record found without preceding MoveTo");
+		    return;
+		}
 		SWFCurvedEdge c = (SWFCurvedEdge)entry;
 		attrib.addAttribute("x", c.getAnchorX());
 		attrib.addAttribute("y", c.getAnchorY());
@@ -100,8 +103,11 @@ public class SWFShapeReader extends SWFTagReaderBase {
 		attrib.addAttribute("cy", c.getControlY());
 		emptyElement("Bezier", attrib);
 	    } else if (entry instanceof SWFStraightEdge) {
-		if (!insidePath) throw new SAXException(
-                  "SWF edge record found without preceding MoveTo");
+		if (!insidePath) {
+		    fatalError(
+		       "SWF edge record found without preceding MoveTo");
+		    return;
+		}
 		SWFStraightEdge s = (SWFStraightEdge)entry;
 		attrib.addAttribute("x", s.getX());
 		attrib.addAttribute("y", s.getY());

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFontReader.java,v 1.1 2001/05/28 17:51:28 kunze Exp $
+ * $Id: SWFDefineFontReader.java,v 1.2 2001/05/30 16:23:16 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -100,6 +100,9 @@ public class SWFDefineFontReader extends SWFTagReaderBase {
 
 	SWFDefineFont fontTag = new SWFDefineFont(input);
 	SWFDefineFontInfo fontInfo = null;
+	SWFFont font = new SWFFont();
+	font.setFontID(fontTag.getID());
+	getContextMap().put(new Integer(fontTag.getID()), font);
 	
 	// Check if we have a DefineFontInfo immediately following
 	input.mark(SWFTagHeader.MAX_LENGTH + 2);
@@ -117,9 +120,6 @@ public class SWFDefineFontReader extends SWFTagReaderBase {
 	    fontInfo = new SWFDefineFontInfo(input,
 					     fontTag.getGlyphCount(),
 					     fontInfoID);
-	    SWFFont font = new SWFFont();
-	    font.setFontID(fontInfoID);
-	    getContextMap().put(new Integer(fontInfoID), font);
 	    String style = null;
 	    switch (fontInfo.getLayout()) {
 	    case SWFFont.BOLD:  style = "bold"; break;
@@ -133,6 +133,7 @@ public class SWFDefineFontReader extends SWFTagReaderBase {
 	    case SWFFont.SHIFT_JIS: encoding = "shift-jis"; break;
 	    }
 	    font.setEncoding(fontInfo.getEncoding());
+	    font.setFontName(fontInfo.getName());
 	
 	    attrib.addAttribute("id", fontInfoID, SWFAttributes.TYPE_ID);
 	    attrib.addAttribute("name", fontInfo.getName());
@@ -160,6 +161,10 @@ public class SWFDefineFontReader extends SWFTagReaderBase {
 	    attrib.addAttribute("id", fontTag.getID(), SWFAttributes.TYPE_ID);
 	    startElement("FontOutlines", attrib);
 	    for (int i=0; i<fontTag.getGlyphCount(); i++) {
+		// Add an empty Glyph. Needed for use by the
+		// DefineFontInfoReader handling the corresponding
+		// DefineFontInfo SWF tag
+		font.addGlyph();
 		shapeReader.toXML(fontTag.getShape(i));
 	    }
 	    endElement("FontOutlines");
