@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!ELEMENT SWF (UnknownTag)*>
+<!ELEMENT SWF (framesize, framepos, (UnknownTag)*)>
+<!ATTLIST SWF
+          version   CDATA   #REQUIRED
+          framerate CDATA   #REQUIRED
+>
 
 <!ELEMENT UnkownTag #CDATA>
 <!ATTLIST UnkownTag
-          type CDATA #REQUIRED>
+          type CDATA #REQUIRED
+>
+
+<!ELEMENT framesize EMPTY>
+<!ATTLIST framesize
+          width  CDATA #REQUIRED
+          height CDATA #REQUIRED
+>
+<!ELEMENT framepos EMPTY>
+<!ATTLIST framepos
+          x CDATA #REQUIRED
+          y CDATA #REQUIRED
+>
 

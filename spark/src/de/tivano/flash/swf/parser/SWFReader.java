@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFReader.java,v 1.2 2001/03/14 12:27:11 kunze Exp $
+ * $Id: SWFReader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
@@ -42,6 +42,7 @@ import java.io.EOFException;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 
 import java.util.HashMap;
 
@@ -78,6 +79,17 @@ public class SWFReader implements XMLReader {
 
     /** Special "tag ID" for tags which don't have a registered tag reader. */
     public final Integer TAGID_DEFAULT = new Integer(-1);
+
+    /** Construct a new <code>SWFReader</code> */
+    public SWFReader() {
+	super();
+
+	// Setup the default tag handlers
+	SWFTagReader handler;
+	handler = new SWFAnyTagReader();
+	handler.setSAXDriver(this);
+	tagReaderMap.put(TAGID_DEFAULT, handler);
+    }
 
     /**
      * Look up the value of a feature.
@@ -366,8 +378,8 @@ public class SWFReader implements XMLReader {
 	if (input.getCharacterStream() != null) {
 	    delegateParsing(input);
 	} else if (in == null) {
-	    // FIXME: open the connection to the binary stream and set
-	    // it in the input source
+	    // FIXME: Handle system identifiers other than "file"
+	    in = new FileInputStream(input.getSystemId());
 	}
 
 	// Examine the start of the binary stream. Use a byte array
@@ -448,6 +460,11 @@ public class SWFReader implements XMLReader {
     private void parse (BitInputStream input)
 	throws IOException, SAXException {
 
+
+	// Handle the file header
+	parseStartOfFile(input);
+	
+	// Now handle the SWF tags.
 	// SWFTagHeader() throws an EOFException if there is no more
 	// input available, so this loop *will* terminate
 	// eventually...
@@ -459,7 +476,72 @@ public class SWFReader implements XMLReader {
 	} catch (EOFException e) {
 	    // OK, we're done
 	}
+
+	// finally, send the </SWF> tag
+	parseEndOfFile(input);
     }
+
+    /**
+     * Send the XML Events for the start of the file.
+     *
+     * <p>This produces
+     * the follwing XML snippet:
+     * <pre>
+     * &lt;SWF version="<em>version</em>" framerate="<em>framerate</em>"&gt;
+     * &lt;framesize width="<em>width</em> height="<em>height</em>" /&gt;
+     * &lt;framepos  x="<em>x</em> y="<em>y</em>" /&gt;
+     * </pre>
+     * The &lt;framepos&gt; tag is only present if either the
+     * <em>x</em> or <em>y</em> attribute are different from 0.</p>
+     * <p>The &lt;/SWF&gt tag is sent from <code>parseEndOfFile()</code>
+     */
+    protected void parseStartOfFile(BitInputStream input)
+	           throws IOException, SAXException {
+	ContentHandler handler = getContentHandler();
+	SWFFileHeader header = new SWFFileHeader(input);
+	SWFAttributes attr = new SWFAttributes();
+	attr.addAttribute("version", SWFAttributes.TYPE_CDATA,
+			  Integer.toString(header.getVersion()));
+	attr.addAttribute("framerate", SWFAttributes.TYPE_CDATA,
+			  Integer.toString(header.getFrameRate()));
+	// FIXME: Handle Namespaces...
+	handler.startElement("", "SWF", "", attr);
+	long x = header.getMovieSize().getXMin();
+	long y = header.getMovieSize().getYMin();
+	long width  = header.getMovieSize().getXMax() - x;
+	long height = header.getMovieSize().getYMax() - y;
+	attr.clear();
+	attr.addAttribute("width", SWFAttributes.TYPE_CDATA,
+			  Long.toString(width));
+	attr.addAttribute("height", SWFAttributes.TYPE_CDATA,
+			  Long.toString(height));
+	handler.startElement("", "framesize", "", attr);
+	handler.endElement("", "framesize", "");
+	if (x != 0 || y != 0) {
+	    attr.clear();
+	    attr.addAttribute("x", SWFAttributes.TYPE_CDATA,
+			      Long.toString(x));
+	    attr.addAttribute("y", SWFAttributes.TYPE_CDATA,
+			      Long.toString(x));
+	    handler.startElement("", "framepos", "", attr);
+	    handler.endElement("", "framepos", "");
+	}
+    }
+
+    /**
+     * Send the XML Events for the end of the file.
+     *
+     * <p>This produces
+     * the follwing XML snippet:
+     * <pre>
+     * &lt;/SWF&gt;
+     */
+    protected void parseEndOfFile(BitInputStream input)
+	           throws IOException, SAXException {
+	// FIXME: Handle Namespaces!
+	getContentHandler().endElement("", "SWF", "");
+    }
+	    
     
     /**
      * Register a tag reader. This functionality is also available
@@ -501,6 +583,11 @@ public class SWFReader implements XMLReader {
      * is registered.
      */
     public SWFTagReader getTagReader(SWFTagHeader header) {
-	return (SWFTagReader)tagReaderMap.get(header.getIDAsInteger());
+	SWFTagReader reader =
+	    (SWFTagReader)tagReaderMap.get(header.getIDAsInteger());
+	if (reader == null) {
+	    reader = (SWFTagReader)tagReaderMap.get(TAGID_DEFAULT);
+	}
+	return reader;
     }
 }

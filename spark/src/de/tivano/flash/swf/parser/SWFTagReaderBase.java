@@ -17,14 +17,13 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReaderBase.java,v 1.2 2001/03/14 12:27:11 kunze Exp $
+ * $Id: SWFTagReaderBase.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.SAXException;
+import org.xml.sax.Attributes;
 
 import java.io.IOException;
 
@@ -40,35 +39,9 @@ import de.tivano.flash.swf.common.BitInputStream;
  * @see SWFReader
  * @see org.xml.sax.ContentHandler
  */
-public abstract class SWFTagReaderBase {
-    /**
-     * A convenience class for handling attributes. This class
-     * provides convenience methods for setting attributes without
-     * having to worry about namespace support. 
-     * @see Attributes
-     */
-    protected static class SWFAttributes extends AttributesImpl {
-	/** Attribute type constant */
-	public static final String TYPE_CDATA = "CDATA";
-
-	/** Attribute type constant */
-	public static final String TYPE_ID = "ID";
-	
-	/** Add an attribute. This is a wrapper around
-	 * <code>AttributeImpl.addAttribute()</code> that handles
-	 * namespaces on its own.
-	 * @param name the name of the attribute
-	 * @param value the value of the attribute
-	 */
-	public void addAttribute(String name, String type, String value) {
-	    // FIXME: Handle the name space stuff
-	    super.addAttribute("", name, "", type, value);
-	}
-    }
-     
-    
+public abstract class SWFTagReaderBase implements SWFTagReader {
     /** The <code>SWFReader</code> associated with this tag reader */
-    SWFReader saxDriver = null;
+    private SWFReader saxDriver = null;
 
     /**
      * Associate an <code>SWFReader</code> with this object.  Among

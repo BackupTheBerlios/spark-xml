@@ -63,12 +63,12 @@
     <echo message=""/>
     <echo message=" available targets are:"/>
     <echo message=""/>
-    <echo message="   all         -> build everything except the api docs in order (default)"/>
+    <echo message="   all         -> compile everything, including tests and samples(default)"/>
     <echo message="   package     -> generates the ${name}.jar file"/>
     <echo message="   compile     -> compiles the source code"/>
     <echo message="   javadoc     -> generates the API documentation"/>
     <echo message="   javadoc-all -> like javadoc, but includes docs for tests and samples"/>
-    <!-- <echo message="   samples   -> generates the ${Name} sample classes"/> -->
+    <echo message="   samples     -> generates the ${Name} sample classes"/>
     <echo message="   tests       -> generates and runs ${Name} tests"/>
     <echo message="   emacs-jde   -> generates .prj.el file for Emacs JDE"/>
     <echo message="   clean       -> cleans up the directory"/>
@@ -129,8 +129,8 @@
   <!-- =================================================================== -->
   <!-- Compiles the samples directory                                       -->
   <!-- =================================================================== -->
-  <target name="samples" depends="prepare-samples, compile">
-    <javac srcdir="${build.src}"
+  <target name="samples" depends="compile">
+    <javac srcdir="${samples.dir}"
            destdir="${build.dest}"
            debug="${debug}"
            optimize="${optimize}"/>
@@ -177,7 +177,8 @@
   </target>
 
   <target name="tests" depends="init,compiletests">
-    <junit printsummary="yes" fork="yes" haltonfailure="no">
+    <mkdir dir="${build.dir}/testresults" />
+    <junit printsummary="yes" fork="no" haltonfailure="no">
       <classpath>
 	<pathelement location="${test.dir}" />
 	<pathelement location="${src.dir}" />
@@ -186,18 +187,13 @@
 	<pathelement path="${build.dest}" />
       </classpath>
       <formatter type="plain" />
-      <batchtest fork="yes" todir="${build.dir}">
+      <batchtest fork="yes" todir="${build.dir}/testresults">
       <fileset dir="${test.dir}">
 	    <include name="**/*Test*.java" />
 	    <exclude name="**/AllTests.java" />
 	  </fileset>
       </batchtest>
     </junit>
-    <move todir="${build.dir}">
-      <fileset dir=".">
-	<include name="TEST-*.txt" />
-      </fileset>
-    </move>
   </target>
 
   <!-- =================================================================== -->
@@ -238,7 +234,7 @@
   <!-- =================================================================== -->
   <!-- The easy way.                                                       -->
   <!-- =================================================================== -->
-  <target name="all" depends="compile,compiletests" />
+  <target name="all" depends="compile,compiletests,samples" />
 
   <!-- =================================================================== -->
   <!-- Clean targets                                                       -->

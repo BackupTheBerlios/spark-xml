@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFileHeader.java,v 1.2 2001/03/14 12:27:11 kunze Exp $
+ * $Id: SWFFileHeader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -111,7 +111,7 @@ public class SWFFileHeader {
 	
 	// The file header is always byte-aligned...
 	if (!input.isAtByteBoundary())
-	    throw new IOException("The SWF file header must be byte-aligned");
+	    throw new SWFFormatException("The SWF file header must be byte-aligned");
 	
 	byte[] signature = new byte[SIGNATURE.length];
 	boolean failed = false;
@@ -146,4 +146,13 @@ public class SWFFileHeader {
     public SWFFileHeader(byte[] input) throws IOException {
 	this(new BitInputStream(new ByteArrayInputStream(input)));
     }
+
+    /** Get the SWF version */
+    public int getVersion() { return VERSION ; }
+
+    /** Get the bounding box of the movie */
+    public SWFRectangle getMovieSize() { return BOUNDING_BOX; }
+
+    /** Get the frame rate */
+    public int getFrameRate() { return FRAME_RATE; }
 }

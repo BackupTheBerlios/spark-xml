@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.2 2001/03/14 12:27:11 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -72,6 +72,10 @@ public class SWFTagHeader {
 	   throws IOException {
 	long lengthTmp;
 
+	// The tag header is always byte-aligned...
+	if (!input.isAtByteBoundary())
+	    throw new SWFFormatException("Tag headers must be byte-aligned");
+	
 	try {
 	    ID = new Integer((int)input.readUBits(10));
 	    lengthTmp = input.readUBits(6);

@@ -17,14 +17,15 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagReader.java,v 1.2 2001/03/14 12:27:11 kunze Exp $
+ * $Id: SWFTagReader.java,v 1.3 2001/03/16 16:51:08 kunze Exp $
  */
 
 package de.tivano.flash.swf.parser;
 
-import org.xml.sax.SAXParseException;
+import org.xml.sax.SAXException;
 
-import java.io.InputStream;
+import java.io.IOException;
+import de.tivano.flash.swf.common.BitInputStream;
 import de.tivano.flash.swf.common.SWFTagHeader;
 
 /**
@@ -62,6 +63,6 @@ public interface SWFTagReader {
      * @param input the SWF data stream
      * @param header the record header for this record
      */
-    public void parse(InputStream input, SWFTagHeader header)
-	throws SAXParseException;
+    public void parse(BitInputStream input, SWFTagHeader header)
+	throws SAXException, IOException;
 }
