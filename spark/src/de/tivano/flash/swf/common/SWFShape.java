@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFShape.java,v 1.6 2001/06/28 17:15:14 kunze Exp $
+ * $Id: SWFShape.java,v 1.7 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -112,6 +112,8 @@ public class SWFShape extends SWFDataTypeBase {
 	}
     }
 
+
+    public int rawSize;
     /**
      * Construct a <code>SWFShape</code> from a byte array.
      * @param input the byte array to read from
@@ -119,6 +121,7 @@ public class SWFShape extends SWFDataTypeBase {
      */
     public SWFShape(byte[] input) throws IOException {
 	this(new BitInputStream(new ByteArrayInputStream(input)));
+	rawSize = input.length;
     }
     
 

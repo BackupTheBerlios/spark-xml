@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFontInfo.java,v 1.5 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFDefineFontInfo.java,v 1.6 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -297,7 +297,9 @@ public class SWFDefineFontInfo extends SWFDataTypeBase
      * expressed in bits.
      */
     public long length() {
-	return 32 + getCharWidth() * getGlyphCount();
+	// Note: I'm only guessing that the font name is encoded in
+	// ASCII (meaning that the string length equals the encoded length)
+	return 32 + getCharWidth() * getGlyphCount() + 8 * getName().length();
     }
 
     /** Get the number of bits used for the font characters */

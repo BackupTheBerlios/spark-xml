@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTypes.java,v 1.1 2001/06/11 18:36:26 kunze Exp $
+ * $Id: SWFTypes.java,v 1.2 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -35,6 +35,8 @@ public interface SWFTypes {
     public static final int DEFINE_FONT         = 10;
     public static final int DEFINE_FONT2        = 48;
     public static final int DEFINE_FONTINFO     = 13;
+
+    public static final int DEFINE_SHAPE        = 2;
 
     public static final int DEFINE_TEXTFIELD    = 37;
 	

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineTextField.java,v 1.3 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFDefineTextField.java,v 1.4 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -121,9 +121,11 @@ import java.io.ByteArrayOutputStream;
  *   maybe others)</td>
  * </tr>
  * <tr>
- *   <td>unknown2</td>
+ *   <td>useOutlines</td>
  *   <td>1</td>
- *   <td>I'm not quite sure what this flag does.</td>
+ *   <td>If set, the client will use the font outlines defined in this
+ *   file for rendering. Otherwise, the corresponding font must be
+ *   installed on the client machine</td>
  * </tr>
  * <tr>
  *   <td>fontID</td>
@@ -257,7 +259,8 @@ public class SWFDefineTextField extends SWFDataTypeBase
 	    hasBorder    = input.readBit();
 	    input.skipBits(1); // Unknown flag, seems to be always 0
 	    isHTML       = input.readBit();
-	    input.skipBits(1); // Unknown flag, seems to be always 0
+	    input.skipBits(1); // Outlines flag. Ignored, we set this
+			       // always to 1 on output.
 
 	    if (hasFont) {
 		fontID = input.readUW16LSB();
@@ -308,7 +311,7 @@ public class SWFDefineTextField extends SWFDataTypeBase
      */
     public SWFDefineTextField() {
 	textID = 0;
-	varName = "";
+	varName = null;
 	this.bounds = null;
 	hasFont = false;
 	hasLayout = false;
@@ -535,15 +538,17 @@ public class SWFDefineTextField extends SWFDataTypeBase
      * expressed in bits.
      */
     public long length() {
-	long length = 32 + bounds.length();
+	long length = 32 + paddedLength(bounds.length());
+	if (hasFont) length += 32;
+	if (textColor != null) length += textColor.length();
+	if (maxLength >= 0) length += 16;
+	if (hasLayout) length += 72;
 	// Note: I'm only guessing the variable name is encoded in
 	// ANSI, i.e. every character is encoded as 8 bits. The specs
 	// don't say anything here...
-	length += varName.length() * 8;
-	if (text != null) length += text.length * 8;
-	if (hasLayout) length += 72;
-	if (hasFont) length += 32;
-	if (textColor != null) length += textColor.length();
+	if (varName != null) length += (varName.length() + 1) * 8;
+	else length += 8;
+	if (text != null) length += (text.length + 1) * 8;
 	return length;
     }
 
@@ -570,7 +575,7 @@ public class SWFDefineTextField extends SWFDataTypeBase
 	out.writeBit(hasBorder);
 	out.writeBit(false); // Unknown flag, set to 0
 	out.writeBit(isHTML);
-	out.writeBit(false); // Unknown flag, set to 0
+	out.writeBit(true); // Always use outlines
 	if (hasFont) {
 	    out.writeW16LSB(fontID);
 	    out.writeW16LSB(fontHeight);
@@ -586,7 +591,10 @@ public class SWFDefineTextField extends SWFDataTypeBase
 	}
 	// Note: I'm only guessing the variable name is encoded in ANSI - as
 	// usual, the specs don't specify this...
-	out.write(varName.getBytes(SWFFont.getCanonicalEncodingName(SWFFont.ANSI)));
+	if (varName != null) {
+	    out.write(varName.getBytes(
+			 SWFFont.getCanonicalEncodingName(SWFFont.ANSI)));
+	}
 	out.write(0); // Strings are 0-terminated
 	if (text != null) {
 	    out.write(text);

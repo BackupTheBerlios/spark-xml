@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: XMLFontHandler.java,v 1.5 2001/07/02 19:10:55 kunze Exp $
+ * $Id: XMLFontHandler.java,v 1.6 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -26,6 +26,7 @@ import de.tivano.flash.swf.common.SWFFont;
 import de.tivano.flash.swf.common.SWFRectangle;
 import de.tivano.flash.swf.common.SWFShape;
 import org.xml.sax.Attributes;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Handler for the <em>&lt;Font&gt;</em> XML tag.
@@ -49,6 +50,7 @@ public class XMLFontHandler extends SWFTagHandlerBase {
      */
     public XMLFontHandler() {
 	registerElementHandler("Glyph", XMLGlyphHandler.class);
+	registerElementHandler("Kerning", XMLKerningHandler.class);
     }
     
     /**
@@ -57,17 +59,26 @@ public class XMLFontHandler extends SWFTagHandlerBase {
      */
     protected void notify(java.lang.String element, XMLHandlerBase handler)
 	      throws SWFWriterException {
-	XMLGlyphHandler gh = (XMLGlyphHandler)handler;
-	// XXX: Mark glyphs here if we write a SWT (i.e. generator
-	// template) file. In a generator template, all characters are
-	// included in a font, regardless of wheter they are used by
-	// texts or not.
-	SWFRectangle bounds = gh.getBounds();
-	if (bounds != null) {
-	    font.addGlyph(gh.getChar(), gh.getAdvance(),
-			  bounds, gh.getShape(), false);
+	if (handler instanceof XMLKerningHandler) {
+	    try {
+		XMLKerningHandler kh = (XMLKerningHandler)handler;
+		font.addKerningInfo(kh.getChars(), kh.getAdvance());
+	    } catch (UnsupportedEncodingException e) {
+		fatalError(e);
+	    }
 	} else {
-	    font.addGlyph(gh.getChar(), gh.getShape(), false);
+	    XMLGlyphHandler gh = (XMLGlyphHandler)handler;
+	    // XXX: Mark glyphs here if we write a SWT (i.e. generator
+	    // template) file. In a generator template, all characters are
+	    // included in a font, regardless of wheter they are used by
+	    // texts or not.
+	    SWFRectangle bounds = gh.getBounds();
+	    if (bounds != null) {
+		font.addGlyph(gh.getChar(), gh.getAdvance(),
+			      bounds, gh.getShape(), true);
+	    } else {
+		font.addGlyph(gh.getChar(), gh.getShape(), true);
+	    }
 	}
     }
 
@@ -147,7 +158,7 @@ public class XMLFontHandler extends SWFTagHandlerBase {
 	super.endElement();
     }
     
-    /** @see SWFTagHandlerBase#createDataObject */
+    /** @see SWFTagHandlerBase#getDataObjects */
     protected SWFTagWriter createDataObject() {
 	return fontWriter;
     }

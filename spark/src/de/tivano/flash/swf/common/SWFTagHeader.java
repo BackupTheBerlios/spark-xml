@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHeader.java,v 1.10 2001/06/11 23:41:53 kunze Exp $
+ * $Id: SWFTagHeader.java,v 1.11 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -53,6 +53,7 @@ import java.io.InputStream;
  * don't mention this with a single word. Here are the special rules
  * as used by this class:
  * <ul>
+ * <li>2 (DefineShape): Always create a long header
  * <li>13 (DefineFontInfo): Always create a long header
  * <li>37 (DefineTextField): Create a long header if size &gt;= 45 bytes (??)
  * </ul>
@@ -182,8 +183,12 @@ public class SWFTagHeader {
 	// 62, and of course the specs don't mention this fact with a
 	// single word. SWF sucks.
 	switch (getID()) {
-	case SWFTypes.DEFINE_FONTINFO: return true;
+	/*
+	case SWFTypes.DEFINE_FONTINFO:
+	case SWFTypes.DEFINE_SHAPE:
+	    return true;
 	case SWFTypes.DEFINE_TEXTFIELD: return getRecordLength() >= 45;
+	*/
 	default: return getRecordLength() >= 63;
 	}
     }

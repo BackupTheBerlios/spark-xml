@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFGenericWriter.java,v 1.1 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFGenericWriter.java,v 1.2 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -50,9 +50,8 @@ public class SWFGenericWriter extends SWFTagWriter {
 
     /**
      * Get the length (excluding the header) in bytes.
-     * @returns 0
      */
-    protected long getDataLength() { return data.length(); }
+    protected long getDataLength() { return data.length() / 8; }
 
     /**
      * Write the actual SWF data (excluding the header)

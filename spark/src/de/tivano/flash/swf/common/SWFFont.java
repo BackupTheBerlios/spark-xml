@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFont.java,v 1.10 2001/07/02 19:10:55 kunze Exp $
+ * $Id: SWFFont.java,v 1.11 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -169,9 +169,8 @@ public class SWFFont {
      */
     private List glyphTable = new ArrayList();
 
-    /** Map of character pairs (as String) to kerning values (as Integer)
-     */
-    private Map kerningTable = new HashMap();
+    /** Kerning information */
+    private List kerningTable = new ArrayList();
 
     /** Font ID as given in the SWF file */
     private int fontID;
@@ -553,4 +552,29 @@ public class SWFFont {
 
     /** Get the number of glyphs in this font */
     public int glyphCount() { return glyphTable.size(); }
+
+    /** Add kerning information */
+    public void addKerningInfo(String pair, int kern)
+	   throws UnsupportedEncodingException {
+	hasMetrics = true;
+	byte[] c1 = pair.substring(0,1).getBytes(getCanonicalEncodingName());
+	byte[] c2 = pair.substring(1,2).getBytes(getCanonicalEncodingName());
+	kerningTable.add(new SWFDefineFont2.KerningRecord(c1, c2, kern));
+    }
+
+    /** Get the number of kerning entries */
+    public int kerningCount() { return kerningTable.size(); }
+
+    /**
+     * Get the <code>n</code>-th kerning record.
+     * @param n the index
+     * @return the kerning record.
+     * @exception IndexOutOfBoundsException if <code>n</code> is
+     * outside the range of 0 to <code>kerningCount()</code>.
+     */
+    public SWFDefineFont2.KerningRecord getKerningInfo(int n) {
+	return  (SWFDefineFont2.KerningRecord)kerningTable.get(n);
+    }
+
+    
 }

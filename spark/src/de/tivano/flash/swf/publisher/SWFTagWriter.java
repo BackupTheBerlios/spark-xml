@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagWriter.java,v 1.6 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFTagWriter.java,v 1.7 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -75,7 +75,7 @@ public abstract class SWFTagWriter {
     private boolean dataInitialized = false;
 
     /** Calls {@link initWriteData} if it has not been called before */
-    private void doInitWriteData() throws IOException {
+    protected void doInitWriteData() throws IOException {
 	if (!dataInitialized) {
 	    dataInitialized = true;
 	    initWriteData();
@@ -96,7 +96,7 @@ public abstract class SWFTagWriter {
     private boolean lengthInitialized = false;
 
     /** Calls {@link #initDataLength} if it has not been called before */
-    private void doInitDataLength() throws IOException {
+    protected void doInitDataLength() throws IOException {
 	if (!lengthInitialized) {
 	    lengthInitialized = true;
 	    initDataLength();

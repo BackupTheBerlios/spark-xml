@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFCurvedEdge.java,v 1.3 2001/07/02 19:10:55 kunze Exp $
+ * $Id: SWFCurvedEdge.java,v 1.4 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -121,7 +121,7 @@ public class SWFCurvedEdge extends SWFShapeRecord {
      */
     public long length() {
 	// The length includes the edge/state record flag...
-	return 5 + 4*getEntryLength();
+	return 6 + 4*getEntryLength();
     }
 
     /**

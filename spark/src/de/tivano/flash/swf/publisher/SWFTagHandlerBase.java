@@ -17,13 +17,10 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFTagHandlerBase.java,v 1.4 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFTagHandlerBase.java,v 1.5 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
-import java.util.Map;
-import java.util.HashMap;
-import org.xml.sax.Attributes;
 
 /**
  * Base class for all classes that handle the XML corresponding to an

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFDefineFont2.java,v 1.8 2001/07/02 08:07:22 kunze Exp $
+ * $Id: SWFDefineFont2.java,v 1.9 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -218,7 +218,7 @@ public class SWFDefineFont2 extends SWFDataTypeBase
 	public final byte[] CHAR_2;
 	/** Kerning adjustment */
 	public final int KERNING;
-	private KerningRecord(byte[] char1, byte[] char2, int kern) {
+	public KerningRecord(byte[] char1, byte[] char2, int kern) {
 	    CHAR_1 = char1;
 	    CHAR_2 = char2;
 	    KERNING = kern;
@@ -339,14 +339,16 @@ public class SWFDefineFont2 extends SWFDataTypeBase
 		for (int i=0; i<kerningTable.length; i++) {
 		    if (hasWideCodes) {
 			char1 =
-			    new byte[] {input.readSByte(), input.readSByte()};
+			    new byte[] {(byte)input.readUByte(),
+					(byte)input.readUByte()};
 			char2 =
-			    new byte[] {input.readSByte(), input.readSByte()};
+			    new byte[] {(byte)input.readUByte(),
+					(byte)input.readUByte()};
 		    } else {
 			char1 =
-			    new byte[] {input.readSByte()};
+			    new byte[] {(byte)input.readUByte()};
 			char2 =
-			    new byte[] {input.readSByte()};
+			    new byte[] {(byte)input.readUByte()};
 		    }
 		    kerningTable[i] =
 			new KerningRecord(char1, char2,
@@ -413,9 +415,12 @@ public class SWFDefineFont2 extends SWFDataTypeBase
 	    descent = font.getDescent();
 	    leadingHeight = font.getLeading();
 	}
-	
-	// FIXME: Handle kerning!
-	kerningTable = new KerningRecord[0];
+
+	kerningTable = new KerningRecord[font.kerningCount()];
+	for (int i=0; i<kerningTable.length; i++) {
+	    kerningTable[i] = font.getKerningInfo(i);
+	}
+	System.err.println("Kerning count: " + kerningTable.length);
     }
     
     /**

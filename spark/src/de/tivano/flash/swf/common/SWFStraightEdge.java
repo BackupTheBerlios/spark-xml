@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFStraightEdge.java,v 1.3 2001/07/02 19:10:55 kunze Exp $
+ * $Id: SWFStraightEdge.java,v 1.4 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.common;
@@ -151,8 +151,8 @@ public class SWFStraightEdge extends SWFShapeRecord {
      */
     public long length() {
 	// The length includes the edge/state record flag...
-	if (isHorizontal() || isVertical()) return 7 + getEntryLength();
-	else return 6 + 2 * getEntryLength();
+	if (isHorizontal() || isVertical()) return 8 + getEntryLength();
+	else return 7 + 2 * getEntryLength();
     }
 
     /**

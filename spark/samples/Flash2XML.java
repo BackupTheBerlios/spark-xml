@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: Flash2XML.java,v 1.6 2001/07/02 19:10:55 kunze Exp $
+ * $Id: Flash2XML.java,v 1.7 2001/07/04 08:37:05 kunze Exp $
  */
 
 import de.tivano.flash.swf.parser.SWFReader;
@@ -83,8 +83,10 @@ public class Flash2XML {
 	    out.print("<" + localName);
 	    if (attr != null) {
 		for (int i=0; i<attr.getLength(); i++) {
-		    out.print(" " + attr.getLocalName(i) +
-				     "=\"" + attr.getValue(i) + "\"");
+		    char[] att = attr.getValue(i).toCharArray();
+		    out.print(" " + attr.getLocalName(i) + "=\"");
+		    characters(att,0,att.length, true);
+		    out.print("\"");
 		}
 	    }
 	    if (localName.equals("P")) dontIndent = true;
@@ -119,7 +121,13 @@ public class Flash2XML {
 		printIndent();
 	    } else if (!needNewline) printIndent();
 	    lastName = null;
-
+	    needNewline = characters(ch, start, length, dontIndent);
+	}
+	
+	public boolean characters(char[] ch,
+				  int start,
+				  int length,
+				  boolean dontIndent) {
 	    // Print the characters, with indentation after every
 	    // newline.
 	    for (int i=start; i<start+length; i++) {
@@ -130,14 +138,14 @@ public class Flash2XML {
 		case '&': out.print("&amp;"); break;
 		case '\n':
 		    out.print(ch[i]);
-		    if (i!=start+length-1) printIndent();
+		    if (i!=start+length-1 && !dontIndent) printIndent();
 		    break;
 		default:
 		    out.print(ch[i]);
 		    break;
 		}
 	    }
-	    needNewline = ch[start+length-1] != '\n';
+	    return ch[start+length-1] != '\n';
 	}
     }
 

@@ -17,7 +17,7 @@
  * Contributor(s):
  *      Richard Kunze, Tivano Software GmbH.
  *
- * $Id: SWFFontWriter.java,v 1.4 2001/07/03 16:41:05 kunze Exp $
+ * $Id: SWFFontWriter.java,v 1.5 2001/07/04 08:37:05 kunze Exp $
  */
 
 package de.tivano.flash.swf.publisher;
@@ -67,13 +67,16 @@ public class SWFFontWriter extends SWFTagWriter {
 	    return infoLength + fontInfoHeader.length() + font.length();
 	}
 
+	public long fontLength() {
+	    return font.length();
+	}
+
 	public void write(BitOutputStream out) throws IOException {
 	    font.write(out);
 	    fontInfoHeader.setRecordLength(fontInfo.length()/8);
 	    fontInfoHeader.write(out);
 	    fontInfo.write(out);
 	}
-
     }
     
     /** The font data */
@@ -98,7 +101,7 @@ public class SWFFontWriter extends SWFTagWriter {
      */
     protected long getDataLength() {
 	// We're assuming here that initWrite() has already been called.
-	return fontWriter.length();
+	return fontWriter.length() / 8;
     }
 
     /**
@@ -129,4 +132,49 @@ public class SWFFontWriter extends SWFTagWriter {
 	// We're assuming here that initWrite() has already been called.
 	fontWriter.write(out);
     }
+    
+    /** Get the total length (including the header) in bytes. */
+    public long getTotalLength() throws IOException {
+	doInitDataLength();
+	// The length of the header varies with the length of the
+	// following record, so we have to set it here to get correct
+	// results...
+	long dataLength = getDataLength();
+	// If the data is a DefineFont/DefineFontInfo pair, the header
+	// must be set to the length of the font only. The
+	// DefineFontInfo has its own header...
+	if (fontWriter instanceof DefineFontPair) {
+	    System.err.println("DefineFont length:" + (((DefineFontPair)fontWriter).fontLength()/8));
+	    HEADER.setRecordLength(
+		      ((DefineFontPair)fontWriter).fontLength()/8);
+	} else { 
+	    HEADER.setRecordLength(dataLength);
+	    System.err.println("Header record length:" + HEADER.getRecordLength());
+	}
+	// SWFHeader.length() returns the length in bits, but for an SWF
+	// header, this is always a multiple of 8
+	return dataLength + HEADER.length() / 8;
+    }
+
+    /**
+     * Write the complete SWF data (including the header)
+     * to <code>out</code>.
+     */
+    public void write(BitOutputStream out) throws IOException {
+	doInitWriteData();
+	// If the data is a DefineFont/DefineFontInfo pair, the header
+	// must be set to the length of the font only. The
+	// DefineFontInfo has its own header...
+	if (fontWriter instanceof DefineFontPair) {
+	    System.err.println("DefineFont length:" + (((DefineFontPair)fontWriter).fontLength()/8));
+	    HEADER.setRecordLength(
+		      ((DefineFontPair)fontWriter).fontLength()/8);
+	} else { 
+	    HEADER.setRecordLength(getDataLength());
+	}
+	HEADER.write(out);
+	writeData(out);
+    }
+
+
 }
